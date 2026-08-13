@@ -1,0 +1,12 @@
+{"q":"What does error code E4021 mean?","expected":"tool"}
+{"q":"Give me the config schema for payments","expected":"tool"}
+{"q":"What breaks if the NotificationsAPI changes its retry semantics?","expected":"graph"}
+{"q":"What depends on BillingService?","expected":"graph"}
+{"q":"Which services call the PaymentsAPI?","expected":"graph"}
+{"q":"If the notifications Redis instance is lost, what degrades?","expected":"graph"}
+{"q":"What was net written premium by region last quarter?","expected":"semantic"}
+{"q":"Show gross written premium by product line","expected":"semantic"}
+{"q":"Why do we soft-delete users instead of removing them?","expected":"vector"}
+{"q":"How does the repository pattern work here?","expected":"vector"}
+{"q":"Explain the order lifecycle","expected":"vector"}
+{"q":"What is the blast radius of a UserService change?","expected":"graph"}

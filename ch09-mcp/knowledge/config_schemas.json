@@ -1,0 +1,18 @@
+{
+  "payments": {
+    "PAYMENT_API_KEY":   {"type":"string","required":true,"default":null,"secret":true},
+    "PAYMENT_BASE_URL":  {"type":"string","required":true,"default":null,"secret":false},
+    "CAPTURE_TIMEOUT":   {"type":"integer","required":false,"default":30,"secret":false},
+    "AUTH_HOLD_MINUTES": {"type":"integer","required":false,"default":60,"secret":false}
+  },
+  "orders": {
+    "ORDER_DB_URL":      {"type":"string","required":true,"default":null,"secret":true},
+    "MAX_LINE_ITEMS":    {"type":"integer","required":false,"default":50,"secret":false},
+    "ALLOW_QUOTES":      {"type":"boolean","required":false,"default":true,"secret":false}
+  },
+  "notifications": {
+    "NOTIFY_WEBHOOK_URL":{"type":"string","required":true,"default":null,"secret":false},
+    "RETRY_ATTEMPTS":    {"type":"integer","required":false,"default":3,"secret":false},
+    "RETRY_BACKOFF_MS":  {"type":"integer","required":false,"default":250,"secret":false}
+  }
+}

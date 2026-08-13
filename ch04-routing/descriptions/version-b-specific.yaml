@@ -1,0 +1,1 @@
+description: Reviews a changed file or diff and reports bugs, missing error handling, and convention violations as a written list. Use when the user asks for a review, asks whether a change is safe to merge, or asks what is wrong with a file. Does not modify files. Use fix-lint for automatic style corrections.

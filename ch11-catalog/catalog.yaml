@@ -1,0 +1,76 @@
+# A deliberately small semantic layer over the sample warehouse.
+# Written in the Apache Ossie shape: datasets, fields, relationships, metrics,
+# and an ai_context block. Small enough to read, big enough to reject a bad query.
+
+datasets:
+  - name: fct_policy_premium
+    description: One row per policy premium transaction.
+    primary_key: [premium_id]
+    fields:
+      - {name: premium_id, type: integer}
+      - {name: policy_id, type: integer}
+      - {name: geo_id, type: integer}
+      - {name: product_id, type: integer}
+      - {name: premium_amt, type: decimal}
+      - {name: cancellation_amt, type: decimal}
+      - {name: status, type: string}
+      - {name: eff_dt, type: date}
+  - name: dim_geography
+    description: Region and territory lookup.
+    primary_key: [geo_id]
+    fields:
+      - {name: geo_id, type: integer}
+      - {name: region, type: string}
+      - {name: territory, type: string}
+  - name: dim_product
+    description: Product line lookup.
+    primary_key: [product_id]
+    fields:
+      - {name: product_id, type: integer}
+      - {name: product_line, type: string}
+      - {name: distribution_channel, type: string}
+
+relationships:
+  # "on" is quoted deliberately: YAML 1.1 reads a bare on/off/yes/no as a boolean,
+  # so an unquoted `on:` key becomes True and the join column disappears.
+  - {name: premium_to_geography, from: fct_policy_premium, to: dim_geography, "on": geo_id}
+  - {name: premium_to_product,   from: fct_policy_premium, to: dim_product,   "on": product_id}
+
+metrics:
+  - name: net_written_premium
+    label: Net Written Premium
+    description: Gross written premium less cancellations, recognized in the month written.
+    type: derived
+    expression: SUM(premium_amt) - SUM(cancellation_amt)
+    grain: month
+    dimensions: [product_line, region, distribution_channel, eff_dt]
+    owner: finance-reporting
+    bindings:
+      table: fct_policy_premium
+      filters: ["status != 'quote'"]
+  - name: gross_written_premium
+    label: Gross Written Premium
+    description: Total premium written before cancellations.
+    type: simple
+    expression: SUM(premium_amt)
+    grain: month
+    dimensions: [product_line, region, distribution_channel, eff_dt]
+    owner: finance-reporting
+    bindings:
+      table: fct_policy_premium
+      filters: ["status != 'quote'"]
+
+ai_context:
+  instructions: >
+    Resolve a business question to one metric, confirm the dimension appears in
+    that metric's dimension list, then generate. Never name a table directly.
+  synonyms:
+    net_written_premium: [NWP, net premium, written premium net of cancellations]
+    region: [geography, territory group]
+    product_line: [line of business, LOB]
+  example_queries:
+    - "What was net written premium by region last quarter?"
+    - "Show gross written premium by product line for 2026."
+
+# Deliberately NOT modelled, so the reader can see a refusal rather than a guess:
+#   reinsurance recoveries, loss ratio, claim severity

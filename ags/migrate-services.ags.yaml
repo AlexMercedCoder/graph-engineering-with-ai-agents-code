@@ -1,0 +1,62 @@
+# The Chapter 5 migration, expressed as an AGS 1.0 document.
+# See Appendix A. Validate with the reference implementation at
+# https://github.com/AlexMercedCoder/agentic-graph-spec
+ags_version: "1.0"
+kind: AgenticGraph
+id: gewaa/migrate-services
+title: Migrate the service layer to the repository pattern
+objective: |
+  Move every module in src/services off callback-style database access and onto
+  the matching repository class, one module at a time, without changing behaviour.
+requires_conformance: 2
+
+params:
+  modules:
+    type: array
+    items: string
+    default: [user-service, order-service, payment-service, auth-service]
+
+entrypoints: [survey]
+
+nodes:
+  survey:
+    kind: task
+    brief: List every module in src/services and the database calls each one makes.
+    outputs:
+      report: {type: file, path: .agent-work/survey.md}
+    success:
+      - kind: file_exists
+        path: .agent-work/survey.md
+
+  migrate:
+    kind: map
+    over: ${params.modules}
+    max_items: 8
+    brief: Migrate one module to its repository class and make its tests pass.
+    inputs:
+      report: ${nodes.survey.outputs.report}
+    intelligence: standard
+    tools: [read_file, edit_file, run_command]
+    budget: {max_tokens: 40000, max_iterations: 3}
+    success:
+      - kind: command
+        run: node --test tests/${item}.test.js
+
+  verify:
+    kind: task
+    brief: Run the whole suite and report any test that passed before and fails now.
+    intelligence: fast
+    success:
+      - kind: command
+        run: npm test
+
+edges:
+  - {from: survey, to: migrate}
+  - {from: migrate, to: verify}
+
+constraints:
+  max_total_tokens: 250000
+
+success:
+  - kind: command
+    run: npm test

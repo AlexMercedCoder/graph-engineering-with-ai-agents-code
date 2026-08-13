@@ -1,0 +1,23 @@
+# One line per prompt id: <id> <skill the harness actually chose>
+# This example is a plausible Version B run: perfect on the unambiguous half,
+# two mis-routes on the ambiguous half.
+1 code-review
+2 code-review
+3 fix-lint
+4 fix-lint
+5 migrate-module
+6 migrate-module
+7 explain-module
+8 explain-module
+9 code-review
+10 fix-lint
+11 fix-lint
+12 code-review
+13 fix-lint
+14 migrate-module
+15 fix-lint
+16 code-review
+17 code-review
+18 migrate-module
+19 explain-module
+20 code-review

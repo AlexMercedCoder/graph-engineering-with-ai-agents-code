@@ -1,0 +1,8 @@
+{
+  "E4021": {"code":"E4021","title":"Payment authorization expired","cause":"The authorization hold lapsed before capture.","handling":"Re-authorize, then capture. Do not retry capture alone.","retryable":false},
+  "E4022": {"code":"E4022","title":"Payment authorization declined","cause":"The issuer declined the authorization request.","handling":"Surface the decline to the customer. Do not retry automatically.","retryable":false},
+  "E4020": {"code":"E4020","title":"Payment provider unreachable","cause":"The provider endpoint timed out.","handling":"Retry with exponential backoff, up to four attempts.","retryable":true},
+  "E5010": {"code":"E5010","title":"Order total mismatch","cause":"The order total does not equal the sum of its line items.","handling":"Recompute the total from line items and reject the write.","retryable":false},
+  "E5011": {"code":"E5011","title":"Order already captured","cause":"Capture was called twice for one authorization.","handling":"Treat as success. Capture is idempotent by order id.","retryable":false},
+  "E3001": {"code":"E3001","title":"User soft-deleted","cause":"The user row has a non-null deleted_at.","handling":"Return 404. Do not resurrect the row implicitly.","retryable":false}
+}

@@ -1,0 +1,16 @@
+{
+  "name": "orders-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deliberately small order-management API used as the worked project throughout Graph Engineering with AI Agents.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:module": "node --test",
+    "lint": "node scripts/lint.js",
+    "format": "node scripts/lint.js --fix"
+  }
+}

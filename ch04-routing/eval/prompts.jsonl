@@ -1,0 +1,20 @@
+{"id":1,"kind":"unambiguous","prompt":"Review the changes in src/services/auth-service.js","expected":"code-review"}
+{"id":2,"kind":"unambiguous","prompt":"Is this diff safe to merge?","expected":"code-review"}
+{"id":3,"kind":"unambiguous","prompt":"Format src/services/order-service.js","expected":"fix-lint"}
+{"id":4,"kind":"unambiguous","prompt":"Run the formatter over the whole project","expected":"fix-lint"}
+{"id":5,"kind":"unambiguous","prompt":"Migrate src/services/user-service.js to the repository pattern","expected":"migrate-module"}
+{"id":6,"kind":"unambiguous","prompt":"Move order-service off the callback database calls","expected":"migrate-module"}
+{"id":7,"kind":"unambiguous","prompt":"Explain what payment-service.js does","expected":"explain-module"}
+{"id":8,"kind":"unambiguous","prompt":"How does the auth service decide whether a user is active?","expected":"explain-module"}
+{"id":9,"kind":"unambiguous","prompt":"What is wrong with src/api/routes.js?","expected":"code-review"}
+{"id":10,"kind":"unambiguous","prompt":"Fix the indentation in tests/user-service.test.js","expected":"fix-lint"}
+{"id":11,"kind":"ambiguous","prompt":"Clean up src/services/payment-service.js","expected":"fix-lint","note":"clean up reads as formatting; migrate would rewrite behaviour"}
+{"id":12,"kind":"ambiguous","prompt":"Check the auth module","expected":"code-review","note":"check reads as review, not as running tests"}
+{"id":13,"kind":"ambiguous","prompt":"Can you look at the formatting in order-service.js?","expected":"code-review","note":"look at reports; it does not ask for a change"}
+{"id":14,"kind":"ambiguous","prompt":"Sort out the database calls in user-service.js","expected":"migrate-module","note":"database calls points at the migration, not at style"}
+{"id":15,"kind":"ambiguous","prompt":"Tidy up the services directory","expected":"fix-lint","note":"tidy is style; it names no migration target"}
+{"id":16,"kind":"ambiguous","prompt":"Go through payment-service.js and tell me what you find","expected":"code-review","note":"tell me what you find is a report"}
+{"id":17,"kind":"ambiguous","prompt":"What should change in order-service.js?","expected":"code-review","note":"asks for findings, not for the change"}
+{"id":18,"kind":"ambiguous","prompt":"Bring auth-service.js in line with the other services","expected":"migrate-module","note":"the other services are migrated; this asks for the same"}
+{"id":19,"kind":"ambiguous","prompt":"Walk me through the order flow","expected":"explain-module","note":"walk me through is explanation"}
+{"id":20,"kind":"ambiguous","prompt":"Is user-service.js using the repositories yet?","expected":"explain-module","note":"a question about state, not a request to change it"}

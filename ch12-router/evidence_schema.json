@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Structured evidence document",
+  "type": "object",
+  "required": ["schema_version", "claim", "source", "confidence", "coverage", "cost_tokens", "freshness"],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "claim": {"type": "string", "description": "One checkable statement, not a summary."},
+    "source": {
+      "type": "object",
+      "required": ["path", "identifier"],
+      "properties": {
+        "path": {"enum": ["tool", "vector", "graph", "semantic"]},
+        "identifier": {"type": "string", "description": "Enough to reproduce the retrieval."},
+        "revision": {"type": "string"}
+      }
+    },
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "coverage": {"enum": ["complete", "partial"]},
+    "cost_tokens": {"type": "integer", "minimum": 0},
+    "freshness": {"type": "string"},
+    "caveats": {"type": "array", "items": {"type": "string"}}
+  }
+}

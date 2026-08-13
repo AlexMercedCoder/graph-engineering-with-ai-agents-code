@@ -1,0 +1,10 @@
+{
+  "name": "team-workflow",
+  "displayName": "Team Workflow",
+  "description": "The governed agentic workflow from Graph Engineering with AI Agents: review and migration skills, isolated workers, and the safety hooks that bound them.",
+  "version": "1.0.0",
+  "author": { "name": "Alex Merced" },
+  "repository": "https://github.com/AlexMercedCoder/graph-engineering-with-ai-agents-code",
+  "license": "Apache-2.0",
+  "keywords": ["code-review", "migration", "governance"]
+}

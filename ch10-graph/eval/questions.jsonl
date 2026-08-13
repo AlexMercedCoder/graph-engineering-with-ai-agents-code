@@ -1,0 +1,20 @@
+{"id":1,"hops":"single","q":"What does NotificationsService store?","answer":"queued messages in the notifications Redis instance"}
+{"id":2,"hops":"single","q":"What are the notifications retry semantics?","answer":"three attempts with a 250ms backoff"}
+{"id":3,"hops":"single","q":"Which database does OrderService use?","answer":"the orders Postgres database"}
+{"id":4,"hops":"single","q":"What does ReportingService store?","answer":"nothing"}
+{"id":5,"hops":"single","q":"Which API does PaymentsService expose?","answer":"the PaymentsAPI"}
+{"id":6,"hops":"single","q":"What configures CAPTURE_TIMEOUT's service?","answer":"PaymentsService"}
+{"id":7,"hops":"single","q":"What does AuditService depend on for identity?","answer":"UserService"}
+{"id":8,"hops":"single","q":"Where does SearchService keep its index?","answer":"the search OpenSearch cluster"}
+{"id":9,"hops":"single","q":"What does ApiGateway front?","answer":"every public endpoint"}
+{"id":10,"hops":"single","q":"What does RenewalsWorker do?","answer":"re-bills subscriptions monthly"}
+{"id":11,"hops":"multi","q":"Which services break if the NotificationsAPI changes its retry semantics?","answer":"BillingService and PaymentsService directly; RenewalsWorker and ReportingService through BillingService","tool":"dependents NotificationsAPI 3"}
+{"id":12,"hops":"multi","q":"If BillingService goes down, what else stops working?","answer":"ReportingService and RenewalsWorker","tool":"dependents BillingService 2"}
+{"id":13,"hops":"multi","q":"What must be running for OrderService to serve a request?","answer":"PaymentsAPI, UserService, the orders and users databases","tool":"dependencies OrderService 2"}
+{"id":14,"hops":"multi","q":"Which services would a change to PAYMENT_API_KEY affect?","answer":"PaymentsService, and transitively OrderService and RenewalsWorker","tool":"config PAYMENT_API_KEY"}
+{"id":15,"hops":"multi","q":"Does anything reach the users database other than UserService?","answer":"OrderService, through DEPENDS_ON UserService","tool":"dependencies OrderService 2"}
+{"id":16,"hops":"multi","q":"What is the blast radius of changing UserService token validation?","answer":"ApiGateway, AuditService, OrderService","tool":"dependents UserService 2"}
+{"id":17,"hops":"multi","q":"Which workers call the PaymentsAPI without going through OrderService?","answer":"RenewalsWorker","tool":"dependents PaymentsAPI 1"}
+{"id":18,"hops":"multi","q":"If the notifications Redis instance is lost, which user-facing services degrade?","answer":"BillingService and PaymentsService, then ReportingService and RenewalsWorker","tool":"dependents NotificationsAPI 3"}
+{"id":19,"hops":"multi","q":"What does ReportingService transitively depend on?","answer":"BillingService, OrderService, and everything those reach","tool":"dependencies ReportingService 3"}
+{"id":20,"hops":"multi","q":"Which services would need redeploying if the PaymentsAPI contract changed?","answer":"OrderService, PaymentsService callers, RenewalsWorker","tool":"dependents PaymentsAPI 2"}
