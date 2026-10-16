@@ -1,0 +1,4 @@
+Move src/services/user-service.js and src/services/order-service.js onto
+UserRepository and OrderRepository. Keep soft-delete working. Then change
+totalPaidCents so the paid-total report leaves out orders from deleted
+users, and update the tests to match. Run npm test when you're done.

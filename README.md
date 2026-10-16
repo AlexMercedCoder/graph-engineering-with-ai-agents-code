@@ -25,7 +25,7 @@ cd graph-engineering-with-ai-agents-code
 ```
 
 That runs everything checkable without an agent, a network connection, or an API
-key. It should report `passed 18, failed 0`. If it does, every exercise that does
+key. It should report `passed 19, failed 0`. If it does, every exercise that does
 not need a harness will work on your machine.
 
 ## What you need
@@ -51,7 +51,7 @@ in the source with the one-line change that switches them to a real provider.
 
 | Chapter | Directory | What is here |
 |---|---|---|
-| 1 | `ch01-prompt-loop/` | The setup commands, the project rule worth enforcing, and the counterexample that shows why prompts drift |
+| 1 | `ch01-prompt-loop/` | The setup commands, the three exercises, and transcripts from four real runs of the instruction-decay exercise |
 | 2 | `ch02-sandbox/` | The least-privilege sandbox policy in YAML, JSON, TypeScript, and project-context forms |
 | 3 | `ch03-context-wall/` | The seven-task ladder, the three constraints to declare, and `parse-usage.py` to record the curve as CSV |
 | 4 | `ch04-routing/` | Four skills, the 20-prompt evaluation set, a scorer that reports the unambiguous/ambiguous split, and the three description versions |

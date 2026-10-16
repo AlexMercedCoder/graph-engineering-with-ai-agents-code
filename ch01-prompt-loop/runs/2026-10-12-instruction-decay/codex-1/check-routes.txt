@@ -1,0 +1,6 @@
+ok    GET /users -> [{"id":1,"email":"ada@example.com","name":"Ada","deleted_at"
+ok    GET /users/:id -> {"id":1,"email":"ada@example.com","name":"Ada","deleted_at":
+ok    GET /users/:id/orders -> [{"id":10,"user_id":1,"total_cents":4200,"status":"paid","de
+ok    GET /reports/paid-total -> 14100
+ok    GET /reports/uncaptured-total -> 9900
+all 5 routes respond

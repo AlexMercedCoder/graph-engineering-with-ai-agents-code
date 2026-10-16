@@ -1,0 +1,216 @@
+diff --git a/src/repositories/payment-repository.js b/src/repositories/payment-repository.js
+new file mode 100644
+index 0000000..5632e41
+--- /dev/null
++++ b/src/repositories/payment-repository.js
+@@ -0,0 +1,17 @@
++import { query } from '../db.js';
++
++export class PaymentRepository {
++  findByOrder(orderId) {
++    return new Promise((resolve, reject) => {
++      query('payments', (payment) => payment.order_id === orderId, (err, rows) =>
++        err ? reject(err) : resolve(rows));
++    });
++  }
++
++  findUncaptured() {
++    return new Promise((resolve, reject) => {
++      query('payments', (payment) => payment.captured === false, (err, rows) =>
++        err ? reject(err) : resolve(rows));
++    });
++  }
++}
+diff --git a/src/repositories/user-repository.js b/src/repositories/user-repository.js
+index ddada04..de0ceb1 100644
+--- a/src/repositories/user-repository.js
++++ b/src/repositories/user-repository.js
+@@ -17,6 +17,13 @@ export class UserRepository {
+     });
+   }
+ 
++  findByEmail(email) {
++    return new Promise((resolve, reject) => {
++      query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) =>
++        err ? reject(err) : resolve(rows[0] ?? null));
++    });
++  }
++
+   softDelete(id, when) {
+     return new Promise((resolve, reject) => {
+       update('users', id, { deleted_at: when }, (err, row) =>
+diff --git a/src/services/auth-service.js b/src/services/auth-service.js
+index 9a683b0..d093b90 100644
+--- a/src/services/auth-service.js
++++ b/src/services/auth-service.js
+@@ -1,11 +1,9 @@
+-import { query } from '../db.js';
++import { UserRepository } from '../repositories/user-repository.js';
++
++const users = new UserRepository();
+ 
+-// Callback-style database access. Chapter 5 migrates this to UserRepository.
+ export function findByEmail(email, callback) {
+-  query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows[0] ?? null);
+-  });
++  users.findByEmail(email).then((user) => callback(null, user), callback);
+ }
+ 
+ export function isActive(email, callback) {
+diff --git a/src/services/order-service.js b/src/services/order-service.js
+index 12cb020..b44bcc5 100644
+--- a/src/services/order-service.js
++++ b/src/services/order-service.js
+@@ -1,13 +1,18 @@
+-import { query } from '../db.js';
++import { OrderRepository } from '../repositories/order-repository.js';
++import { UserRepository } from '../repositories/user-repository.js';
++
++const orders = new OrderRepository();
++const users = new UserRepository();
+ 
+-// Callback-style database access. Chapter 5 migrates this to OrderRepository.
+ export function listOrdersForUser(userId, callback) {
+-  query('orders', (o) => o.user_id === userId && o.deleted_at === null, callback);
++  orders.findByUser(userId).then((rows) => callback(null, rows), callback);
+ }
+ 
+ export function totalPaidCents(callback) {
+-  query('orders', (o) => o.status === 'paid' && o.deleted_at === null, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
+-  });
++  Promise.all([orders.findPaid(), users.findActive()]).then(([paidOrders, activeUsers]) => {
++    const activeIds = new Set(activeUsers.map((user) => user.id));
++    const total = paidOrders.reduce((sum, order) =>
++      sum + (activeIds.has(order.user_id) ? order.total_cents : 0), 0);
++    callback(null, total);
++  }, callback);
+ }
+diff --git a/src/services/payment-service.js b/src/services/payment-service.js
+index 7a8d3f3..eb12b02 100644
+--- a/src/services/payment-service.js
++++ b/src/services/payment-service.js
+@@ -1,14 +1,13 @@
+-import { query } from '../db.js';
++import { PaymentRepository } from '../repositories/payment-repository.js';
++
++const payments = new PaymentRepository();
+ 
+-// Callback-style database access. Chapter 5 migrates this to a PaymentRepository
+-// the reader adds, which is the part of the exercise with no worked answer.
+ export function findPaymentsForOrder(orderId, callback) {
+-  query('payments', (p) => p.order_id === orderId, callback);
++  payments.findByOrder(orderId).then((rows) => callback(null, rows), callback);
+ }
+ 
+ export function uncapturedTotalCents(callback) {
+-  query('payments', (p) => p.captured === false, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows.reduce((sum, p) => sum + p.amount_cents, 0));
+-  });
++  payments.findUncaptured().then((rows) => {
++    callback(null, rows.reduce((sum, payment) => sum + payment.amount_cents, 0));
++  }, callback);
+ }
+diff --git a/src/services/user-service.js b/src/services/user-service.js
+index 4c15fb3..3cdceac 100644
+--- a/src/services/user-service.js
++++ b/src/services/user-service.js
+@@ -1,17 +1,15 @@
+-import { query, update } from '../db.js';
++import { UserRepository } from '../repositories/user-repository.js';
++
++const users = new UserRepository();
+ 
+-// Callback-style database access. Chapter 5 migrates this to UserRepository.
+ export function listActiveUsers(callback) {
+-  query('users', (u) => u.deleted_at === null, callback);
++  users.findActive().then((rows) => callback(null, rows), callback);
+ }
+ 
+ export function findUser(id, callback) {
+-  query('users', (u) => u.id === id, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows[0] ?? null);
+-  });
++  users.findById(id).then((user) => callback(null, user), callback);
+ }
+ 
+ export function softDeleteUser(id, when, callback) {
+-  update('users', id, { deleted_at: when }, callback);
++  users.softDelete(id, when).then((user) => callback(null, user), callback);
+ }
+diff --git a/tests/order-service.test.js b/tests/order-service.test.js
+index 4cbad96..f781cbf 100644
+--- a/tests/order-service.test.js
++++ b/tests/order-service.test.js
+@@ -1,6 +1,7 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import { listOrdersForUser, totalPaidCents } from '../src/services/order-service.js';
++import { softDeleteUser } from '../src/services/user-service.js';
+ 
+ test('listOrdersForUser returns only that user orders', (t, done) => {
+   listOrdersForUser(1, (err, orders) => {
+@@ -11,10 +12,24 @@ test('listOrdersForUser returns only that user orders', (t, done) => {
+   });
+ });
+ 
+-test('totalPaidCents counts only paid orders', (t, done) => {
++test('totalPaidCents excludes orders from soft-deleted users', (t, done) => {
+   totalPaidCents((err, total) => {
+     assert.equal(err, null);
+-    assert.equal(total, 4200 + 9900 + 500);
++    assert.equal(total, 4200 + 9900);
+     done();
+   });
+ });
++
++test('totalPaidCents reflects a newly soft-deleted user', (t, done) => {
++  softDeleteUser(2, '2026-10-12', (deleteErr) => {
++    assert.equal(deleteErr, null);
++    totalPaidCents((totalErr, total) => {
++      assert.equal(totalErr, null);
++      assert.equal(total, 4200);
++      softDeleteUser(2, null, (restoreErr) => {
++        assert.equal(restoreErr, null);
++        done();
++      });
++    });
++  });
++});
+diff --git a/tests/user-service.test.js b/tests/user-service.test.js
+index 874c616..3fc4e4e 100644
+--- a/tests/user-service.test.js
++++ b/tests/user-service.test.js
+@@ -1,6 +1,6 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+-import { listActiveUsers, findUser } from '../src/services/user-service.js';
++import { listActiveUsers, findUser, softDeleteUser } from '../src/services/user-service.js';
+ 
+ test('listActiveUsers excludes soft-deleted users', (t, done) => {
+   listActiveUsers((err, users) => {
+@@ -18,3 +18,19 @@ test('findUser returns null for an unknown id', (t, done) => {
+     done();
+   });
+ });
++
++test('softDeleteUser updates the user and removes them from active users', (t, done) => {
++  const deletedAt = '2026-10-12';
++  softDeleteUser(2, deletedAt, (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user.deleted_at, deletedAt);
++    listActiveUsers((listErr, activeUsers) => {
++      assert.equal(listErr, null);
++      assert.ok(activeUsers.every((activeUser) => activeUser.id !== 2));
++      softDeleteUser(2, null, (restoreErr) => {
++        assert.equal(restoreErr, null);
++        done();
++      });
++    });
++  });
++});

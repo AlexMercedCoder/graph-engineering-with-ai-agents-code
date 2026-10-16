@@ -17,6 +17,7 @@ check() {
 echo "sample project"
 check "npm test (10 tests, zero dependencies)" bash -c "cd sample-project && npm test"
 check "formatter reports clean"                bash -c "cd sample-project && node scripts/lint.js"
+check "every API route answers"                bash -c "cd sample-project && node scripts/check-routes.js"
 
 echo "chapter 4, routing evaluation"
 check "scorer runs and reports the split" python3 ch04-routing/eval/score.py ch04-routing/eval/results.example.txt

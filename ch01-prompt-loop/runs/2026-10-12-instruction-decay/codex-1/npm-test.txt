@@ -1,0 +1,23 @@
+
+> orders-api@1.0.0 test
+> node --test
+
+✔ findByEmail ignores soft-deleted users (7.087971ms)
+✔ isActive is true for a live user (1.419418ms)
+✔ listOrdersForUser returns only that user orders (7.103566ms)
+✔ totalPaidCents counts paid orders only for active users (2.189ms)
+✔ findPaymentsForOrder finds the payment for an order (4.873463ms)
+✔ uncapturedTotalCents sums uncaptured payments (1.045048ms)
+✔ UserRepository.findActive matches the service behaviour (4.688499ms)
+✔ OrderRepository.findPaid matches the service behaviour (1.077692ms)
+✔ listActiveUsers excludes soft-deleted users (5.84444ms)
+✔ findUser returns null for an unknown id (1.314822ms)
+✔ softDeleteUser marks a user deleted and can restore the user (0.848586ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 120.012059

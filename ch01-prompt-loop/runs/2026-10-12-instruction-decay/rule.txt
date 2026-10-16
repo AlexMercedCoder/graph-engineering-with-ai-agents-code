@@ -1,0 +1,4 @@
+Project rule: all database access goes through the repository classes in
+src/repositories/. Code in src/services/ must never import query() or
+update() from src/db.js. Use UserRepository and OrderRepository for all
+data operations.

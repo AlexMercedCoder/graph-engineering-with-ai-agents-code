@@ -12,7 +12,7 @@ cd graph-engineering-with-ai-agents-code
 ```
 
 `verify.sh` runs everything checkable without an agent, a network connection,
-or an API key. It should report `passed 18, failed 0`.
+or an API key. It should report `passed 19, failed 0`.
 
 ## Exercise 1: instruction decay
 
@@ -42,9 +42,21 @@ counts a $5 order from Alan, a soft-deleted user). Check the rule afterward:
 grep -n "db.js" src/services/user-service.js src/services/order-service.js
 ```
 
-Any output is a violation. The chapter shows the kind of edit to look for:
-it fetches orders through `OrderRepository`, falls back to `query()` for the
-users, and passes all ten tests while breaking the rule.
+Any output is a violation. Then check that the API still answers:
+
+```bash
+node scripts/check-routes.js
+```
+
+It calls every handler in `src/api/routes.js` the way the router does. The unit
+tests call the service functions directly, so an agent that changes a
+function's signature and rewrites the tests to match can pass `npm test` while
+the router can no longer reach it. `NO RESPONSE` on a route means exactly that.
+
+Four real runs of this exercise, with full transcripts, diffs, and test output,
+are in [`runs/2026-10-12-instruction-decay/`](runs/2026-10-12-instruction-decay/).
+None of them broke the rule. One of them broke four of the five endpoints while
+all its tests passed, which is what `check-routes.js` catches.
 
 ## Exercise 2: tool-selection drift
 

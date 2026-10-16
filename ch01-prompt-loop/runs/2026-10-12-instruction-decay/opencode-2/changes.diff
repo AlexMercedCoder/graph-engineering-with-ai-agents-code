@@ -1,0 +1,83 @@
+diff --git a/src/services/order-service.js b/src/services/order-service.js
+index 12cb020..152e047 100644
+--- a/src/services/order-service.js
++++ b/src/services/order-service.js
+@@ -1,13 +1,19 @@
+-import { query } from '../db.js';
++import { OrderRepository } from '../repositories/order-repository.js';
++import { UserRepository } from '../repositories/user-repository.js';
+ 
+-// Callback-style database access. Chapter 5 migrates this to OrderRepository.
+ export function listOrdersForUser(userId, callback) {
+-  query('orders', (o) => o.user_id === userId && o.deleted_at === null, callback);
++  new OrderRepository().findByUser(userId).then(
++    (orders) => callback(null, orders),
++    (err) => callback(err),
++  );
+ }
+ 
+ export function totalPaidCents(callback) {
+-  query('orders', (o) => o.status === 'paid' && o.deleted_at === null, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
+-  });
++  Promise.all([new UserRepository().findActive(), new OrderRepository().findPaid()])
++    .then(([users, orders]) => {
++      const activeIds = new Set(users.map((u) => u.id));
++      const paid = orders.filter((o) => activeIds.has(o.user_id));
++      callback(null, paid.reduce((sum, o) => sum + o.total_cents, 0));
++    })
++    .catch((err) => callback(err));
+ }
+diff --git a/src/services/user-service.js b/src/services/user-service.js
+index 4c15fb3..29673b9 100644
+--- a/src/services/user-service.js
++++ b/src/services/user-service.js
+@@ -1,17 +1,22 @@
+-import { query, update } from '../db.js';
++import { UserRepository } from '../repositories/user-repository.js';
+ 
+-// Callback-style database access. Chapter 5 migrates this to UserRepository.
+ export function listActiveUsers(callback) {
+-  query('users', (u) => u.deleted_at === null, callback);
++  new UserRepository().findActive().then(
++    (users) => callback(null, users),
++    (err) => callback(err),
++  );
+ }
+ 
+ export function findUser(id, callback) {
+-  query('users', (u) => u.id === id, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows[0] ?? null);
+-  });
++  new UserRepository().findById(id).then(
++    (user) => callback(null, user),
++    (err) => callback(err),
++  );
+ }
+ 
+ export function softDeleteUser(id, when, callback) {
+-  update('users', id, { deleted_at: when }, callback);
++  new UserRepository().softDelete(id, when).then(
++    (user) => callback(null, user),
++    (err) => callback(err),
++  );
+ }
+diff --git a/tests/order-service.test.js b/tests/order-service.test.js
+index 4cbad96..5c83453 100644
+--- a/tests/order-service.test.js
++++ b/tests/order-service.test.js
+@@ -11,10 +11,10 @@ test('listOrdersForUser returns only that user orders', (t, done) => {
+   });
+ });
+ 
+-test('totalPaidCents counts only paid orders', (t, done) => {
++test('totalPaidCents counts only paid orders from active users', (t, done) => {
+   totalPaidCents((err, total) => {
+     assert.equal(err, null);
+-    assert.equal(total, 4200 + 9900 + 500);
++    assert.equal(total, 4200 + 9900);
+     done();
+   });
+ });

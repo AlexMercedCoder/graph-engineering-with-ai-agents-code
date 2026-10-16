@@ -1,0 +1,158 @@
+diff --git a/AGENTS.md b/AGENTS.md
+new file mode 100644
+index 0000000..f449119
+--- /dev/null
++++ b/AGENTS.md
+@@ -0,0 +1,8 @@
++# Project Rules
++
++## Database access
++
++All database access goes through the repository classes in `src/repositories/`.
++
++- Code in `src/services/` must **never** import `query()` or `update()` from `src/db.js`.
++- Use `UserRepository` and `OrderRepository` for all data operations.
+diff --git a/src/services/order-service.js b/src/services/order-service.js
+index 12cb020..10c5849 100644
+--- a/src/services/order-service.js
++++ b/src/services/order-service.js
+@@ -1,13 +1,21 @@
+-import { query } from '../db.js';
++import { OrderRepository } from '../repositories/order-repository.js';
++import { UserRepository } from '../repositories/user-repository.js';
+ 
+-// Callback-style database access. Chapter 5 migrates this to OrderRepository.
+-export function listOrdersForUser(userId, callback) {
+-  query('orders', (o) => o.user_id === userId && o.deleted_at === null, callback);
++const orders = new OrderRepository();
++const users = new UserRepository();
++
++export function listOrdersForUser(userId) {
++  return orders.findByUser(userId);
+ }
+ 
+-export function totalPaidCents(callback) {
+-  query('orders', (o) => o.status === 'paid' && o.deleted_at === null, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
+-  });
++export async function totalPaidCents() {
++  const [paid, activeUsers] = await Promise.all([
++    orders.findPaid(),
++    users.findActive(),
++  ]);
++  const activeIds = new Set(activeUsers.map((u) => u.id));
++  return paid.reduce(
++    (sum, o) => (activeIds.has(o.user_id) ? sum + o.total_cents : sum),
++    0,
++  );
+ }
+diff --git a/src/services/user-service.js b/src/services/user-service.js
+index 4c15fb3..df6fd11 100644
+--- a/src/services/user-service.js
++++ b/src/services/user-service.js
+@@ -1,17 +1,15 @@
+-import { query, update } from '../db.js';
++import { UserRepository } from '../repositories/user-repository.js';
+ 
+-// Callback-style database access. Chapter 5 migrates this to UserRepository.
+-export function listActiveUsers(callback) {
+-  query('users', (u) => u.deleted_at === null, callback);
++const users = new UserRepository();
++
++export function listActiveUsers() {
++  return users.findActive();
+ }
+ 
+-export function findUser(id, callback) {
+-  query('users', (u) => u.id === id, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows[0] ?? null);
+-  });
++export function findUser(id) {
++  return users.findById(id);
+ }
+ 
+-export function softDeleteUser(id, when, callback) {
+-  update('users', id, { deleted_at: when }, callback);
++export function softDeleteUser(id, when) {
++  return users.softDelete(id, when);
+ }
+diff --git a/tests/order-service.test.js b/tests/order-service.test.js
+index 4cbad96..d50f07f 100644
+--- a/tests/order-service.test.js
++++ b/tests/order-service.test.js
+@@ -2,19 +2,13 @@ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import { listOrdersForUser, totalPaidCents } from '../src/services/order-service.js';
+ 
+-test('listOrdersForUser returns only that user orders', (t, done) => {
+-  listOrdersForUser(1, (err, orders) => {
+-    assert.equal(err, null);
+-    assert.equal(orders.length, 2);
+-    assert.ok(orders.every((o) => o.user_id === 1));
+-    done();
+-  });
++test('listOrdersForUser returns only that user orders', async () => {
++  const orders = await listOrdersForUser(1);
++  assert.equal(orders.length, 2);
++  assert.ok(orders.every((o) => o.user_id === 1));
+ });
+ 
+-test('totalPaidCents counts only paid orders', (t, done) => {
+-  totalPaidCents((err, total) => {
+-    assert.equal(err, null);
+-    assert.equal(total, 4200 + 9900 + 500);
+-    done();
+-  });
++test('totalPaidCents excludes orders from soft-deleted users', async () => {
++  const total = await totalPaidCents();
++  assert.equal(total, 4200 + 9900);
+ });
+diff --git a/tests/user-service.test.js b/tests/user-service.test.js
+index 874c616..51bf53a 100644
+--- a/tests/user-service.test.js
++++ b/tests/user-service.test.js
+@@ -2,19 +2,13 @@ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import { listActiveUsers, findUser } from '../src/services/user-service.js';
+ 
+-test('listActiveUsers excludes soft-deleted users', (t, done) => {
+-  listActiveUsers((err, users) => {
+-    assert.equal(err, null);
+-    assert.equal(users.length, 2);
+-    assert.ok(users.every((u) => u.deleted_at === null));
+-    done();
+-  });
++test('listActiveUsers excludes soft-deleted users', async () => {
++  const users = await listActiveUsers();
++  assert.equal(users.length, 2);
++  assert.ok(users.every((u) => u.deleted_at === null));
+ });
+ 
+-test('findUser returns null for an unknown id', (t, done) => {
+-  findUser(999, (err, user) => {
+-    assert.equal(err, null);
+-    assert.equal(user, null);
+-    done();
+-  });
++test('findUser returns null for an unknown id', async () => {
++  const user = await findUser(999);
++  assert.equal(user, null);
+ });
+diff --git a/tests/user-soft-delete.test.js b/tests/user-soft-delete.test.js
+new file mode 100644
+index 0000000..ea40e78
+--- /dev/null
++++ b/tests/user-soft-delete.test.js
+@@ -0,0 +1,10 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { listActiveUsers, softDeleteUser } from '../src/services/user-service.js';
++
++test('softDeleteUser removes a user from the active list', async () => {
++  await softDeleteUser(2, '2026-02-01');
++  const users = await listActiveUsers();
++  assert.equal(users.length, 1);
++  assert.ok(users.every((u) => u.id !== 2));
++});
