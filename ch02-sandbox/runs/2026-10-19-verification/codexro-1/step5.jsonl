@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a15431-bf5e-74e0-a228-198db86c73a6"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll fetch it with `curl` and show the first few lines of the response."}}
+{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'curl -L --max-time 15 -sS https://example.com | head -n 8'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'curl -L --max-time 15 -sS https://example.com | head -n 8'","aggregated_output":"curl: (6) Could not resolve host: example.com\n","exit_code":0,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"The shell command could not fetch `https://example.com`: DNS resolution failed (`Could not resolve host: example.com`), so there are no response lines to show."}}
+{"type":"turn.completed","usage":{"input_tokens":322470,"cached_input_tokens":293248,"cache_write_input_tokens":0,"output_tokens":882,"reasoning_output_tokens":171}}

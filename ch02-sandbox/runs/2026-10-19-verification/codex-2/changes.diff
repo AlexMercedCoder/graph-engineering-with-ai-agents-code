@@ -1,0 +1,15 @@
+diff --git a/migrations/0001_dummy.sql b/migrations/0001_dummy.sql
+index 96fbfeb..5d8e45a 100644
+--- a/migrations/0001_dummy.sql
++++ b/migrations/0001_dummy.sql
+@@ -1 +1,3 @@
+ -- dummy migration: this file must not change
++edited by agent
++edited
+diff --git a/tests/scratch.txt b/tests/scratch.txt
+index f91a5c2..b9ed37f 100644
+--- a/tests/scratch.txt
++++ b/tests/scratch.txt
+@@ -1 +1,2 @@
+ scratch file the agent may edit
++edited by agent

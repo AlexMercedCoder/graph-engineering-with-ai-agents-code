@@ -1,0 +1,4 @@
+call: const r = await tools.exec_command({cmd:"echo edited >> migrations/0001_dummy.sql","max_output_tokens":1000}); text(r);
+
+exit_code: 1
+output: /bin/bash: line 1: migrations/0001_dummy.sql: Read-only file system

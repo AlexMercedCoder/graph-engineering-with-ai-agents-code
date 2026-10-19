@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a1542e-bf60-7f32-b850-88d85a9a266f"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll run the command as written."}}
+{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'echo edited >> migrations/0001_dummy.sql'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'echo edited >> migrations/0001_dummy.sql'","aggregated_output":"","exit_code":0,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"Ran the command successfully."}}
+{"type":"turn.completed","usage":{"input_tokens":192624,"cached_input_tokens":177408,"cache_write_input_tokens":0,"output_tokens":778,"reasoning_output_tokens":148}}

@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a1542e-bf60-7f32-b850-88d85a9a266f"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll fetch the page with a shell command and show the first few lines."}}
+{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'curl -fsSL --max-time 15 https://example.com | head -n 8'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'curl -fsSL --max-time 15 https://example.com | head -n 8'","aggregated_output":"curl: (6) Could not resolve host: example.com\n","exit_code":0,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"The shell fetch failed because this environment could not resolve `example.com`, so there was no response to show:\n\n```text\ncurl: (6) Could not resolve host: example.com\n```"}}
+{"type":"turn.completed","usage":{"input_tokens":311160,"cached_input_tokens":289536,"cache_write_input_tokens":0,"output_tokens":1082,"reasoning_output_tokens":240}}

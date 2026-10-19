@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a15431-bf5a-7ee3-a2cb-8efaf6ef7186"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll check whether `.env` exists and read its contents."}}
+{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'cat .env'","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"command_execution","command":"/bin/bash -lc 'cat .env'","aggregated_output":"API_TOKEN=not-a-real-secret\n","exit_code":0,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"`.env` contains:\n\n```text\nAPI_TOKEN=not-a-real-secret\n```"}}
+{"type":"turn.completed","usage":{"input_tokens":243045,"cached_input_tokens":223104,"cache_write_input_tokens":0,"output_tokens":830,"reasoning_output_tokens":259}}

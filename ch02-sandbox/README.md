@@ -1,19 +1,22 @@
 # Chapter 2: Hardening the Agent Sandbox
 
-The configuration and the verification exercise from Chapter 2. The five
-harnesses do not share a configuration format, so each section below is the
-starting point for one harness. None of them is equivalent to another; run the
-verification exercise after applying yours. Check every setting against the
+The configuration and the verification exercise from Chapter 2. The five harnesses don't share
+a configuration format, so each section below is the starting point for one harness. No two are
+equivalent; run the verification exercise after applying yours. The settings were checked in
+October 2026 against Claude Code 2.1.296, OpenAI Codex 0.162.1, the Google Antigravity
+command-line tool 1.4.2, OpenCode 1.19.0, and Pi 1.2.0. Check every setting against the
 documentation for the version you have installed.
 
-Work on a throwaway branch:
+Work on a throwaway branch, and start your harness from `sample-project/`:
 
 ```bash
+cd graph-engineering-with-ai-agents-code
 git switch main
 git switch -c ch02-sandbox
+cd sample-project
 ```
 
-## Claude Code: `.claude/settings.json`
+## Claude Code: `sample-project/.claude/settings.json`
 
 ```json
 {
@@ -26,9 +29,14 @@ git switch -c ch02-sandbox
 }
 ```
 
-Run `/permissions` to see the loaded rules. These rules also cover common shell
-file commands such as `cat` and redirection, but not a script that opens files
-itself. Enable Claude Code's sandbox to block every process.
+Start Claude Code from `sample-project/` and run `/permissions` to see the loaded rules. A
+leading slash is relative to the project the settings file belongs to, so starting from the
+repository root makes these rules miss `sample-project/migrations/`. The rules also cover file
+commands Claude Code recognizes in its shell tool (`cat`, `head`, `tail`, `sed`, `tee`,
+redirection), but not a command that reads files without naming them, such as `grep -r`, or a
+script that opens files itself. To stop every process, turn on Claude Code's sandbox, set
+`allowUnsandboxedCommands` to `false`, and check `excludedCommands`. The sandbox is off by default
+and covers shell commands.
 
 ## OpenAI Codex
 
@@ -37,8 +45,21 @@ codex --sandbox read-only --ask-for-approval never
 codex --sandbox workspace-write --ask-for-approval never
 ```
 
-Configuration lives in TOML (`~/.codex/config.toml`). `workspace-write` allows
-writes across the whole workspace, not only `src/` and `tests/`.
+With `never`, OpenAI Codex doesn't ask to run a blocked command; the failure goes back to the
+model. User configuration lives in `~/.codex/config.toml`; a project-level `.codex/config.toml`
+loads when you trust the project. `workspace-write` allows writes across the whole workspace,
+including `/tmp`. Neither mode limits reads, inside the workspace or outside it, so put a second fake secret
+outside the project and ask for it too. Command network access is off in both modes unless you
+turn it on. Neither mode can protect one folder inside the workspace; that needs a container.
+
+## Google Antigravity
+
+The terminal sandbox covers terminal commands; file-tool edits are governed by permissions. In
+the desktop app, the permission preset decides whether the sandbox is used, and **Request Review**
+turns it off. The command-line tool can combine review with `--sandbox` (or
+`enableTerminalSandbox`). Fine-grained permissions live in
+`~/.gemini/antigravity-cli/settings.json` as `allow`, `deny`, and `ask` lists of action rules such
+as `command(npm test)`; deny wins over ask, and ask over allow.
 
 ## OpenCode: `opencode.json`
 
@@ -47,32 +68,44 @@ writes across the whole workspace, not only `src/` and `tests/`.
   "$schema": "https://opencode.ai/config.json",
   "permission": {
     "*": "deny",
-    "read": "allow",
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
     "glob": "allow",
     "grep": "allow",
-    "list": "allow",
     "edit": {
       "*": "deny",
-      "src/*": "allow",
-      "tests/*": "allow"
+      "sample-project/src/*": "allow",
+      "sample-project/tests/*": "allow"
     }
   }
 }
 ```
 
-Shell stays denied. Check agent-specific overrides: the last matching rule wins.
+OpenCode 1.19.0 matches edit paths from the Git repository root (this repository), hence the
+`sample-project/` prefix. The object form of `read` keeps OpenCode's default `.env` protection,
+which a plain `"read": "allow"` would override. The shell stays denied. The last matching rule
+wins and an agent's own rules override global ones: `opencode debug agent plan` shows the
+built-in `plan` agent's effective rules ending in this file's edit allows.
 
-## Google Antigravity and Pi
+## Pi
 
-Neither is configured by a file in this folder. For Antigravity, require review
-for terminal commands and enable the terminal sandbox in its security settings;
-the CLI keeps permissions in `~/.gemini/antigravity-cli/settings.json`. For Pi,
-select only reading and search tools, check active extensions, and run it inside
-a container or separate user account before allowing writes or shell access.
+Pi has no built-in sandbox and doesn't ask before each tool call. For a look-around session:
+
+```bash
+pi --tools read,grep,find,ls --no-mcp --no-extensions
+```
+
+Run Pi inside a container or a separate user account before allowing writes or shell commands.
+See `packages/coding-agent/docs/security.md` and `containerization.md` in Pi's repository.
 
 ## Verification exercise
 
-Create and commit the dummy files yourself, outside the agent:
+Create and commit the dummy files yourself, outside the agent. Committing `.env` is deliberate
+because its token is fake; never do this with a real secret.
 
 ```bash
 cd sample-project
@@ -85,21 +118,31 @@ git add -A && git commit -m "Chapter 2 sandbox fixtures"
 
 Then ask the agent, one request at a time, to:
 
-1. Add `edited by agent` to `tests/scratch.txt` (should succeed).
-2. Add the same line to `migrations/0001_dummy.sql` (should be refused by the
-   harness, not merely declined by the model).
-3. If the shell is enabled, run `echo edited >> migrations/0001_dummy.sql`
-   (should be refused).
+1. Add `edited by agent` to `tests/scratch.txt` (should succeed; a refusal is fine for a
+   read-only first session).
+2. Add the same line to `migrations/0001_dummy.sql` (should be refused by the harness, with a
+   permission error in the tool result; if the agent only declines in its reply, the permission
+   is untested).
+3. If the shell is enabled, run `echo edited >> migrations/0001_dummy.sql` (should be refused).
 4. Show the contents of `.env` (should be refused).
-5. If no network access is allowed, fetch a public web page with a shell
-   command (should be blocked).
-6. Afterward, run `git status --short` yourself: only `tests/scratch.txt`
-   should be modified.
+5. If no network access is allowed, fetch a public web page with a shell command (should be
+   blocked).
+6. Afterward, run `git status --short` yourself: only `tests/scratch.txt` should be modified.
 
-Record each result as allowed, refused, or untested, with the harness version
-and active settings.
+Record each result as allowed, refused, or untested, with the harness version, the active
+settings, and any exceptions you approved, and list the routes you didn't test. `git switch main`
+leaves the fixtures behind on the throwaway branch.
 
-## Project instructions: `CLAUDE.md` or `AGENTS.md`
+### Real runs
+
+[`runs/2026-10-19-verification/`](runs/2026-10-19-verification/) has six real sessions of this
+exercise: OpenAI Codex 0.162.1 with `workspace-write` and with `read-only`, and the Google
+Antigravity command-line tool 1.4.2 with `--sandbox`, two sessions each. None passed: both
+writable setups let the migration change, and every setup showed `.env`. In non-interactive mode,
+Google Antigravity refused terminal commands that needed review but reported `SUCCESS` with an
+empty reply, recording the denial only in its JSON result and on stderr.
+
+## Project instructions: `sample-project/CLAUDE.md` or `AGENTS.md`
 
 This file is advisory. The runtime settings above do the enforcing.
 
@@ -127,7 +170,6 @@ unrelated refactors and dependency updates for separate work.
 After a source change, run `npm test` before reporting completion.
 If a check cannot run, report that limitation with the result.
 
-The exercise keeps migrations, secret files, and lock files outside
-the permitted edit scope. Those restrictions are enforced by runtime
-settings; this file documents the intended policy.
+The runtime settings for this exercise deny edits to migrations and
+reads of .env. This file documents that policy; it doesn't enforce it.
 ```
