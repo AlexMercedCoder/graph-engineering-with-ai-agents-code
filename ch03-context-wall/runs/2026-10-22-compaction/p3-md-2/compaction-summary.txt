@@ -1,0 +1,92 @@
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+<tools-used-before-summary>Bash, Edit, Read</tools-used-before-summary>
+Summary:
+1. Primary Request and Intent:
+   - Task 1 (done): add a findByEmail method to UserRepository with a test, then run npm test.
+   - Task 2 (done): make listActiveUsers in src/services/user-service.js use UserRepository, then run npm test.
+   - Task 3 (code done and tests pass; final report to the user still pending): add an OrderRepository.findQuotes() method that returns orders with status "quote", add a test, and run npm test.
+   - Project rules from CLAUDE.md, verbatim:
+     1. All database access goes through the repository classes in src/repositories/. Code in src/services/ must not import query() or update() from src/db.js in anything you add or change.
+     2. Every new or changed function gets a test.
+     3. No new dependencies: package.json keeps an empty dependency list.
+
+2. Key Technical Concepts:
+   - Node ≥20 ESM project; tests run with `node --test` via `npm test`.
+   - src/db.js is an in-memory database with a callback API: `query(table, predicate, cb)` and `update(table, id, patch, cb)`.
+   - The repositories wrap those calls in Promises. Soft deletion is marked by the `deleted_at` field.
+   - Services keep a callback API. They are being migrated to the repositories (the codebase calls this "Chapter 5").
+
+3. Files and Code Sections:
+   - **src/repositories/user-repository.js**: already had findActive, findById and softDelete. I added this method before softDelete:
+     ```js
+     findByEmail(email) {
+       return new Promise((resolve, reject) => {
+         query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) =>
+           err ? reject(err) : resolve(rows[0] ?? null));
+       });
+     }
+     ```
+   - **src/repositories/order-repository.js**: already had findByUser and findPaid. I added:
+     ```js
+     findQuotes() {
+       return new Promise((resolve, reject) => {
+         query('orders', (o) => o.status === 'quote' && o.deleted_at === null,
+           (err, rows) => (err ? reject(err) : resolve(rows)));
+       });
+     }
+     ```
+   - **src/services/user-service.js**: current state is:
+     ```js
+     import { query, update } from '../db.js';
+     import { UserRepository } from '../repositories/user-repository.js';
+
+     const users = new UserRepository();
+
+     export function listActiveUsers(callback) {
+       users.findActive().then((rows) => callback(null, rows), callback);
+     }
+
+     // Callback-style database access. Chapter 5 migrates this to UserRepository.
+     export function findUser(id, callback) { /* still uses query */ }
+     export function softDeleteUser(id, when, callback) { /* still uses update */ }
+     ```
+   - **tests/repositories.test.js**: I added two tests.
+     - `UserRepository.findByEmail returns a live user and ignores soft-deleted ones`: ada@example.com returns id 1; alan@example.com returns null; nobody@example.com returns null.
+     - `OrderRepository.findQuotes returns only quote orders`: the returned ids deep-equal [11], and every returned order has status 'quote'.
+   - **src/services/auth-service.js**: read only, not changed. It still has a callback-style findByEmail and isActive that use query.
+   - **Seed data in db.js**:
+     - users 1 (Ada) and 2 (Grace) are active; user 3 (Alan) is soft-deleted.
+     - orders 10, 12 and 13 have status 'paid'; order 11 has status 'quote'.
+
+4. Errors and fixes:
+   - In Task 2, my first edit left a blank line between the moved comment and findUser. I removed it.
+   - No test failures occurred in any of the three tasks.
+
+5. Problem Solving:
+   - findByEmail in the repository matches auth-service's behaviour, which skips soft-deleted users, so auth-service can switch to it later without a behaviour change.
+   - In user-service.js I kept the existing db.js import because other functions still use it; the new code itself uses only the repository.
+   - For Rule 2 on listActiveUsers, the existing test `listActiveUsers excludes soft-deleted users` covers the changed function. Nothing tests the error path, because the in-memory database can't be made to fail without mocking.
+
+6. All user messages:
+   - "Reply only: ready."
+   - "Add a findByEmail method to UserRepository and a test for it. Run npm test when you're done."
+   - "Make listActiveUsers in src/services/user-service.js use UserRepository. Run npm test when you're done."
+   - "Add an OrderRepository.findQuotes() method that returns orders with status "quote", and a test. Run npm test when you're done."
+
+7. Pending Tasks:
+   - Report the Task 3 result to the user.
+   - My offer to migrate findUser and softDeleteUser to the repository is still unanswered. Don't do that work without the user's go-ahead.
+
+8. Current Work:
+   - Task 3 is implemented and tested. Latest npm test output: "✔ OrderRepository.findQuotes returns only quote orders", tests 12, pass 12, fail 0.
+   - No service files were touched and no dependencies were added.
+
+9. Optional Next Step:
+   - Give the user a short report on Task 3: findQuotes was added to src/repositories/order-repository.js; it excludes soft-deleted orders, the same as findPaid; a test was added; npm test passes 12/12.
+   - No further code changes unless the user asks.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: <local-transcript-path>
+Continue the conversation from where it left off without asking the user any further questions. Resume directly — do not acknowledge the summary, do not recap what was happening, do not preface with "I'll continue" or similar. Pick up the last task as if the break never happened.
+
+The messages after this summary are the most recent messages from before compaction, kept verbatim. The summary was written without seeing them, so something it says has not happened yet may already have happened in them.

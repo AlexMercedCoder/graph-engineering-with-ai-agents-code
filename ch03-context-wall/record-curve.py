@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
-"""Append one row of the Chapter 3 context-consumption curve to a CSV.
+"""Append one row of the Chapter 3 context-consumption curve to curve.csv.
 
-Harnesses report token usage differently, so this takes the number you read off
-your own counter rather than guessing at a log format. It exists to keep the
-bookkeeping honest: one row per task, both runs, so the two curves are
-comparable.
+Get the task's peak payload and total input from measure-usage.py and its AAS from
+score-task.sh, then record them. The script writes curve.csv itself; don't redirect its output
+into the file.
 
-    python3 parse-usage.py --task 3 --tokens 24000 --aas 3 --run continuous
-    python3 parse-usage.py --task 3 --tokens 9000  --aas 3 --run fresh
+    python3 record-curve.py --task 3 --tokens 41301 --input 81179 --aas 3 --run continuous
+    python3 record-curve.py --task 3 --tokens 35275 --input 133746 --aas 3 --run fresh
 
-Standard library only. Writes curve.csv in the working directory.
+The tpr column is the task's peak payload. CTS is the running sum of each task's total input
+across the run, which is what the chapter means by cumulative tokens per session. Pass a
+test log as the optional first argument to note its failure count. Standard library only.
 """
 import argparse
 import csv
 import sys
 from pathlib import Path
 
-FIELDS = ["run", "task", "tpr", "cts", "aas", "aas_max", "cost_usd", "notes"]
+FIELDS = ["run", "task", "tpr", "task_input", "cts", "aas", "aas_max", "cost_usd", "notes"]
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("logfile", nargs="?", help="optional test log, recorded for provenance")
     ap.add_argument("--task", type=int, required=True)
-    ap.add_argument("--tokens", type=int, required=True, help="tokens per request for this task")
+    ap.add_argument("--tokens", type=int, required=True, help="the task's peak payload, from measure-usage.py")
+    ap.add_argument("--input", type=int, default=0, help="the task's total input across requests, from measure-usage.py")
     ap.add_argument("--aas", type=int, required=True, help="constraints held, out of --aas-max")
     ap.add_argument("--aas-max", type=int, default=3)
     ap.add_argument("--run", choices=["fresh", "continuous"], default="continuous")
@@ -36,7 +38,7 @@ def main():
     rows = []
     if path.exists():
         rows = list(csv.DictReader(path.open()))
-    cts = sum(int(r["tpr"]) for r in rows if r["run"] == a.run) + a.tokens
+    cts = sum(int(r.get("task_input") or 0) for r in rows if r["run"] == a.run) + a.input
 
     notes = a.notes
     if a.logfile and Path(a.logfile).exists():
@@ -44,7 +46,7 @@ def main():
         fails = text.count("not ok") + text.count("✖")
         notes = (notes + f" test-failures={fails}").strip()
 
-    rows.append({"run": a.run, "task": a.task, "tpr": a.tokens, "cts": cts,
+    rows.append({"run": a.run, "task": a.task, "tpr": a.tokens, "task_input": a.input, "cts": cts,
                  "aas": a.aas, "aas_max": a.aas_max, "cost_usd": f"{a.cost:.4f}",
                  "notes": notes})
 

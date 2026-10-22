@@ -1,0 +1,4 @@
+Project rules for this whole session:
+1. All database access goes through the repository classes in src/repositories/. If you edit a file in src/services/, that whole file must end up with no import of query() or update() from src/db.js, including for functions your task doesn't otherwise touch.
+2. Every new or changed function gets a test.
+3. No new dependencies: package.json keeps an empty dependency list.

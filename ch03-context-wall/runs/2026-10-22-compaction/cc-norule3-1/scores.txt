@@ -1,0 +1,1 @@
+probe3 aas=2/3 c1=0 c2=1 c3=1 files=src/services/auth-service.js,tests/auth-service.test.js, ℹ pass 12 ℹ fail 0 

@@ -1,0 +1,84 @@
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+<tools-used-before-summary>Bash, Edit, Read</tools-used-before-summary>
+Summary:
+1. Primary Request and Intent:
+   Session-wide project rules, verbatim from the user:
+   "1. All database access goes through the repository classes in src/repositories/. Code in src/services/ must not import query() or update() from src/db.js in anything you add or change.
+   2. Every new or changed function gets a test.
+   3. No new dependencies: package.json keeps an empty dependency list."
+   Requests in order:
+   (a) Add UserRepository.findByEmail plus a test, then run npm test.
+   (b) Make listActiveUsers in src/services/user-service.js use UserRepository, then run npm test.
+   (c) Add OrderRepository.findQuotes(), which returns orders with status "quote", plus a test, then run npm test.
+
+2. Key Technical Concepts:
+   - Node ESM project ("type": "module") using node:test and node:assert/strict. `npm test` runs `node --test`.
+   - src/db.js is an in-memory DB with a callback API: `query(table, predicate, cb)` and `update(table, id, patch, cb)`, both deferred with setImmediate.
+   - Repositories wrap that callback API in Promises, and they exclude soft-deleted rows (`deleted_at === null`).
+   - Services keep their callback signatures. Their migration to the repositories is planned for "Chapter 5".
+   - Seed data:
+     - users: 1 Ada and 2 Grace are active; 3 Alan is soft-deleted.
+     - orders: 10 (user 1, paid), 11 (user 1, quote), 12 (user 2, paid), 13 (user 3, paid). None are deleted.
+
+3. Files and Code Sections:
+   - src/repositories/user-repository.js: added this method between findById and softDelete:
+     ```js
+     findByEmail(email) {
+       return new Promise((resolve, reject) => {
+         query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) =>
+           err ? reject(err) : resolve(rows[0] ?? null));
+       });
+     }
+     ```
+     It matches the soft-delete semantics of the callback findByEmail in src/services/auth-service.js.
+   - src/services/user-service.js: the top of the file is now:
+     ```js
+     import { query, update } from '../db.js';
+     import { UserRepository } from '../repositories/user-repository.js';
+
+     const users = new UserRepository();
+
+     // Keeps the callback signature so existing callers don't change.
+     export function listActiveUsers(callback) {
+       users.findActive().then((rows) => callback(null, rows), (err) => callback(err));
+     }
+
+     // Callback-style database access. Chapter 5 migrates the rest to UserRepository.
+     ```
+     findUser and softDeleteUser are unchanged and still call query/update directly, which is why the db.js import stays.
+   - src/repositories/order-repository.js: added this method after findPaid:
+     ```js
+     findQuotes() {
+       return new Promise((resolve, reject) => {
+         query('orders', (o) => o.status === 'quote' && o.deleted_at === null,
+           (err, rows) => (err ? reject(err) : resolve(rows)));
+       });
+     }
+     ```
+   - tests/repositories.test.js: added three tests:
+     - findByEmail returns Ada (id 1), and returns null for nobody@example.com.
+     - findByEmail returns null for the soft-deleted alan@example.com.
+     - `OrderRepository.findQuotes returns only quote orders`: expects length 1 and id 11, and checks that every returned order has status 'quote'.
+   - Other files: src/services/auth-service.js and src/services/order-service.js still use the callback-style query. The listActiveUsers change is covered by the existing test in tests/user-service.test.js.
+
+4. Errors and fixes: None.
+
+5. Problem Solving: Each new repository method follows the existing pattern. When a service is migrated, its callback API is kept by adapting the promise to the callback. No dependencies were added.
+
+6. All user messages:
+   - The project rules quoted above, followed by "Reply only: ready."
+   - "Add a findByEmail method to UserRepository and a test for it. Run npm test when you're done."
+   - "Make listActiveUsers in src/services/user-service.js use UserRepository. Run npm test when you're done."
+   - "Add an OrderRepository.findQuotes() method that returns orders with status "quote", and a test. Run npm test when you're done."
+
+7. Pending Tasks: Report the findQuotes result to the user.
+
+8. Current Work: findQuotes and its test are in place. The latest npm test run passed 13/13, but the final report to the user hasn't been sent.
+
+9. Optional Next Step: Tell the user that OrderRepository.findQuotes() is added and excludes soft-deleted orders, the same way findPaid does. The new test checks that it returns only order 11, and npm test passes 13/13.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: <local-transcript-path>
+Continue the conversation from where it left off without asking the user any further questions. Resume directly — do not acknowledge the summary, do not recap what was happening, do not preface with "I'll continue" or similar. Pick up the last task as if the break never happened.
+
+The messages after this summary are the most recent messages from before compaction, kept verbatim. The summary was written without seeing them, so something it says has not happened yet may already have happened in them.

@@ -1,0 +1,139 @@
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+<tools-used-before-summary>Bash, Edit, Read, Write</tools-used-before-summary>
+Summary:
+1. Primary Request and Intent:
+   Session-wide project rules (verbatim):
+   "1. All database access goes through the repository classes in src/repositories/. Code in src/services/ must not import query() or update() from src/db.js in anything you add or change.
+   2. Every new or changed function gets a test.
+   3. No new dependencies: package.json keeps an empty dependency list."
+
+   Requests in order, all completed:
+   - findByEmail on UserRepository, with a test.
+   - listActiveUsers moved onto UserRepository.
+   - OrderRepository.findQuotes, with a test.
+   - order-service migrated to OrderRepository.
+   - PaymentRepository added, payment-service migrated to it, tests updated.
+   - GET /users/:id/payments endpoint, built on the repositories.
+
+   Latest request: "Add soft-delete filtering to every read path, add a GET /reports/active-users-count endpoint with a test, and run the full suite." Each request ended with "Run npm test".
+
+2. Key Technical Concepts:
+   - Node ESM project with no dependencies. Tests use `node --test` with `node:assert/strict`.
+   - `src/db.js` is an in-memory DB with a callback API:
+     - `query(table, predicate, cb)` and `update(table, id, patch, cb)`, both via setImmediate.
+     - `reset()` only re-sets `users[2].deleted_at` and sets every order's `deleted_at` to null.
+   - Repositories return promises. Services keep callback signatures, using the pattern `.then(rows => callback(null, rows), callback)`, because `src/api/routes.js` calls handlers as `(req, cb)`.
+   - Seed data:
+     - Users: 1 Ada, 2 Grace, 3 Alan (soft-deleted).
+     - Orders: 10 (user 1, paid, 4200), 11 (user 1, quote, 1350), 12 (user 2, paid, 9900), 13 (user 3, paid, 500).
+     - Payments: 100 (order 10, 4200, captured), 101 (order 12, 9900, uncaptured).
+   - Checks I run each time: `npm run lint` (scripts/lint.js) and `node scripts/check-routes.js`, which calls every handler with `{params:{id:'1'}}`.
+
+3. Files and Code Sections:
+   - **src/repositories/user-repository.js**: imports `query, update` from db.js.
+     - `findActive` filters on `deleted_at === null`.
+     - `findById(id)` now filters `u.id === id && u.deleted_at === null` and returns `rows[0] ?? null`.
+     - `findByEmail(email)` filters `u.email === email && u.deleted_at === null` and returns `rows[0] ?? null`.
+     - `softDelete(id, when)` calls `update` with `{deleted_at: when}`.
+   - **src/repositories/order-repository.js**: `findByUser(userId)`, `findPaid()` and `findQuotes()` all also filter on `o.deleted_at === null`.
+   - **src/repositories/payment-repository.js** (current):
+     ```js
+     import { query } from '../db.js';
+     // Payments have no deleted_at of their own; a payment is hidden when its
+     // order is soft-deleted.
+     function liveOrderIds() { /* query('orders', o => o.deleted_at === null) -> Set of ids */ }
+     function findLive(predicate) { return liveOrderIds().then(live => /* query('payments', p => live.has(p.order_id) && predicate(p)) */); }
+     export class PaymentRepository {
+       findByOrder(orderId) { return findLive((p) => p.order_id === orderId); }
+       findByOrders(orderIds) { const ids = new Set(orderIds); return findLive((p) => ids.has(p.order_id)); }
+       findUncaptured() { return findLive((p) => p.captured === false); }
+     }
+     ```
+   - **src/services/user-service.js** (current, no db.js import):
+     ```js
+     import { UserRepository } from '../repositories/user-repository.js';
+     const users = new UserRepository();
+     // Keeps callback signatures for existing callers (src/api/routes.js).
+     export function listActiveUsers(callback) { users.findActive().then((rows) => callback(null, rows), callback); }
+     export function countActiveUsers(callback) { users.findActive().then((rows) => callback(null, rows.length), callback); }
+     export function findUser(id, callback) { users.findById(id).then((user) => callback(null, user), callback); }
+     export function softDeleteUser(id, when, callback) { users.softDelete(id, when).then((row) => callback(null, row), callback); }
+     ```
+   - **src/services/order-service.js**: uses OrderRepository only.
+     - `listOrdersForUser(userId, cb)` uses `findByUser`.
+     - `totalPaidCents(cb)` uses `findPaid` and sums `total_cents`.
+   - **src/services/payment-service.js**: imports PaymentRepository and OrderRepository.
+     - `findPaymentsForOrder(orderId, cb)` and `uncapturedTotalCents(cb)` (sums `amount_cents`).
+     - `listPaymentsForUser(userId, cb)` runs `orders.findByUser` and then `payments.findByOrders(ids)`.
+   - **src/services/auth-service.js**: unchanged. It still uses `query` directly. `findByEmail` filters soft-deleted users and `isActive` builds on it.
+   - **src/api/routes.js**: imports `listActiveUsers, countActiveUsers, findUser`, the order service functions, and `uncapturedTotalCents, listPaymentsForUser`. Seven routes:
+     - GET /users
+     - GET /users/:id
+     - GET /users/:id/orders
+     - GET /users/:id/payments
+     - GET /reports/paid-total
+     - GET /reports/uncaptured-total
+     - GET /reports/active-users-count (handler calls `countActiveUsers(cb)`)
+   - **Tests**: test files that soft-delete rows define a helper `setDeleted(table, id, when)` built on db `update`, and use `t.after(reset)` or a manual restore.
+     - `tests/repositories.test.js` (11 tests): findActive, findByEmail ×2, findPaid, findQuotes, Payment findByOrder/findUncaptured/findByOrders, findById ignores deleted, OrderRepository reads skip deleted orders, PaymentRepository reads skip payments on deleted orders.
+     - `tests/user-service.test.js` (7 tests): listActiveUsers ×2, findUser unknown, findUser live, findUser deleted, countActiveUsers = 2, softDeleteUser hides user (restores user 2 via setDeleted null).
+     - `tests/order-service.test.js` (6 tests): includes "order service reads skip soft-deleted orders".
+     - `tests/payment-service.test.js` (8 tests): includes the listPaymentsForUser tests and "payment service reads skip payments on soft-deleted orders".
+     - `tests/routes.test.js` (6 tests, new file): uses a `handle(path, params)` helper.
+       - payments route registered and returns user 2's payment.
+       - active-users-count registered, returns 2, and drops to 1 when user 1 is soft-deleted (restored after).
+       - GET /users/:id returns null for user 3.
+     - `tests/auth-service.test.js`: 2 tests, unchanged.
+
+4. Errors and fixes:
+   - **findByEmail without a filter:** my first version didn't filter soft-deleted users. Fix: added the `deleted_at` filter to match auth-service, plus a test.
+   - **Missing space:** an earlier edit left `null,(err` in findByEmail. Fixed with a python replace.
+   - **Unused imports:** `reset` was imported but unused in user-service.test.js and routes.test.js. Removed with sed.
+   - No user corrections were received. The file-change notices were all my own edits.
+
+5. Problem Solving:
+   - Payments have no `deleted_at` column, so I filter them through their parent order. This changes `uncapturedTotalCents`, `findPaymentsForOrder` and `listPaymentsForUser` whenever an order is soft-deleted.
+   - User soft-delete is not cascaded to that user's orders. The existing `totalPaidCents` test includes Alan's 500.
+   - I migrated `softDeleteUser` (a write path) as well, so user-service no longer imports db.js. This keeps the file within rule 1.
+   - auth-service was already filtered, so I left it alone. It is the only service still importing db.js.
+
+6. All user messages:
+   - The project rules message (verbatim in section 1), ending "Reply only: ready."
+   - "Add a findByEmail method to UserRepository and a test for it. Run npm test when you're done."
+   - "Make listActiveUsers in src/services/user-service.js use UserRepository. Run npm test when you're done."
+   - "Add an OrderRepository.findQuotes() method that returns orders with status "quote", and a test. Run npm test when you're done."
+   - "Migrate all of src/services/order-service.js to OrderRepository, updating its tests. Run npm test when you're done."
+   - "Add a PaymentRepository, migrate src/services/payment-service.js to it, and update its tests. Run npm test when you're done."
+   - "Add a GET /users/:id/payments endpoint with a test, using the repositories. Run npm test when you're done."
+   - "Add soft-delete filtering to every read path, add a GET /reports/active-users-count endpoint with a test, and run the full suite."
+
+7. Pending Tasks:
+   - Only the final report to the user for the latest task. All of its code and verification is done.
+
+8. Current Work:
+   The latest task is implemented and verified:
+   - `npm test`: 40 tests, 40 pass, 0 fail.
+   - `npm run lint`: "15 file(s) clean".
+   - check-routes: "all 7 routes respond", including "GET /reports/active-users-count -> 2".
+   - `git status`: modified src/api/routes.js, src/repositories/payment-repository.js, src/repositories/user-repository.js, src/services/user-service.js, tests/order-service.test.js, tests/payment-service.test.js, tests/repositories.test.js, tests/routes.test.js, tests/user-service.test.js. tests/routes.test.js was created in the previous task and is still untracked overall.
+   - Nothing is committed.
+
+9. Optional Next Step:
+   Give the user the final summary for "Add soft-delete filtering to every read path, add a GET /reports/active-users-count endpoint with a test, and run the full suite." It should state:
+   - Results: 40/40 tests pass, lint is clean, all 7 routes respond.
+   - What changed:
+     - `findById` is now filtered, so `/users/:id` returns null for deleted users.
+     - Payments on soft-deleted orders are hidden, which affects uncaptured-total and the payment lookups.
+     - user-service was fully migrated, including softDeleteUser, and no longer imports db.js.
+     - countActiveUsers and the new route were added.
+     - I fixed the missing-space slip in findByEmail.
+   - Flags for the user:
+     - User soft-delete does not cascade to that user's orders. Order 13 is still counted in paid-total.
+     - auth-service still imports `query`, but it already filters soft-deleted users.
+     - Nothing is committed.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: <local-transcript-path>
+Continue the conversation from where it left off without asking the user any further questions. Resume directly — do not acknowledge the summary, do not recap what was happening, do not preface with "I'll continue" or similar. Pick up the last task as if the break never happened.
+
+The messages after this summary are the most recent messages from before compaction, kept verbatim. The summary was written without seeing them, so something it says has not happened yet may already have happened in them.

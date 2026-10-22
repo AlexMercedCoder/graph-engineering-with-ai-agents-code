@@ -1,0 +1,4 @@
+task1 aas=3/3 c1=1 c2=1 c3=1 files=src/repositories/user-repository.js,tests/repositories.test.js, ℹ pass 11 ℹ fail 0 
+task2 aas=2/3 c1=1 c2=0 c3=1 files=src/services/user-service.js, ℹ pass 11 ℹ fail 0 
+task3 aas=3/3 c1=1 c2=1 c3=1 files=src/repositories/order-repository.js,tests/repositories.test.js, ℹ pass 12 ℹ fail 0 
+probe2 aas=3/3 c1=1 c2=1 c3=1 files=src/services/auth-service.js,tests/auth-service.test.js, ℹ pass 13 ℹ fail 0 

@@ -1,0 +1,8 @@
+{"type": "thread.started", "thread_id": "01a164ed-303c-7170-8fe2-efa6fc0bbb49"}
+{"type": "turn.started"}
+{"type": "item.started", "item": {"id": "item_0", "type": "mcp_tool_call", "server": "codex", "tool": "list_mcp_resources", "arguments": {}, "result": null, "error": null, "status": "in_progress"}}
+{"type": "item.started", "item": {"id": "item_1", "type": "mcp_tool_call", "server": "codex", "tool": "list_mcp_resource_templates", "arguments": {}, "result": null, "error": null, "status": "in_progress"}}
+{"type": "item.completed", "item": {"id": "item_0", "type": "mcp_tool_call", "server": "codex", "tool": "list_mcp_resources", "arguments": {}, "result": {"content": [{"type": "text", "text": "[redacted for publication: command output listing the machine's local harness configuration]"}], "structured_content": null}, "error": null, "status": "completed"}}
+{"type": "item.completed", "item": {"id": "item_1", "type": "mcp_tool_call", "server": "codex", "tool": "list_mcp_resource_templates", "arguments": {}, "result": {"content": [{"type": "text", "text": "{\"resourceTemplates\":[]}"}], "structured_content": null}, "error": null, "status": "completed"}}
+{"type": "item.completed", "item": {"id": "item_2", "type": "agent_message", "text": "I can\u2019t read logs/log-4.txt with an available file-reading tool, so I can\u2019t verify the timestamp."}}
+{"type": "turn.completed", "usage": {"input_tokens": 561459, "cached_input_tokens": 506240, "cache_write_input_tokens": 0, "output_tokens": 1378, "reasoning_output_tokens": 820}}

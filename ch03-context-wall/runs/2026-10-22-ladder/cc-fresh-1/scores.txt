@@ -1,0 +1,7 @@
+task1 aas=3/3 c1=1 c2=1 c3=1 files=src/repositories/user-repository.js,tests/repositories.test.js, ℹ pass 11 ℹ fail 0 
+task2 aas=3/3 c1=1 c2=1 c3=1 files=src/services/user-service.js,tests/user-service.test.js, ℹ pass 12 ℹ fail 0 
+task3 aas=3/3 c1=1 c2=1 c3=1 files=src/repositories/order-repository.js,tests/repositories.test.js, ℹ pass 13 ℹ fail 0 
+task4 aas=3/3 c1=1 c2=1 c3=1 files=src/services/order-service.js,tests/order-service.test.js, ℹ pass 15 ℹ fail 0 
+task5 aas=3/3 c1=1 c2=1 c3=1 files=src/repositories/payment-repository.js,src/services/payment-service.js,tests/payment-service.test.js,tests/repositories.test.js, ℹ pass 19 ℹ fail 0 
+task6 aas=3/3 c1=1 c2=1 c3=1 files=src/api/routes.js,src/repositories/payment-repository.js,src/services/payment-service.js,tests/payment-service.test.js,tests/repositories.test.js, ℹ pass 25 ℹ fail 0 
+task7 aas=2/3 c1=0 c2=1 c3=1 files=src/api/routes.js,src/repositories/user-repository.js,src/services/user-service.js,tests/repositories.test.js,tests/user-service.test.js, ℹ pass 32 ℹ fail 0 

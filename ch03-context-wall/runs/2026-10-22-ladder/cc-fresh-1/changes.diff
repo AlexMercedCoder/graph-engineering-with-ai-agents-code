@@ -1,0 +1,1121 @@
+--- baseline
+---
+ package.json                         | 16 ++++++++++++
+ scripts/check-routes.js              | 30 +++++++++++++++++++++++
+ scripts/lint.js                      | 37 ++++++++++++++++++++++++++++
+ src/api/routes.js                    | 17 +++++++++++++
+ src/db.js                            | 47 ++++++++++++++++++++++++++++++++++++
+ src/repositories/order-repository.js | 17 +++++++++++++
+ src/repositories/user-repository.js  | 26 ++++++++++++++++++++
+ src/services/auth-service.js         | 16 ++++++++++++
+ src/services/order-service.js        | 13 ++++++++++
+ src/services/payment-service.js      | 14 +++++++++++
+ src/services/user-service.js         | 17 +++++++++++++
+ tests/auth-service.test.js           | 19 +++++++++++++++
+ tests/order-service.test.js          | 20 +++++++++++++++
+ tests/payment-service.test.js        | 20 +++++++++++++++
+ tests/repositories.test.js           | 14 +++++++++++
+ tests/user-service.test.js           | 20 +++++++++++++++
+ 16 files changed, 343 insertions(+)
+
+diff --git a/package.json b/package.json
+new file mode 100644
+index 0000000..8c91ef9
+--- /dev/null
++++ b/package.json
+@@ -0,0 +1,16 @@
++{
++  "name": "orders-api",
++  "version": "1.0.0",
++  "private": true,
++  "type": "module",
++  "description": "Deliberately small order-management API used as the worked project throughout Graph Engineering with AI Agents.",
++  "engines": {
++    "node": ">=20"
++  },
++  "scripts": {
++    "test": "node --test",
++    "test:module": "node --test",
++    "lint": "node scripts/lint.js",
++    "format": "node scripts/lint.js --fix"
++  }
++}
+diff --git a/scripts/check-routes.js b/scripts/check-routes.js
+new file mode 100644
+index 0000000..acf6398
+--- /dev/null
++++ b/scripts/check-routes.js
+@@ -0,0 +1,30 @@
++// Calls every handler in src/api/routes.js the way the router does, with a
++// request object and a callback, and reports whether each one answers.
++// The unit tests call service functions directly, so a change to a service's
++// signature can pass them while the router can no longer reach it.
++// Exits 1 if any route errors or never calls back.
++import { routes } from '../src/api/routes.js';
++
++const TIMEOUT_MS = 1500;
++let broken = 0;
++
++for (const route of routes) {
++  const outcome = await new Promise((resolve) => {
++    const timer = setTimeout(() => resolve({ ok: false, text: 'NO RESPONSE (callback never called)' }), TIMEOUT_MS);
++    try {
++      route.handler({ params: { id: '1' } }, (err, data) => {
++        clearTimeout(timer);
++        if (err) resolve({ ok: false, text: `error: ${err.message}` });
++        else resolve({ ok: true, text: JSON.stringify(data).slice(0, 60) });
++      });
++    } catch (err) {
++      clearTimeout(timer);
++      resolve({ ok: false, text: `threw: ${err.message}` });
++    }
++  });
++  if (!outcome.ok) broken += 1;
++  console.log(`${outcome.ok ? 'ok  ' : 'FAIL'}  ${route.method} ${route.path} -> ${outcome.text}`);
++}
++
++console.log(broken ? `${broken} of ${routes.length} routes broken` : `all ${routes.length} routes respond`);
++process.exit(broken ? 1 : 0);
+diff --git a/scripts/lint.js b/scripts/lint.js
+new file mode 100755
+index 0000000..4b67423
+--- /dev/null
++++ b/scripts/lint.js
+@@ -0,0 +1,37 @@
++#!/usr/bin/env node
++// A dependency-free stand-in for eslint and prettier, so the Chapter 6 hooks
++// have something real to run on a machine with no npm install.
++// Checks: no tab indentation, no trailing whitespace, file ends in one newline.
++import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
++import { join } from 'node:path';
++
++const fix = process.argv.includes('--fix');
++const targets = process.argv.slice(2).filter((a) => !a.startsWith('--'));
++
++function walk(dir) {
++  return readdirSync(dir).flatMap((e) => {
++    const p = join(dir, e);
++    if (statSync(p).isDirectory()) return walk(p);
++    return p.endsWith('.js') ? [p] : [];
++  });
++}
++
++const files = targets.length ? targets : [...walk('src'), ...walk('tests')];
++let problems = 0;
++
++for (const f of files) {
++  const before = readFileSync(f, 'utf8');
++  let after = before.replace(/\t/g, '  ').replace(/[ \t]+$/gm, '');
++  if (!after.endsWith('\n')) after += '\n';
++  after = after.replace(/\n{3,}$/, '\n');
++  if (after !== before) {
++    if (fix) writeFileSync(f, after);
++    else { console.error(`${f}: formatting`); problems += 1; }
++  }
++}
++
++if (problems && !fix) {
++  console.error(`${problems} file(s) need formatting. Run: npm run format`);
++  process.exit(1);
++}
++console.log(fix ? `formatted ${files.length} file(s)` : `${files.length} file(s) clean`);
+diff --git a/src/api/routes.js b/src/api/routes.js
+new file mode 100644
+index 0000000..3d62f69
+--- /dev/null
++++ b/src/api/routes.js
+@@ -0,0 +1,17 @@
++// A router with no framework, so the project has an HTTP surface to survey
++// in Chapter 1's rate-limiting example without an Express dependency.
++import { listActiveUsers, findUser } from '../services/user-service.js';
++import { listOrdersForUser, totalPaidCents } from '../services/order-service.js';
++import { uncapturedTotalCents } from '../services/payment-service.js';
++
++export const routes = [
++  { method: 'GET', path: '/users', handler: (req, cb) => listActiveUsers(cb) },
++  { method: 'GET', path: '/users/:id', handler: (req, cb) => findUser(Number(req.params.id), cb) },
++  { method: 'GET', path: '/users/:id/orders', handler: (req, cb) => listOrdersForUser(Number(req.params.id), cb) },
++  { method: 'GET', path: '/reports/paid-total', handler: (req, cb) => totalPaidCents(cb) },
++  { method: 'GET', path: '/reports/uncaptured-total', handler: (req, cb) => uncapturedTotalCents(cb) },
++];
++
++export function listEndpoints() {
++  return routes.map((r) => `${r.method} ${r.path}`);
++}
+diff --git a/src/db.js b/src/db.js
+new file mode 100644
+index 0000000..f856f44
+--- /dev/null
++++ b/src/db.js
+@@ -0,0 +1,47 @@
++// A deliberately tiny in-memory database with a callback API.
++// The callback style is the point: Chapter 5 migrates the service layer off it.
++
++const tables = {
++  users: [
++    { id: 1, email: 'ada@example.com', name: 'Ada', deleted_at: null },
++    { id: 2, email: 'grace@example.com', name: 'Grace', deleted_at: null },
++    { id: 3, email: 'alan@example.com', name: 'Alan', deleted_at: '2026-01-04' },
++  ],
++  orders: [
++    { id: 10, user_id: 1, total_cents: 4200, status: 'paid', deleted_at: null },
++    { id: 11, user_id: 1, total_cents: 1350, status: 'quote', deleted_at: null },
++    { id: 12, user_id: 2, total_cents: 9900, status: 'paid', deleted_at: null },
++    { id: 13, user_id: 3, total_cents: 500, status: 'paid', deleted_at: null },
++  ],
++  payments: [
++    { id: 100, order_id: 10, amount_cents: 4200, captured: true },
++    { id: 101, order_id: 12, amount_cents: 9900, captured: false },
++  ],
++};
++
++export function reset() {
++  tables.users[2].deleted_at = '2026-01-04';
++  tables.orders.forEach((o) => { o.deleted_at = null; });
++}
++
++// Old-style callback query. Accepts a table name and a predicate.
++export function query(table, predicate, callback) {
++  setImmediate(() => {
++    const rows = tables[table];
++    if (!rows) return callback(new Error(`no such table: ${table}`));
++    try {
++      callback(null, rows.filter(predicate).map((r) => ({ ...r })));
++    } catch (err) {
++      callback(err);
++    }
++  });
++}
++
++export function update(table, id, patch, callback) {
++  setImmediate(() => {
++    const row = (tables[table] || []).find((r) => r.id === id);
++    if (!row) return callback(new Error(`no row ${id} in ${table}`));
++    Object.assign(row, patch);
++    callback(null, { ...row });
++  });
++}
+diff --git a/src/repositories/order-repository.js b/src/repositories/order-repository.js
+new file mode 100644
+index 0000000..977cd24
+--- /dev/null
++++ b/src/repositories/order-repository.js
+@@ -0,0 +1,17 @@
++import { query } from '../db.js';
++
++export class OrderRepository {
++  findByUser(userId) {
++    return new Promise((resolve, reject) => {
++      query('orders', (o) => o.user_id === userId && o.deleted_at === null,
++        (err, rows) => (err ? reject(err) : resolve(rows)));
++    });
++  }
++
++  findPaid() {
++    return new Promise((resolve, reject) => {
++      query('orders', (o) => o.status === 'paid' && o.deleted_at === null,
++        (err, rows) => (err ? reject(err) : resolve(rows)));
++    });
++  }
++}
+diff --git a/src/repositories/user-repository.js b/src/repositories/user-repository.js
+new file mode 100644
+index 0000000..ddada04
+--- /dev/null
++++ b/src/repositories/user-repository.js
+@@ -0,0 +1,26 @@
++import { query, update } from '../db.js';
++
++// The repository pattern the project is migrating toward: promise-based,
++// one place per table, no query construction anywhere else.
++export class UserRepository {
++  findActive() {
++    return new Promise((resolve, reject) => {
++      query('users', (u) => u.deleted_at === null, (err, rows) =>
++        err ? reject(err) : resolve(rows));
++    });
++  }
++
++  findById(id) {
++    return new Promise((resolve, reject) => {
++      query('users', (u) => u.id === id, (err, rows) =>
++        err ? reject(err) : resolve(rows[0] ?? null));
++    });
++  }
++
++  softDelete(id, when) {
++    return new Promise((resolve, reject) => {
++      update('users', id, { deleted_at: when }, (err, row) =>
++        err ? reject(err) : resolve(row));
++    });
++  }
++}
+diff --git a/src/services/auth-service.js b/src/services/auth-service.js
+new file mode 100644
+index 0000000..9a683b0
+--- /dev/null
++++ b/src/services/auth-service.js
+@@ -0,0 +1,16 @@
++import { query } from '../db.js';
++
++// Callback-style database access. Chapter 5 migrates this to UserRepository.
++export function findByEmail(email, callback) {
++  query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) => {
++    if (err) return callback(err);
++    callback(null, rows[0] ?? null);
++  });
++}
++
++export function isActive(email, callback) {
++  findByEmail(email, (err, user) => {
++    if (err) return callback(err);
++    callback(null, Boolean(user));
++  });
++}
+diff --git a/src/services/order-service.js b/src/services/order-service.js
+new file mode 100644
+index 0000000..12cb020
+--- /dev/null
++++ b/src/services/order-service.js
+@@ -0,0 +1,13 @@
++import { query } from '../db.js';
++
++// Callback-style database access. Chapter 5 migrates this to OrderRepository.
++export function listOrdersForUser(userId, callback) {
++  query('orders', (o) => o.user_id === userId && o.deleted_at === null, callback);
++}
++
++export function totalPaidCents(callback) {
++  query('orders', (o) => o.status === 'paid' && o.deleted_at === null, (err, rows) => {
++    if (err) return callback(err);
++    callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
++  });
++}
+diff --git a/src/services/payment-service.js b/src/services/payment-service.js
+new file mode 100644
+index 0000000..7a8d3f3
+--- /dev/null
++++ b/src/services/payment-service.js
+@@ -0,0 +1,14 @@
++import { query } from '../db.js';
++
++// Callback-style database access. Chapter 5 migrates this to a PaymentRepository
++// the reader adds, which is the part of the exercise with no worked answer.
++export function findPaymentsForOrder(orderId, callback) {
++  query('payments', (p) => p.order_id === orderId, callback);
++}
++
++export function uncapturedTotalCents(callback) {
++  query('payments', (p) => p.captured === false, (err, rows) => {
++    if (err) return callback(err);
++    callback(null, rows.reduce((sum, p) => sum + p.amount_cents, 0));
++  });
++}
+diff --git a/src/services/user-service.js b/src/services/user-service.js
+new file mode 100644
+index 0000000..4c15fb3
+--- /dev/null
++++ b/src/services/user-service.js
+@@ -0,0 +1,17 @@
++import { query, update } from '../db.js';
++
++// Callback-style database access. Chapter 5 migrates this to UserRepository.
++export function listActiveUsers(callback) {
++  query('users', (u) => u.deleted_at === null, callback);
++}
++
++export function findUser(id, callback) {
++  query('users', (u) => u.id === id, (err, rows) => {
++    if (err) return callback(err);
++    callback(null, rows[0] ?? null);
++  });
++}
++
++export function softDeleteUser(id, when, callback) {
++  update('users', id, { deleted_at: when }, callback);
++}
+diff --git a/tests/auth-service.test.js b/tests/auth-service.test.js
+new file mode 100644
+index 0000000..8ea5570
+--- /dev/null
++++ b/tests/auth-service.test.js
+@@ -0,0 +1,19 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { findByEmail, isActive } from '../src/services/auth-service.js';
++
++test('findByEmail ignores soft-deleted users', (t, done) => {
++  findByEmail('alan@example.com', (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user, null);
++    done();
++  });
++});
++
++test('isActive is true for a live user', (t, done) => {
++  isActive('ada@example.com', (err, active) => {
++    assert.equal(err, null);
++    assert.equal(active, true);
++    done();
++  });
++});
+diff --git a/tests/order-service.test.js b/tests/order-service.test.js
+new file mode 100644
+index 0000000..4cbad96
+--- /dev/null
++++ b/tests/order-service.test.js
+@@ -0,0 +1,20 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { listOrdersForUser, totalPaidCents } from '../src/services/order-service.js';
++
++test('listOrdersForUser returns only that user orders', (t, done) => {
++  listOrdersForUser(1, (err, orders) => {
++    assert.equal(err, null);
++    assert.equal(orders.length, 2);
++    assert.ok(orders.every((o) => o.user_id === 1));
++    done();
++  });
++});
++
++test('totalPaidCents counts only paid orders', (t, done) => {
++  totalPaidCents((err, total) => {
++    assert.equal(err, null);
++    assert.equal(total, 4200 + 9900 + 500);
++    done();
++  });
++});
+diff --git a/tests/payment-service.test.js b/tests/payment-service.test.js
+new file mode 100644
+index 0000000..be8576c
+--- /dev/null
++++ b/tests/payment-service.test.js
+@@ -0,0 +1,20 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { findPaymentsForOrder, uncapturedTotalCents } from '../src/services/payment-service.js';
++
++test('findPaymentsForOrder finds the payment for an order', (t, done) => {
++  findPaymentsForOrder(10, (err, rows) => {
++    assert.equal(err, null);
++    assert.equal(rows.length, 1);
++    assert.equal(rows[0].amount_cents, 4200);
++    done();
++  });
++});
++
++test('uncapturedTotalCents sums uncaptured payments', (t, done) => {
++  uncapturedTotalCents((err, total) => {
++    assert.equal(err, null);
++    assert.equal(total, 9900);
++    done();
++  });
++});
+diff --git a/tests/repositories.test.js b/tests/repositories.test.js
+new file mode 100644
+index 0000000..3ff9a48
+--- /dev/null
++++ b/tests/repositories.test.js
+@@ -0,0 +1,14 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { UserRepository } from '../src/repositories/user-repository.js';
++import { OrderRepository } from '../src/repositories/order-repository.js';
++
++test('UserRepository.findActive matches the service behaviour', async () => {
++  const users = await new UserRepository().findActive();
++  assert.equal(users.length, 2);
++});
++
++test('OrderRepository.findPaid matches the service behaviour', async () => {
++  const orders = await new OrderRepository().findPaid();
++  assert.equal(orders.length, 3);
++});
+diff --git a/tests/user-service.test.js b/tests/user-service.test.js
+new file mode 100644
+index 0000000..874c616
+--- /dev/null
++++ b/tests/user-service.test.js
+@@ -0,0 +1,20 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { listActiveUsers, findUser } from '../src/services/user-service.js';
++
++test('listActiveUsers excludes soft-deleted users', (t, done) => {
++  listActiveUsers((err, users) => {
++    assert.equal(err, null);
++    assert.equal(users.length, 2);
++    assert.ok(users.every((u) => u.deleted_at === null));
++    done();
++  });
++});
++
++test('findUser returns null for an unknown id', (t, done) => {
++  findUser(999, (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user, null);
++    done();
++  });
++});
+--- task1
+---
+ src/repositories/user-repository.js | 7 +++++++
+ tests/repositories.test.js          | 8 ++++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/src/repositories/user-repository.js b/src/repositories/user-repository.js
+index ddada04..de0ceb1 100644
+--- a/src/repositories/user-repository.js
++++ b/src/repositories/user-repository.js
+@@ -17,6 +17,13 @@ export class UserRepository {
+     });
+   }
+ 
++  findByEmail(email) {
++    return new Promise((resolve, reject) => {
++      query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) =>
++        err ? reject(err) : resolve(rows[0] ?? null));
++    });
++  }
++
+   softDelete(id, when) {
+     return new Promise((resolve, reject) => {
+       update('users', id, { deleted_at: when }, (err, row) =>
+diff --git a/tests/repositories.test.js b/tests/repositories.test.js
+index 3ff9a48..6453c05 100644
+--- a/tests/repositories.test.js
++++ b/tests/repositories.test.js
+@@ -8,6 +8,14 @@ test('UserRepository.findActive matches the service behaviour', async () => {
+   assert.equal(users.length, 2);
+ });
+ 
++test('UserRepository.findByEmail returns the active user or null', async () => {
++  const repo = new UserRepository();
++  const ada = await repo.findByEmail('ada@example.com');
++  assert.equal(ada.id, 1);
++  assert.equal(await repo.findByEmail('alan@example.com'), null); // soft-deleted
++  assert.equal(await repo.findByEmail('nobody@example.com'), null);
++});
++
+ test('OrderRepository.findPaid matches the service behaviour', async () => {
+   const orders = await new OrderRepository().findPaid();
+   assert.equal(orders.length, 3);
+--- task2
+---
+ src/services/user-service.js |  7 ++++++-
+ tests/user-service.test.js   | 12 ++++++++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/src/services/user-service.js b/src/services/user-service.js
+index 4c15fb3..1da8865 100644
+--- a/src/services/user-service.js
++++ b/src/services/user-service.js
+@@ -1,8 +1,13 @@
+ import { query, update } from '../db.js';
++import { UserRepository } from '../repositories/user-repository.js';
++
++const users = new UserRepository();
+ 
+ // Callback-style database access. Chapter 5 migrates this to UserRepository.
++// listActiveUsers already goes through the repository; it keeps the callback
++// signature so existing callers (routes.js) don't change.
+ export function listActiveUsers(callback) {
+-  query('users', (u) => u.deleted_at === null, callback);
++  users.findActive().then((rows) => callback(null, rows), (err) => callback(err));
+ }
+ 
+ export function findUser(id, callback) {
+diff --git a/tests/user-service.test.js b/tests/user-service.test.js
+index 874c616..6b079a0 100644
+--- a/tests/user-service.test.js
++++ b/tests/user-service.test.js
+@@ -1,6 +1,7 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import { listActiveUsers, findUser } from '../src/services/user-service.js';
++import { UserRepository } from '../src/repositories/user-repository.js';
+ 
+ test('listActiveUsers excludes soft-deleted users', (t, done) => {
+   listActiveUsers((err, users) => {
+@@ -11,6 +12,17 @@ test('listActiveUsers excludes soft-deleted users', (t, done) => {
+   });
+ });
+ 
++test('listActiveUsers reads through UserRepository and passes errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  const findActive = t.mock.method(UserRepository.prototype, 'findActive', () => Promise.reject(boom));
++  listActiveUsers((err, users) => {
++    assert.equal(findActive.mock.callCount(), 1);
++    assert.equal(err, boom);
++    assert.equal(users, undefined);
++    done();
++  });
++});
++
+ test('findUser returns null for an unknown id', (t, done) => {
+   findUser(999, (err, user) => {
+     assert.equal(err, null);
+--- task3
+---
+ src/repositories/order-repository.js | 7 +++++++
+ tests/repositories.test.js           | 6 ++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/src/repositories/order-repository.js b/src/repositories/order-repository.js
+index 977cd24..85eb707 100644
+--- a/src/repositories/order-repository.js
++++ b/src/repositories/order-repository.js
+@@ -14,4 +14,11 @@ export class OrderRepository {
+         (err, rows) => (err ? reject(err) : resolve(rows)));
+     });
+   }
++
++  findQuotes() {
++    return new Promise((resolve, reject) => {
++      query('orders', (o) => o.status === 'quote' && o.deleted_at === null,
++        (err, rows) => (err ? reject(err) : resolve(rows)));
++    });
++  }
+ }
+diff --git a/tests/repositories.test.js b/tests/repositories.test.js
+index 6453c05..180a5f1 100644
+--- a/tests/repositories.test.js
++++ b/tests/repositories.test.js
+@@ -20,3 +20,9 @@ test('OrderRepository.findPaid matches the service behaviour', async () => {
+   const orders = await new OrderRepository().findPaid();
+   assert.equal(orders.length, 3);
+ });
++
++test('OrderRepository.findQuotes returns only non-deleted quote orders', async () => {
++  const orders = await new OrderRepository().findQuotes();
++  assert.deepEqual(orders.map((o) => o.id), [11]);
++  assert.ok(orders.every((o) => o.status === 'quote'));
++});
+--- task4
+---
+ src/services/order-service.js | 17 ++++++++++-------
+ tests/order-service.test.js   | 24 ++++++++++++++++++++++++
+ 2 files changed, 34 insertions(+), 7 deletions(-)
+
+diff --git a/src/services/order-service.js b/src/services/order-service.js
+index 12cb020..286613f 100644
+--- a/src/services/order-service.js
++++ b/src/services/order-service.js
+@@ -1,13 +1,16 @@
+-import { query } from '../db.js';
++import { OrderRepository } from '../repositories/order-repository.js';
+ 
+-// Callback-style database access. Chapter 5 migrates this to OrderRepository.
++const orders = new OrderRepository();
++
++// Reads go through OrderRepository; the callback signatures stay so existing
++// callers (routes.js) don't change.
+ export function listOrdersForUser(userId, callback) {
+-  query('orders', (o) => o.user_id === userId && o.deleted_at === null, callback);
++  orders.findByUser(userId).then((rows) => callback(null, rows), (err) => callback(err));
+ }
+ 
+ export function totalPaidCents(callback) {
+-  query('orders', (o) => o.status === 'paid' && o.deleted_at === null, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
+-  });
++  orders.findPaid().then(
++    (rows) => callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0)),
++    (err) => callback(err),
++  );
+ }
+diff --git a/tests/order-service.test.js b/tests/order-service.test.js
+index 4cbad96..a335922 100644
+--- a/tests/order-service.test.js
++++ b/tests/order-service.test.js
+@@ -1,6 +1,7 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import { listOrdersForUser, totalPaidCents } from '../src/services/order-service.js';
++import { OrderRepository } from '../src/repositories/order-repository.js';
+ 
+ test('listOrdersForUser returns only that user orders', (t, done) => {
+   listOrdersForUser(1, (err, orders) => {
+@@ -11,6 +12,18 @@ test('listOrdersForUser returns only that user orders', (t, done) => {
+   });
+ });
+ 
++test('listOrdersForUser reads through OrderRepository and passes errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  const findByUser = t.mock.method(OrderRepository.prototype, 'findByUser', () => Promise.reject(boom));
++  listOrdersForUser(1, (err, orders) => {
++    assert.equal(findByUser.mock.callCount(), 1);
++    assert.deepEqual(findByUser.mock.calls[0].arguments, [1]);
++    assert.equal(err, boom);
++    assert.equal(orders, undefined);
++    done();
++  });
++});
++
+ test('totalPaidCents counts only paid orders', (t, done) => {
+   totalPaidCents((err, total) => {
+     assert.equal(err, null);
+@@ -18,3 +31,14 @@ test('totalPaidCents counts only paid orders', (t, done) => {
+     done();
+   });
+ });
++
++test('totalPaidCents reads through OrderRepository and passes errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  const findPaid = t.mock.method(OrderRepository.prototype, 'findPaid', () => Promise.reject(boom));
++  totalPaidCents((err, total) => {
++    assert.equal(findPaid.mock.callCount(), 1);
++    assert.equal(err, boom);
++    assert.equal(total, undefined);
++    done();
++  });
++});
+--- task5
+---
+ src/repositories/payment-repository.js | 17 +++++++++++++++++
+ src/services/payment-service.js        | 18 ++++++++++--------
+ tests/payment-service.test.js          | 24 ++++++++++++++++++++++++
+ tests/repositories.test.js             | 12 ++++++++++++
+ 4 files changed, 63 insertions(+), 8 deletions(-)
+
+diff --git a/src/repositories/payment-repository.js b/src/repositories/payment-repository.js
+new file mode 100644
+index 0000000..ff473ee
+--- /dev/null
++++ b/src/repositories/payment-repository.js
+@@ -0,0 +1,17 @@
++import { query } from '../db.js';
++
++export class PaymentRepository {
++  findByOrder(orderId) {
++    return new Promise((resolve, reject) => {
++      query('payments', (p) => p.order_id === orderId,
++        (err, rows) => (err ? reject(err) : resolve(rows)));
++    });
++  }
++
++  findUncaptured() {
++    return new Promise((resolve, reject) => {
++      query('payments', (p) => p.captured === false,
++        (err, rows) => (err ? reject(err) : resolve(rows)));
++    });
++  }
++}
+diff --git a/src/services/payment-service.js b/src/services/payment-service.js
+index 7a8d3f3..3ac56e4 100644
+--- a/src/services/payment-service.js
++++ b/src/services/payment-service.js
+@@ -1,14 +1,16 @@
+-import { query } from '../db.js';
++import { PaymentRepository } from '../repositories/payment-repository.js';
+ 
+-// Callback-style database access. Chapter 5 migrates this to a PaymentRepository
+-// the reader adds, which is the part of the exercise with no worked answer.
++const payments = new PaymentRepository();
++
++// Reads go through PaymentRepository; the callback signatures stay so existing
++// callers don't change.
+ export function findPaymentsForOrder(orderId, callback) {
+-  query('payments', (p) => p.order_id === orderId, callback);
++  payments.findByOrder(orderId).then((rows) => callback(null, rows), (err) => callback(err));
+ }
+ 
+ export function uncapturedTotalCents(callback) {
+-  query('payments', (p) => p.captured === false, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows.reduce((sum, p) => sum + p.amount_cents, 0));
+-  });
++  payments.findUncaptured().then(
++    (rows) => callback(null, rows.reduce((sum, p) => sum + p.amount_cents, 0)),
++    (err) => callback(err),
++  );
+ }
+diff --git a/tests/payment-service.test.js b/tests/payment-service.test.js
+index be8576c..5cca6c5 100644
+--- a/tests/payment-service.test.js
++++ b/tests/payment-service.test.js
+@@ -1,6 +1,7 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import { findPaymentsForOrder, uncapturedTotalCents } from '../src/services/payment-service.js';
++import { PaymentRepository } from '../src/repositories/payment-repository.js';
+ 
+ test('findPaymentsForOrder finds the payment for an order', (t, done) => {
+   findPaymentsForOrder(10, (err, rows) => {
+@@ -11,6 +12,18 @@ test('findPaymentsForOrder finds the payment for an order', (t, done) => {
+   });
+ });
+ 
++test('findPaymentsForOrder reads through PaymentRepository and passes errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  const findByOrder = t.mock.method(PaymentRepository.prototype, 'findByOrder', () => Promise.reject(boom));
++  findPaymentsForOrder(10, (err, rows) => {
++    assert.equal(findByOrder.mock.callCount(), 1);
++    assert.deepEqual(findByOrder.mock.calls[0].arguments, [10]);
++    assert.equal(err, boom);
++    assert.equal(rows, undefined);
++    done();
++  });
++});
++
+ test('uncapturedTotalCents sums uncaptured payments', (t, done) => {
+   uncapturedTotalCents((err, total) => {
+     assert.equal(err, null);
+@@ -18,3 +31,14 @@ test('uncapturedTotalCents sums uncaptured payments', (t, done) => {
+     done();
+   });
+ });
++
++test('uncapturedTotalCents reads through PaymentRepository and passes errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  const findUncaptured = t.mock.method(PaymentRepository.prototype, 'findUncaptured', () => Promise.reject(boom));
++  uncapturedTotalCents((err, total) => {
++    assert.equal(findUncaptured.mock.callCount(), 1);
++    assert.equal(err, boom);
++    assert.equal(total, undefined);
++    done();
++  });
++});
+diff --git a/tests/repositories.test.js b/tests/repositories.test.js
+index 180a5f1..f27cf86 100644
+--- a/tests/repositories.test.js
++++ b/tests/repositories.test.js
+@@ -2,6 +2,7 @@ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import { UserRepository } from '../src/repositories/user-repository.js';
+ import { OrderRepository } from '../src/repositories/order-repository.js';
++import { PaymentRepository } from '../src/repositories/payment-repository.js';
+ 
+ test('UserRepository.findActive matches the service behaviour', async () => {
+   const users = await new UserRepository().findActive();
+@@ -26,3 +27,14 @@ test('OrderRepository.findQuotes returns only non-deleted quote orders', async (
+   assert.deepEqual(orders.map((o) => o.id), [11]);
+   assert.ok(orders.every((o) => o.status === 'quote'));
+ });
++
++test('PaymentRepository.findByOrder returns only that order payments', async () => {
++  const repo = new PaymentRepository();
++  assert.deepEqual((await repo.findByOrder(10)).map((p) => p.id), [100]);
++  assert.deepEqual(await repo.findByOrder(11), []);
++});
++
++test('PaymentRepository.findUncaptured returns only uncaptured payments', async () => {
++  const payments = await new PaymentRepository().findUncaptured();
++  assert.deepEqual(payments.map((p) => p.id), [101]);
++});
+--- task6
+---
+ src/api/routes.js                      |  3 +-
+ src/repositories/payment-repository.js |  8 ++++++
+ src/services/payment-service.js        |  9 ++++++
+ tests/payment-service.test.js          | 52 +++++++++++++++++++++++++++++++++-
+ tests/repositories.test.js             |  7 +++++
+ 5 files changed, 77 insertions(+), 2 deletions(-)
+
+diff --git a/src/api/routes.js b/src/api/routes.js
+index 3d62f69..80fd610 100644
+--- a/src/api/routes.js
++++ b/src/api/routes.js
+@@ -2,12 +2,13 @@
+ // in Chapter 1's rate-limiting example without an Express dependency.
+ import { listActiveUsers, findUser } from '../services/user-service.js';
+ import { listOrdersForUser, totalPaidCents } from '../services/order-service.js';
+-import { uncapturedTotalCents } from '../services/payment-service.js';
++import { listPaymentsForUser, uncapturedTotalCents } from '../services/payment-service.js';
+ 
+ export const routes = [
+   { method: 'GET', path: '/users', handler: (req, cb) => listActiveUsers(cb) },
+   { method: 'GET', path: '/users/:id', handler: (req, cb) => findUser(Number(req.params.id), cb) },
+   { method: 'GET', path: '/users/:id/orders', handler: (req, cb) => listOrdersForUser(Number(req.params.id), cb) },
++  { method: 'GET', path: '/users/:id/payments', handler: (req, cb) => listPaymentsForUser(Number(req.params.id), cb) },
+   { method: 'GET', path: '/reports/paid-total', handler: (req, cb) => totalPaidCents(cb) },
+   { method: 'GET', path: '/reports/uncaptured-total', handler: (req, cb) => uncapturedTotalCents(cb) },
+ ];
+diff --git a/src/repositories/payment-repository.js b/src/repositories/payment-repository.js
+index ff473ee..4b3eab5 100644
+--- a/src/repositories/payment-repository.js
++++ b/src/repositories/payment-repository.js
+@@ -8,6 +8,14 @@ export class PaymentRepository {
+     });
+   }
+ 
++  findByOrders(orderIds) {
++    const ids = new Set(orderIds);
++    return new Promise((resolve, reject) => {
++      query('payments', (p) => ids.has(p.order_id),
++        (err, rows) => (err ? reject(err) : resolve(rows)));
++    });
++  }
++
+   findUncaptured() {
+     return new Promise((resolve, reject) => {
+       query('payments', (p) => p.captured === false,
+diff --git a/src/services/payment-service.js b/src/services/payment-service.js
+index 3ac56e4..dd01752 100644
+--- a/src/services/payment-service.js
++++ b/src/services/payment-service.js
+@@ -1,5 +1,7 @@
++import { OrderRepository } from '../repositories/order-repository.js';
+ import { PaymentRepository } from '../repositories/payment-repository.js';
+ 
++const orders = new OrderRepository();
+ const payments = new PaymentRepository();
+ 
+ // Reads go through PaymentRepository; the callback signatures stay so existing
+@@ -8,6 +10,13 @@ export function findPaymentsForOrder(orderId, callback) {
+   payments.findByOrder(orderId).then((rows) => callback(null, rows), (err) => callback(err));
+ }
+ 
++// Payments on the user's non-deleted orders.
++export function listPaymentsForUser(userId, callback) {
++  orders.findByUser(userId)
++    .then((rows) => payments.findByOrders(rows.map((o) => o.id)))
++    .then((rows) => callback(null, rows), (err) => callback(err));
++}
++
+ export function uncapturedTotalCents(callback) {
+   payments.findUncaptured().then(
+     (rows) => callback(null, rows.reduce((sum, p) => sum + p.amount_cents, 0)),
+diff --git a/tests/payment-service.test.js b/tests/payment-service.test.js
+index 5cca6c5..5fe3238 100644
+--- a/tests/payment-service.test.js
++++ b/tests/payment-service.test.js
+@@ -1,7 +1,57 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+-import { findPaymentsForOrder, uncapturedTotalCents } from '../src/services/payment-service.js';
++import { findPaymentsForOrder, listPaymentsForUser, uncapturedTotalCents } from '../src/services/payment-service.js';
++import { OrderRepository } from '../src/repositories/order-repository.js';
+ import { PaymentRepository } from '../src/repositories/payment-repository.js';
++import { routes } from '../src/api/routes.js';
++
++test('listPaymentsForUser returns payments on that user orders only', (t, done) => {
++  listPaymentsForUser(1, (err, rows) => {
++    assert.equal(err, null);
++    assert.deepEqual(rows.map((p) => p.id), [100]);
++    done();
++  });
++});
++
++test('listPaymentsForUser returns an empty list for an unknown user', (t, done) => {
++  listPaymentsForUser(999, (err, rows) => {
++    assert.equal(err, null);
++    assert.deepEqual(rows, []);
++    done();
++  });
++});
++
++test('listPaymentsForUser reads through the repositories', (t, done) => {
++  const findByUser = t.mock.method(OrderRepository.prototype, 'findByUser', () => Promise.resolve([{ id: 12 }]));
++  const findByOrders = t.mock.method(PaymentRepository.prototype, 'findByOrders');
++  listPaymentsForUser(1, (err, rows) => {
++    assert.equal(err, null);
++    assert.deepEqual(findByUser.mock.calls[0].arguments, [1]);
++    assert.deepEqual(findByOrders.mock.calls[0].arguments, [[12]]);
++    assert.deepEqual(rows.map((p) => p.id), [101]);
++    done();
++  });
++});
++
++test('listPaymentsForUser passes repository errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  t.mock.method(PaymentRepository.prototype, 'findByOrders', () => Promise.reject(boom));
++  listPaymentsForUser(1, (err, rows) => {
++    assert.equal(err, boom);
++    assert.equal(rows, undefined);
++    done();
++  });
++});
++
++test('GET /users/:id/payments routes to listPaymentsForUser with a numeric id', (t, done) => {
++  const route = routes.find((r) => r.method === 'GET' && r.path === '/users/:id/payments');
++  assert.ok(route);
++  route.handler({ params: { id: '2' } }, (err, rows) => {
++    assert.equal(err, null);
++    assert.deepEqual(rows.map((p) => p.id), [101]);
++    done();
++  });
++});
+ 
+ test('findPaymentsForOrder finds the payment for an order', (t, done) => {
+   findPaymentsForOrder(10, (err, rows) => {
+diff --git a/tests/repositories.test.js b/tests/repositories.test.js
+index f27cf86..4050f21 100644
+--- a/tests/repositories.test.js
++++ b/tests/repositories.test.js
+@@ -34,6 +34,13 @@ test('PaymentRepository.findByOrder returns only that order payments', async ()
+   assert.deepEqual(await repo.findByOrder(11), []);
+ });
+ 
++test('PaymentRepository.findByOrders returns payments for any of the given orders', async () => {
++  const repo = new PaymentRepository();
++  assert.deepEqual((await repo.findByOrders([10, 12])).map((p) => p.id), [100, 101]);
++  assert.deepEqual((await repo.findByOrders([10, 11])).map((p) => p.id), [100]);
++  assert.deepEqual(await repo.findByOrders([]), []);
++});
++
+ test('PaymentRepository.findUncaptured returns only uncaptured payments', async () => {
+   const payments = await new PaymentRepository().findUncaptured();
+   assert.deepEqual(payments.map((p) => p.id), [101]);
+--- task7
+---
+ src/api/routes.js                   |  3 +-
+ src/repositories/user-repository.js |  2 +-
+ src/services/user-service.js        | 11 +++----
+ tests/repositories.test.js          |  7 +++++
+ tests/user-service.test.js          | 60 ++++++++++++++++++++++++++++++++++++-
+ 5 files changed, 75 insertions(+), 8 deletions(-)
+
+diff --git a/src/api/routes.js b/src/api/routes.js
+index 80fd610..9a87a59 100644
+--- a/src/api/routes.js
++++ b/src/api/routes.js
+@@ -1,6 +1,6 @@
+ // A router with no framework, so the project has an HTTP surface to survey
+ // in Chapter 1's rate-limiting example without an Express dependency.
+-import { listActiveUsers, findUser } from '../services/user-service.js';
++import { listActiveUsers, findUser, countActiveUsers } from '../services/user-service.js';
+ import { listOrdersForUser, totalPaidCents } from '../services/order-service.js';
+ import { listPaymentsForUser, uncapturedTotalCents } from '../services/payment-service.js';
+ 
+@@ -11,6 +11,7 @@ export const routes = [
+   { method: 'GET', path: '/users/:id/payments', handler: (req, cb) => listPaymentsForUser(Number(req.params.id), cb) },
+   { method: 'GET', path: '/reports/paid-total', handler: (req, cb) => totalPaidCents(cb) },
+   { method: 'GET', path: '/reports/uncaptured-total', handler: (req, cb) => uncapturedTotalCents(cb) },
++  { method: 'GET', path: '/reports/active-users-count', handler: (req, cb) => countActiveUsers(cb) },
+ ];
+ 
+ export function listEndpoints() {
+diff --git a/src/repositories/user-repository.js b/src/repositories/user-repository.js
+index de0ceb1..1c7367b 100644
+--- a/src/repositories/user-repository.js
++++ b/src/repositories/user-repository.js
+@@ -12,7 +12,7 @@ export class UserRepository {
+ 
+   findById(id) {
+     return new Promise((resolve, reject) => {
+-      query('users', (u) => u.id === id, (err, rows) =>
++      query('users', (u) => u.id === id && u.deleted_at === null, (err, rows) =>
+         err ? reject(err) : resolve(rows[0] ?? null));
+     });
+   }
+diff --git a/src/services/user-service.js b/src/services/user-service.js
+index 1da8865..64c9ac0 100644
+--- a/src/services/user-service.js
++++ b/src/services/user-service.js
+@@ -1,4 +1,4 @@
+-import { query, update } from '../db.js';
++import { update } from '../db.js';
+ import { UserRepository } from '../repositories/user-repository.js';
+ 
+ const users = new UserRepository();
+@@ -11,10 +11,11 @@ export function listActiveUsers(callback) {
+ }
+ 
+ export function findUser(id, callback) {
+-  query('users', (u) => u.id === id, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows[0] ?? null);
+-  });
++  users.findById(id).then((user) => callback(null, user), (err) => callback(err));
++}
++
++export function countActiveUsers(callback) {
++  users.findActive().then((rows) => callback(null, rows.length), (err) => callback(err));
+ }
+ 
+ export function softDeleteUser(id, when, callback) {
+diff --git a/tests/repositories.test.js b/tests/repositories.test.js
+index 4050f21..c35742b 100644
+--- a/tests/repositories.test.js
++++ b/tests/repositories.test.js
+@@ -9,6 +9,13 @@ test('UserRepository.findActive matches the service behaviour', async () => {
+   assert.equal(users.length, 2);
+ });
+ 
++test('UserRepository.findById returns the active user or null', async () => {
++  const repo = new UserRepository();
++  assert.equal((await repo.findById(1)).email, 'ada@example.com');
++  assert.equal(await repo.findById(3), null); // soft-deleted
++  assert.equal(await repo.findById(999), null);
++});
++
+ test('UserRepository.findByEmail returns the active user or null', async () => {
+   const repo = new UserRepository();
+   const ada = await repo.findByEmail('ada@example.com');
+diff --git a/tests/user-service.test.js b/tests/user-service.test.js
+index 6b079a0..5a5c786 100644
+--- a/tests/user-service.test.js
++++ b/tests/user-service.test.js
+@@ -1,7 +1,8 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+-import { listActiveUsers, findUser } from '../src/services/user-service.js';
++import { listActiveUsers, findUser, countActiveUsers } from '../src/services/user-service.js';
+ import { UserRepository } from '../src/repositories/user-repository.js';
++import { routes } from '../src/api/routes.js';
+ 
+ test('listActiveUsers excludes soft-deleted users', (t, done) => {
+   listActiveUsers((err, users) => {
+@@ -30,3 +31,60 @@ test('findUser returns null for an unknown id', (t, done) => {
+     done();
+   });
+ });
++
++test('findUser returns a live user', (t, done) => {
++  findUser(1, (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user.email, 'ada@example.com');
++    done();
++  });
++});
++
++test('findUser returns null for a soft-deleted user', (t, done) => {
++  findUser(3, (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user, null);
++    done();
++  });
++});
++
++test('findUser reads through UserRepository and passes errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  const findById = t.mock.method(UserRepository.prototype, 'findById', () => Promise.reject(boom));
++  findUser(1, (err, user) => {
++    assert.equal(findById.mock.callCount(), 1);
++    assert.deepEqual(findById.mock.calls[0].arguments, [1]);
++    assert.equal(err, boom);
++    assert.equal(user, undefined);
++    done();
++  });
++});
++
++test('countActiveUsers counts only non-deleted users', (t, done) => {
++  countActiveUsers((err, count) => {
++    assert.equal(err, null);
++    assert.equal(count, 2);
++    done();
++  });
++});
++
++test('countActiveUsers reads through UserRepository and passes errors to the callback', (t, done) => {
++  const boom = new Error('boom');
++  const findActive = t.mock.method(UserRepository.prototype, 'findActive', () => Promise.reject(boom));
++  countActiveUsers((err, count) => {
++    assert.equal(findActive.mock.callCount(), 1);
++    assert.equal(err, boom);
++    assert.equal(count, undefined);
++    done();
++  });
++});
++
++test('GET /reports/active-users-count routes to countActiveUsers', (t, done) => {
++  const route = routes.find((r) => r.method === 'GET' && r.path === '/reports/active-users-count');
++  assert.ok(route);
++  route.handler({ params: {} }, (err, count) => {
++    assert.equal(err, null);
++    assert.equal(count, 2);
++    done();
++  });
++});

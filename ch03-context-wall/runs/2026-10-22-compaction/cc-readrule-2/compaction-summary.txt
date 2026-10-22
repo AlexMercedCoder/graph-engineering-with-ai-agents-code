@@ -1,0 +1,79 @@
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+<tools-used-before-summary>Bash, Edit, Read</tools-used-before-summary>
+Summary:
+1. Primary Request and Intent:
+   - Read docs/RULES.md and follow its rules for the whole session. The rules, verbatim:
+     1. "All database access goes through the repository classes in src/repositories/. Code in src/services/ must not import query() or update() from src/db.js in anything you add or change."
+     2. "Every new or changed function gets a test."
+     3. "No new dependencies: package.json keeps an empty dependency list."
+   - Add UserRepository.findByEmail with a test and run npm test. Done.
+   - Make listActiveUsers in src/services/user-service.js use UserRepository and run npm test. Done.
+   - Add OrderRepository.findQuotes() returning orders with status "quote", with a test, and run npm test. The code is done and the tests pass, but I haven't reported back to the user yet.
+
+2. Key Technical Concepts:
+   - Node ≥20 ESM project (orders-api). Tests use node:test with `npm test` (`node --test`). Lint runs with `npm run lint` (scripts/lint.js).
+   - src/db.js is an in-memory database with a callback API: `query(table, predicate, cb)` and `update(table, id, patch, cb)`.
+   - Repositories are promise-based wrappers around db.js. Services use callbacks and are being migrated to the repositories.
+   - Soft-delete convention: rows with `deleted_at === null` are live.
+
+3. Files and Code Sections:
+   - src/repositories/user-repository.js: has findActive, findById, and softDelete. I added:
+     ```js
+     findByEmail(email) {
+       return new Promise((resolve, reject) => {
+         query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) =>
+           err ? reject(err) : resolve(rows[0] ?? null));
+       });
+     }
+     ```
+   - src/repositories/order-repository.js: has findByUser and findPaid. I added:
+     ```js
+     findQuotes() {
+       return new Promise((resolve, reject) => {
+         query('orders', (o) => o.status === 'quote' && o.deleted_at === null,
+           (err, rows) => (err ? reject(err) : resolve(rows)));
+       });
+     }
+     ```
+   - src/services/user-service.js, changed version:
+     ```js
+     import { query, update } from '../db.js';
+     import { UserRepository } from '../repositories/user-repository.js';
+     const users = new UserRepository();
+     export function listActiveUsers(callback) {
+       users.findActive().then((rows) => callback(null, rows), callback);
+     }
+     ```
+     findUser and softDeleteUser are unchanged and still use query and update.
+   - tests/repositories.test.js: I added tests for findByEmail (Ada is found with id 1; Alan, who is soft-deleted, returns null; an unknown email returns null) and for findQuotes (ids are `[11]` and every order has status 'quote').
+   - src/services/auth-service.js: has a callback-style findByEmail and isActive that call query directly. I left it unchanged.
+   - src/api/routes.js calls listActiveUsers(cb).
+   - Seed data: 3 users, with user 3 (Alan) soft-deleted. Orders 10, 12, and 13 are paid; order 11 is a quote.
+
+4. Errors and fixes: None.
+
+5. Problem Solving:
+   - I kept callback signatures so callers don't change.
+   - I followed rule 1 by not adding any new query/update usage in services.
+   - Known caveat: in listActiveUsers, an exception thrown by the callback becomes an unhandled rejection.
+
+6. All user messages:
+   - "Read docs/RULES.md and follow those rules for this whole session. Reply only: ready."
+   - "Add a findByEmail method to UserRepository and a test for it. Run npm test when you're done."
+   - "Make listActiveUsers in src/services/user-service.js use UserRepository. Run npm test when you're done."
+   - "Add an OrderRepository.findQuotes() method that returns orders with status "quote", and a test. Run npm test when you're done."
+
+7. Pending Tasks:
+   - Report the findQuotes result to the user.
+
+8. Current Work:
+   I implemented OrderRepository.findQuotes() and its test. npm test passed 12/12 and lint reported "13 file(s) clean".
+
+9. Optional Next Step:
+   Tell the user that findQuotes was added. It excludes soft-deleted orders, like findPaid does. The test checks that only order 11 is returned. npm test passes 12/12, lint is clean, and no dependencies were added.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: <local-transcript-path>
+Continue the conversation from where it left off without asking the user any further questions. Resume directly — do not acknowledge the summary, do not recap what was happening, do not preface with "I'll continue" or similar. Pick up the last task as if the break never happened.
+
+The messages after this summary are the most recent messages from before compaction, kept verbatim. The summary was written without seeing them, so something it says has not happened yet may already have happened in them.
