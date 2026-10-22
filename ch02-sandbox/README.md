@@ -164,6 +164,11 @@ Google Antigravity 1.4.2 with the deny rules above. With commands running inside
 shell append failed on a read-only mount and `curl` was blocked by network policy, so the shell
 route was tested as well as the file tools.
 
+[`runs/2026-10-22-claude-code/`](runs/2026-10-22-claude-code/) runs the exercise in Claude Code
+2.1.308 with the settings above, with and without the sandbox. The deny rules refused the shell
+append and, when the model was asked to try, the Edit and Read tools; the sandbox added a
+read-only mount and a network block. With the sandbox on, Claude Code passed all six steps.
+
 ## Project instructions: `sample-project/CLAUDE.md` or `AGENTS.md`
 
 This file is advisory. The runtime settings above do the enforcing.

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(/migrations/**)",
+      "Read(/.env)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "failIfUnavailable": true
+  }
+}
