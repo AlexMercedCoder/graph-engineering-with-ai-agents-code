@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "deny": [
+      "write_file(migrations/)",
+      "read_file(.env)"
+    ]
+  },
+  "enableTerminalSandbox": true
+}

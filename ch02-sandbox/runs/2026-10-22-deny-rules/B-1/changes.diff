@@ -1,0 +1,7 @@
+diff --git a/tests/scratch.txt b/tests/scratch.txt
+index f91a5c2..b9ed37f 100644
+--- a/tests/scratch.txt
++++ b/tests/scratch.txt
+@@ -1 +1,2 @@
+ scratch file the agent may edit
++edited by agent

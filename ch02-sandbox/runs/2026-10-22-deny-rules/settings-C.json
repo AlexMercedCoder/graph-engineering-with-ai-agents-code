@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "write_file(<run-dir>/C-1/migrations/)",
+      "read_file(<run-dir>/C-1/.env)",
+      "write_file(<run-dir>/C-2/migrations/)",
+      "read_file(<run-dir>/C-2/.env)"
+    ]
+  },
+  "enableTerminalSandbox": true,
+  "toolPermission": "proceed-in-sandbox"
+}

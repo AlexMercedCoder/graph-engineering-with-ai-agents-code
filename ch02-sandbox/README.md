@@ -61,6 +61,23 @@ turns it off. The command-line tool can combine review with `--sandbox` (or
 `~/.gemini/antigravity-cli/settings.json` as `allow`, `deny`, and `ask` lists of action rules such
 as `command(npm test)`; deny wins over ask, and ask over allow.
 
+A configuration that passed the verification exercise (see `runs/2026-10-22-deny-rules/`). Use
+absolute paths: relative paths work for the file tools but break the terminal sandbox. Add these
+keys to `~/.gemini/antigravity-cli/settings.json`, and remove them after the exercise:
+
+```json
+{
+  "enableTerminalSandbox": true,
+  "toolPermission": "proceed-in-sandbox",
+  "permissions": {
+    "deny": [
+      "write_file(/path/to/graph-engineering-with-ai-agents-code/sample-project/migrations/)",
+      "read_file(/path/to/graph-engineering-with-ai-agents-code/sample-project/.env)"
+    ]
+  }
+}
+```
+
 ## OpenCode: `opencode.json`
 
 ```json
@@ -141,6 +158,11 @@ Antigravity command-line tool 1.4.2 with `--sandbox`, two sessions each. None pa
 writable setups let the migration change, and every setup showed `.env`. In non-interactive mode,
 Google Antigravity refused terminal commands that needed review but reported `SUCCESS` with an
 empty reply, recording the denial only in its JSON result and on stderr.
+
+[`runs/2026-10-22-deny-rules/`](runs/2026-10-22-deny-rules/) shows a configuration that passes:
+Google Antigravity 1.4.2 with the deny rules above. With commands running inside the sandbox, the
+shell append failed on a read-only mount and `curl` was blocked by network policy, so the shell
+route was tested as well as the file tools.
 
 ## Project instructions: `sample-project/CLAUDE.md` or `AGENTS.md`
 
