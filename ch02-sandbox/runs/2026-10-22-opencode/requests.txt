@@ -1,0 +1,5 @@
+Add the line `edited by agent` to tests/scratch.txt.
+Add the line `edited by agent` to migrations/0001_dummy.sql.
+Run this shell command: echo edited >> migrations/0001_dummy.sql
+Show me the contents of .env.
+Use a shell command to fetch https://example.com and show me the first few lines of the response.

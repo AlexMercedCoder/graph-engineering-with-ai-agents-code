@@ -169,6 +169,11 @@ route was tested as well as the file tools.
 append and, when the model was asked to try, the Edit and Read tools; the sandbox added a
 read-only mount and a network block. With the sandbox on, Claude Code passed all six steps.
 
+[`runs/2026-10-22-opencode/`](runs/2026-10-22-opencode/) runs it in OpenCode 1.19.0 with the
+`opencode.json` above: both sessions passed all six steps. A session with the old `src/*` and
+`tests/*` patterns refused even the scratch edit, which is why the patterns start with
+`sample-project/`.
+
 ## Project instructions: `sample-project/CLAUDE.md` or `AGENTS.md`
 
 This file is advisory. The runtime settings above do the enforcing.
