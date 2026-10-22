@@ -52,7 +52,7 @@ in the source with the one-line change that switches them to a real provider.
 | Chapter | Directory | What is here |
 |---|---|---|
 | 1 | `ch01-prompt-loop/` | The setup commands, the three exercises, and transcripts from four real runs of the instruction-decay exercise |
-| 2 | `ch02-sandbox/` | The least-privilege sandbox policy in YAML, JSON, TypeScript, and project-context forms |
+| 2 | `ch02-sandbox/` | Per-harness permission and sandbox configuration, the verification exercise, and real runs of it in Claude Code, OpenAI Codex, Google Antigravity, and OpenCode, including configurations that pass |
 | 3 | `ch03-context-wall/` | The seven-task ladder, the three constraints to declare, and `parse-usage.py` to record the curve as CSV |
 | 4 | `ch04-routing/` | Four skills, the 20-prompt evaluation set, a scorer that reports the unambiguous/ambiguous split, and the three description versions |
 | 5 | `ch05-subagents/` | Worker and dispatcher definitions, the node files, and `run-graph.sh`: the manual execution graph, runnable with any harness that has a non-interactive mode |
