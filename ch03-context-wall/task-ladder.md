@@ -58,6 +58,7 @@ also had the author's own skills and MCP servers loaded; a clean setup gives a l
   Its `--json` output has no per-request usage, so measure the session log instead:
   `~/.codex/sessions/YYYY/MM/DD/rollout-*-<thread-id>.jsonl`. A continuous session keeps every
   turn in one log; `measure-usage.py --turns` splits it into one line per turn.
+  If your version compresses the log to `.jsonl.zst`, decompress it with `zstd -d` first.
 
 ## After each task
 
