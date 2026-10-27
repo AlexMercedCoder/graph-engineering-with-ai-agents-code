@@ -1,0 +1,14 @@
+dispatch-1 secs=69 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: payment-service.js,user-service.js, | changed: 5 files
+single-2 secs=70 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 11 files
+single-1 secs=82 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 11 files
+dispatch-2 secs=90 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 10 files
+dispatch-3 secs=72 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: payment-service.js, | changed: 7 files
+dispatch-4 secs=97 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 10 files
+dispatch-5 secs=41 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: auth-service.js,order-service.js,payment-service.js,user-service.js, | changed: 0 files
+dispatch-6 secs=103 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 10 files
+dispatch-8 secs=62 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 10 files
+dispatch-7 secs=170 tests: ℹ pass 8 ℹ fail 0 | services still importing db.js: payment-service.js, | changed: 4 files
+dispatch-10 secs=54 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 10 files
+dispatch-9 secs=59 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 10 files
+dispatch-11 secs=85 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 11 files
+dispatch-12 secs=114 tests: ℹ pass 10 ℹ fail 0 | services still importing db.js: none | changed: 11 files

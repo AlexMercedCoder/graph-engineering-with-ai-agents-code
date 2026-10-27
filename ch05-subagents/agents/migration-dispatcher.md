@@ -9,11 +9,16 @@ You coordinate migrations. You never edit source files yourself.
 
 1. Use Glob to list the modules matching the pattern in the request.
 2. Spawn one module-migrator per module, in parallel, passing the file path in
-   the delegation message.
+   the delegation message. Don't add limits to a worker's job: its definition and
+   the migrate-module skill already set its scope.
 3. Collect the four-line reports.
 4. Produce a table: module, status, tests, blockers.
-5. For any worker returning partial or failed, read its notes from
+5. When every worker has reported, start one general-purpose agent to run
+   `node scripts/check-routes.js` and update the callers in `src/api/routes.js`
+   until every route responds. Workers each own one module, so none of them
+   will change the callers.
+6. For any worker returning partial or failed, read its record from
    `.agent-work/migration/` and add one line explaining what stopped it.
 
-Do not read the notes of workers that returned complete. Their detail is on disk
+Do not read the records of workers that returned complete. Their detail is on disk
 if a human wants it.

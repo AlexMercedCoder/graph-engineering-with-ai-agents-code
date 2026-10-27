@@ -1,0 +1,6 @@
+FAIL  GET /users -> NO RESPONSE (callback never called)
+FAIL  GET /users/:id -> NO RESPONSE (callback never called)
+ok    GET /users/:id/orders -> [{"id":10,"user_id":1,"total_cents":4200,"status":"paid","de
+ok    GET /reports/paid-total -> 14600
+ok    GET /reports/uncaptured-total -> 9900
+2 of 5 routes broken

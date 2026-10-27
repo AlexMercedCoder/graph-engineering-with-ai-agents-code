@@ -15,6 +15,6 @@
 {"id":15,"kind":"ambiguous","prompt":"Tidy up the services directory","expected":"fix-lint","note":"tidy is style; it names no migration target"}
 {"id":16,"kind":"ambiguous","prompt":"Go through payment-service.js and tell me what you find","expected":"code-review","note":"tell me what you find is a report"}
 {"id":17,"kind":"ambiguous","prompt":"What should change in order-service.js?","expected":"code-review","note":"asks for findings, not for the change"}
-{"id":18,"kind":"ambiguous","prompt":"Bring auth-service.js in line with the other services","expected":"migrate-module","note":"the other services are migrated; this asks for the same"}
+{"id":18,"kind":"ambiguous","prompt":"Bring auth-service.js in line with the other services","expected":"migrate-module","note":"in line with means the repository pattern the project is moving to, which is the migration"}
 {"id":19,"kind":"ambiguous","prompt":"Walk me through the order flow","expected":"explain-module","note":"walk me through is explanation"}
 {"id":20,"kind":"ambiguous","prompt":"Is user-service.js using the repositories yet?","expected":"explain-module","note":"a question about state, not a request to change it"}

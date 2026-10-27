@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "skill": {
+      "*": "deny",
+      "code-review": "allow",
+      "explain-module": "allow",
+      "fix-lint": "allow",
+      "migrate-module": "allow"
+    }
+  }
+}

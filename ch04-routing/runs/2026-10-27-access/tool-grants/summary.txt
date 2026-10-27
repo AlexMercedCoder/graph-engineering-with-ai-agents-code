@@ -1,0 +1,6 @@
+disallowed-1 edited:  | denials: 1
+allowed-1 edited:  M src/services/payment-service.js  | denials: 3
+disallowed-2 edited:  | denials: 4
+allowed-2 edited:  M src/services/payment-service.js  | denials: 4
+none-1 edited:  M src/services/payment-service.js  | denials: 3
+none-2 edited:  M src/services/payment-service.js  | denials: 3

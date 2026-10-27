@@ -54,8 +54,8 @@ in the source with the one-line change that switches them to a real provider.
 | 1 | `ch01-prompt-loop/` | The setup commands, the three exercises, and transcripts from four real runs of the instruction-decay exercise |
 | 2 | `ch02-sandbox/` | Per-harness permission and sandbox configuration, the verification exercise, and real runs of it in Claude Code, OpenAI Codex, Google Antigravity, and OpenCode, including configurations that pass |
 | 3 | `ch03-context-wall/` | The seven-task ladder and its rules, scripts to measure payloads, score tasks, and record the curve, and real ladder, compaction, and stress-test runs in Claude Code and OpenAI Codex |
-| 4 | `ch04-routing/` | Four skills, the 20-prompt evaluation set, a scorer that reports the unambiguous/ambiguous split, and the three description versions |
-| 5 | `ch05-subagents/` | Worker and dispatcher definitions, the node files, and `run-graph.sh`: the manual execution graph, runnable with any harness that has a non-interactive mode |
+| 4 | `ch04-routing/` | Four skills, the 20-prompt routing evaluation with a runner for Claude Code and OpenCode, a scorer, four description versions, and 320 real routing sessions plus access, tool-rule, and fork tests |
+| 5 | `ch05-subagents/` | The `test-runner`, `module-migrator`, and `migration-dispatcher` subagents, the node files and `run-graph.sh` (the execution graph as a shell script), and real runs of isolation, dispatching, an agent team, subagent memory, and the script |
 | 6 | `ch06-hooks/` | Six hooks and the settings that register them. All verified by `verify.sh` |
 | 7 | `ch07-plugin/` | The whole Part 2 graph packaged as an installable plugin |
 | 8 | `ch08-budget/` | A split configuration: a small always-loaded core plus three path-scoped rules |

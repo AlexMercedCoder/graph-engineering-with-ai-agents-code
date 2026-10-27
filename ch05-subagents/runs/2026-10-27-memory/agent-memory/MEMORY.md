@@ -1,0 +1,1 @@
+- [Test setup](test_setup.md) — `npm test` = `node --test`, Node >= 20, no deps, ~100 ms run

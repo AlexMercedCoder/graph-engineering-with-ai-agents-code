@@ -2,7 +2,8 @@
 """Score routing accuracy for the Chapter 4 evaluation set.
 
 Usage:
-    # 1. Record what your harness actually routed to, one line per prompt id:
+    # 1. Record what your harness actually routed to, one line per prompt id
+    #    (eval/run-routing.sh writes this file; use "none" when no skill loaded):
     #        1 code-review
     #        2 code-review
     #    ...saved as results.txt
@@ -83,7 +84,9 @@ def main():
 
     print("\nReading the split:")
     print("  unambiguous low   -> a description does not describe its own skill")
-    print("  ambiguous low     -> descriptions overlap; add an anti-pattern clause and a sibling redirect")
+    print("  wrong skill       -> two descriptions claim the same requests; add a redirect clause to both")
+    print("  'none'            -> no skill tool call; check the transcript for a direct read of SKILL.md,")
+    print("                       then add the user's phrasing or drop conditions it can't meet")
     print("  both high         -> routing is fine; any remaining failure is in the skill body")
 
 

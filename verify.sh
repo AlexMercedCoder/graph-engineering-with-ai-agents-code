@@ -20,7 +20,8 @@ check "formatter reports clean"                bash -c "cd sample-project && nod
 check "every API route answers"                bash -c "cd sample-project && node scripts/check-routes.js"
 
 echo "chapter 4, routing evaluation"
-check "scorer runs and reports the split" python3 ch04-routing/eval/score.py ch04-routing/eval/results.example.txt
+check "scorer runs and reports the split" python3 ch04-routing/eval/score.py ch04-routing/runs/2026-10-27-routing/claude-code/results-b-run1.txt
+check "execution graph dry-runs" bash ch05-subagents/run-graph.sh src/services/order-service.js
 
 echo "chapter 6, hooks"
 check "protect-paths blocks migrations/" bash -c 'echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"migrations/1.sql\"}}" | ch06-hooks/scripts/protect-paths.sh; [ $? -eq 2 ]'

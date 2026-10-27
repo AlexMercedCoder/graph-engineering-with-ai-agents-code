@@ -1,0 +1,6 @@
+ok    GET /users -> [{"id":1,"email":"ada@example.com","name":"Ada","deleted_at"
+ok    GET /users/:id -> {"id":1,"email":"ada@example.com","name":"Ada","deleted_at":
+FAIL  GET /users/:id/orders -> NO RESPONSE (callback never called)
+FAIL  GET /reports/paid-total -> NO RESPONSE (callback never called)
+ok    GET /reports/uncaptured-total -> 9900
+2 of 5 routes broken
