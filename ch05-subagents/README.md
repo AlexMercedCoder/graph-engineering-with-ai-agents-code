@@ -2,11 +2,11 @@
 
 | Path | What it is |
 |---|---|
-| `agents/test-runner.md` | Runs the suite and reports only failures; no edit tools (but `Bash`), `model: haiku`, `maxTurns: 8` |
+| `agents/test-runner.md` | Runs the suite and reports only failures, each with the responsible source line quoted and its cause; no edit tools (but `Bash`), `model: haiku`, `maxTurns: 12` |
 | `agents/module-migrator.md` | Migrates one module (preloads the `migrate-module` skill) and returns a four-line report |
-| `agents/migration-dispatcher.md` | Sends one module per `module-migrator`, assembles their reports, and then has one agent fix the callers in `src/api/routes.js`; no edit tools itself |
+| `agents/migration-dispatcher.md` | Sends one module per `module-migrator` and assembles their reports; no edit tools itself. Each worker updates the routes that call its own module, as the `migrate-module` skill requires |
 | `nodes/` and `run-graph.sh` | The same work as a shell execution graph: one fresh session per node, with each node's success condition checked by the script |
-| `runs/` | Real runs from 2026-10-27; see `runs/README.md` |
+| `runs/` | Real runs from 2026-10-27 and 2026-11-03; see `runs/README.md` |
 
 Install the agents with `cp agents/*.md <project>/.claude/agents/` (Claude Code) and the Chapter 4
 skills with `cp ../ch04-routing/skills/* <project>/.claude/skills/ -r`. `module-migrator` preloads

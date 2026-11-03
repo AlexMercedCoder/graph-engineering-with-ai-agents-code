@@ -1,0 +1,21 @@
+== ch5-dispatcher/single-1
+ℹ pass 10 ℹ fail 0 
+all 5 routes respond
+db.js importers: 
+changed: src/api/routes.js src/repositories/payment-repository.js src/services/auth-service.js src/services/order-service.js src/services/payment-service.js src/services/user-service.js tests/auth-service.test.js tests/order-service.test.js tests/payment-service.test.js tests/user-service.test.js 
+--
+== ch5-dispatcher/single-2
+ℹ pass 10 ℹ fail 0 
+timeout: the monitored command dumped core
+db.js importers: auth-service.js 
+changed: src/api/routes.js src/repositories/payment-repository.js src/services/order-service.js src/services/payment-service.js src/services/user-service.js tests/order-service.test.js tests/payment-service.test.js tests/user-service.test.js 
+== ch5-dispatcher-v2/dispatch-1
+ℹ pass 10 ℹ fail 0 
+all 5 routes respond
+db.js importers: 
+changed: src/api/routes.js src/repositories/payment-repository.js src/services/auth-service.js src/services/order-service.js src/services/payment-service.js src/services/user-service.js tests/auth-service.test.js tests/order-service.test.js tests/payment-service.test.js tests/user-service.test.js 
+== ch5-dispatcher-v2/dispatch-2
+ℹ pass 10 ℹ fail 0 
+all 5 routes respond
+db.js importers: 
+changed: src/api/routes.js src/repositories/payment-repository.js src/services/auth-service.js src/services/order-service.js src/services/payment-service.js src/services/user-service.js tests/auth-service.test.js tests/order-service.test.js tests/payment-service.test.js tests/user-service.test.js 

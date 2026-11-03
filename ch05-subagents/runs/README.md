@@ -16,3 +16,7 @@ replaced or removed.
 | `2026-10-27-memory/` | A `test-runner` subagent with `memory: project`, run twice |
 | `2026-10-27-graph/` | `../run-graph.sh` run for real with headless Claude Code |
 | `2026-10-27-resume/` | Resuming a finished `test-runner` with `SendMessage` |
+| `2026-11-03-isolation/` | The isolation exercise again with the revised `test-runner`, which reports each failure's cause and line, in Claude Code 2.1.316 and OpenCode 1.19.5 |
+| `2026-11-03-dispatcher/` | The dispatcher and single-session migration again with the revised `migrate-module` skill and no callers step, in Claude Code 2.1.316 |
+
+The October runs used the earlier `test-runner` (failures and locations only) and the earlier `migrate-module` (no file list or route check); the October dispatcher runs needed a final callers step for that reason.

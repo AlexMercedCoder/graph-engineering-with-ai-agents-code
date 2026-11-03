@@ -10,7 +10,8 @@
 # b (specific), c (over-specific), or d (b without the redirect clauses, which also removes
 # the matching clause from fix-lint). Needs the harness signed in, Python 3, and Git.
 #
-# Set OPENCODE_MODEL (for example openai/gpt-6.1-sol) to pick OpenCode's model.
+# Set OPENCODE_MODEL (for example openai/gpt-6.1-sol) to pick OpenCode's model, and
+# PROMPT_IDS (for example "11 13 15") to run only those prompts.
 # Claude Code runs with --setting-sources project,local so your user-level skills
 # don't compete with the four project skills. OpenCode gets an opencode.json that allows
 # only the four project skills. Runs are headless with the harness's default permissions,
@@ -27,11 +28,13 @@ desc=$(cat "$here"/descriptions/version-"$version"-*.yaml)
 : > "$out"
 
 python3 - "$here/eval/prompts.jsonl" > "$work/prompts.tsv" <<'PY'
-import json, sys
+import json, os, sys
 for line in open(sys.argv[1]):
     if line.strip():
         r = json.loads(line)
-        print(f"{r['id']}\t{r['prompt']}")
+        ids = os.environ.get("PROMPT_IDS", "").split()
+        if not ids or str(r['id']) in ids:
+            print(f"{r['id']}\t{r['prompt']}")
 PY
 
 while IFS=$'\t' read -r id prompt; do
