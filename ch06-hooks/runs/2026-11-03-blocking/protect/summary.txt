@@ -1,0 +1,14 @@
+== cc-hook-1: migrations:  | status: 
+== oc-hook-1: migrations:  | status: ?? .agent-work/ 
+== cc-terse-1: migrations:  | status: 
+== cc-none-1: migrations: 0001_add_last_login.sql  | status: ?? migrations/ 
+== cc-hook-2: migrations:  | status: 
+== cc-terse-2: migrations:  | status: 
+== cc-none-2: migrations: 0001_add_last_login.sql  | status: ?? migrations/ 
+== oc-none-1: migrations: 0001_add_last_login.sql  | status: ?? migrations/ 
+== cc-ext-1: migrations:  | status: 
+== cc-ext-terse-1: migrations:  | status: 
+== cc-ext-2: migrations:  | status: 
+== oc-hook-2: migrations:  | status: ?? .agent-work/ 
+== cc-ext-terse-2: migrations:  | status: 
+== oc-none-2: migrations: 0001_add_last_login.sql  | status: ?? migrations/ 

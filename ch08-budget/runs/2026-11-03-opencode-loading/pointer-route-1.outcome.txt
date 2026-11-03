@@ -1,0 +1,6 @@
+ℹ pass 10
+ℹ fail 0
+all 6 routes respond
+ src/api/routes.js             | 3 ++-
+ src/services/order-service.js | 9 +++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)

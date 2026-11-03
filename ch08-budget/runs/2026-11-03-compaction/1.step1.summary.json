@@ -1,0 +1,23 @@
+{
+ "session_id": "0f4aae76-1ce5-4964-a4e9-667de6f9030a",
+ "payloads": [
+  31862,
+  32666
+ ],
+ "events": [
+  {
+   "event": "skill_listing",
+   "chars": 7989
+  },
+  {
+   "event": "instructions",
+   "files": [
+    "CLAUDE.md"
+   ]
+  },
+  {
+   "event": "nested_memory",
+   "path": ".claude/rules/api-conventions.md"
+  }
+ ]
+}

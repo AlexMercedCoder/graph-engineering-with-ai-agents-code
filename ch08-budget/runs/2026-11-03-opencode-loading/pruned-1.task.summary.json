@@ -1,0 +1,52 @@
+{
+ "payloads": [
+  12228,
+  12327,
+  12362,
+  13378,
+  13735,
+  14106,
+  14515,
+  15322,
+  15739,
+  16017
+ ],
+ "tools": [
+  [
+   "glob",
+   "{\"pattern\": \"**/AGENTS.md\"}"
+  ],
+  [
+   "bash",
+   "{\"command\": \"git status --short\"}"
+  ],
+  [
+   "glob",
+   "{\"pattern\": \"{src/**,test/**,tests/**,package.json}\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/services/order-service.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/repositories/order-repository.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/tests/order-service.test.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/db.js\"}"
+  ],
+  [
+   "apply_patch",
+   "{\"patchText\": \"*** Begin Patch\\n*** Update File: src/services/order-service.js\\n@@\\n import { query } from '../db.js';\\n+import { OrderRepository } from '../repositories/order-repository.js';\\n@@\\n ex"
+  ],
+  [
+   "bash",
+   "{\"command\": \"npm test\"}"
+  ]
+ ]
+}

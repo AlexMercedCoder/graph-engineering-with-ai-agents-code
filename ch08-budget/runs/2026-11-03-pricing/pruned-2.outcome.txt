@@ -1,0 +1,5 @@
+ℹ pass 11
+ℹ fail 0
+ src/services/order-service.js | 11 +++++++++++
+ tests/order-service.test.js   | 10 +++++++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)

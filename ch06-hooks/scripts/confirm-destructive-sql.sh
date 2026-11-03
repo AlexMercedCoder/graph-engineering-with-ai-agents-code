@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-command -v jq >/dev/null 2>&1 || { echo "confirm-destructive-sql: jq not installed, hook skipped" >&2; exit 0; }
+command -v jq >/dev/null 2>&1 || { echo "confirm-destructive-sql: jq is not installed, so this call can't be checked. Install jq." >&2; exit 2; }
 
 input=$(cat)
-cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // ""')
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // ""') || { echo "confirm-destructive-sql: couldn't read the hook input, so the call is refused." >&2; exit 2; }
 
-if [[ "$cmd" == *"DROP TABLE"* || "$cmd" == *"TRUNCATE"* || "$cmd" == *"DELETE FROM"* ]]; then
+shopt -s nocasematch
+if [[ "$cmd" =~ (drop[[:space:]]+table|truncate|delete[[:space:]]+from) ]]; then
   cat <<JSON
 {
   "hookSpecificOutput": {
@@ -16,7 +17,6 @@ if [[ "$cmd" == *"DROP TABLE"* || "$cmd" == *"TRUNCATE"* || "$cmd" == *"DELETE F
   }
 }
 JSON
-  exit 0
 fi
 
 exit 0

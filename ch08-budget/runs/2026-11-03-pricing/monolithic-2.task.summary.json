@@ -1,0 +1,25 @@
+{
+ "session_id": "5a9ba8fb-4dd5-49d8-a071-d5ad99039855",
+ "payloads": [
+  33619,
+  33767,
+  35230,
+  35735,
+  37091,
+  37242,
+  37721,
+  37826
+ ],
+ "events": [
+  {
+   "event": "skill_listing",
+   "chars": 7989
+  },
+  {
+   "event": "instructions",
+   "files": [
+    "CLAUDE.md"
+   ]
+  }
+ ]
+}

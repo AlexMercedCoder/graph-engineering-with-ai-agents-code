@@ -1,0 +1,18 @@
+$ claude plugin validate ./team-workflow (skills/ moved under .claude-plugin/)
+⚠ Found 1 plugin directory warning:
+  ❯ .claude-plugin/plugin.json icon: No icon (ICON_MISSING). No icon found in the plugin. The validator looked for `icon` in plugin.json and for a file at .claude-plugin/icon.png or .svg, assets/icon.png or .svg, or a similar path.
+  ❯ <scratch>/work/mkt-bad/team-workflow/README.md: This README has no line that installs "team-workflow" from a marketplace. Add the install line, which works in one step on Claude Code 2.1.275 or later. Validate the folder that holds its marketplace.json to have <owner>/<repo> filled in, and the name its marketplace lists it under.
+✔ Validation passed
+exit: 0
+Installing plugin "team-workflow@book-platform"...✔ Successfully installed plugin: team-workflow@book-platform (scope: project)
+$ claude plugin details team-workflow
+Team Workflow (team-workflow) 1.0.0
+  Description: The governed agentic workflow from Graph Engineering with AI Agents: review and migration skills, isolated workers, and the safety hooks that bound them.
+  Source: team-workflow@book-platform
+
+Component inventory
+  Skills (0)
+  Agents (3)  module-migrator, migration-dispatcher, test-runner
+  Hooks (3)  PreToolUse, PostToolUse, Stop  (harness-only — no model context cost)
+  MCP servers (0)
+  LSP servers (0)

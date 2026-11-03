@@ -27,6 +27,17 @@ echo "chapter 6, hooks"
 check "protect-paths blocks migrations/" bash -c 'echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"migrations/1.sql\"}}" | ch06-hooks/scripts/protect-paths.sh; [ $? -eq 2 ]'
 check "protect-paths allows src/"        bash -c 'echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"src/a.js\"}}" | ch06-hooks/scripts/protect-paths.sh'
 check "guard-bash blocks rm -rf"         bash -c 'echo "{\"tool_input\":{\"command\":\"rm -rf /\"}}" | ch06-hooks/scripts/guard-bash.sh; [ $? -eq 2 ]'
+check "confirm-destructive-sql asks"     bash -c 'echo "{\"tool_input\":{\"command\":\"DELETE FROM users\"}}" | ch06-hooks/scripts/confirm-destructive-sql.sh | grep -q "\"ask\""'
+check "lint-on-edit flags a db.js import" bash -c 'cd sample-project && echo "{\"tool_input\":{\"file_path\":\"$PWD/src/services/auth-service.js\"}}" | ../ch06-hooks/scripts/lint-on-edit.sh >/dev/null 2>&1; [ $? -eq 2 ]'
+check "audit writes a trace line"        bash -c 'd=$(mktemp -d); s=$PWD/ch06-hooks/scripts/audit.sh; cd "$d" && echo "{\"tool_name\":\"Read\",\"hook_event_name\":\"PreToolUse\",\"session_id\":\"s\",\"tool_input\":{\"file_path\":\"a\"}}" | "$s" && grep -q PreToolUse .agent-work/audit.jsonl; r=$?; rm -rf "$d"; exit $r'
+
+echo "chapter 7, plugin"
+check "plugin scripts match chapter 6"   diff -r ch06-hooks/scripts ch07-plugin/team-workflow/hooks/scripts
+check "plugin hooks use the plugin root" bash -c "python3 -c 'import json; json.load(open(\"ch07-plugin/team-workflow/hooks/hooks.json\"))' && ! grep -q CLAUDE_PROJECT_DIR ch07-plugin/team-workflow/hooks/hooks.json"
+
+echo "chapter 8, context budget"
+check "loaded-context script parses" python3 -m py_compile ch08-budget/loaded-context.py
+check "variant router parses"        bash -n ch08-budget/eval/run-variant.sh
 
 echo "chapter 9, knowledge server"
 check "error code lookup"        bash -c "cd ch09-mcp/server && python3 cli.py error-code E4021 | grep -q 'authorization expired'"

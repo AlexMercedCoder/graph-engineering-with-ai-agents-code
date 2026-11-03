@@ -1,0 +1,8 @@
+{
+ "permission": {
+  "bash": {
+   "node scripts/check-routes.js*": "deny",
+   "*": "allow"
+  }
+ }
+}

@@ -1,0 +1,16 @@
+{
+ "session_id": "3f9ac77d-d07e-4063-a7af-ee19608c7e66",
+ "payloads": [
+  0
+ ],
+ "events": [
+  {
+   "event": "skill_listing",
+   "chars": 7989
+  },
+  {
+   "event": "skill_listing",
+   "chars": 178
+  }
+ ]
+}

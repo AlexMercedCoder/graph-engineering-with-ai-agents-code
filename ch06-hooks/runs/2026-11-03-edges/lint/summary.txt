@@ -1,0 +1,40 @@
+== cc-hook-1
+tests: ℹ pass 12 ℹ fail 0 
+changed:  M src/repositories/user-repository.js  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: order-service.js payment-service.js user-service.js 
+== cc-none-1
+tests: ℹ pass 12 ℹ fail 0 
+changed:  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 
+== oc-hook-1
+tests: ℹ pass 13 ℹ fail 0 
+changed:  M src/repositories/user-repository.js  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: order-service.js payment-service.js user-service.js 
+== cc-hook-2
+tests: ℹ pass 12 ℹ fail 0 
+changed:  M src/repositories/user-repository.js  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: order-service.js payment-service.js user-service.js 
+== cc-none-2
+tests: ℹ pass 12 ℹ fail 0 
+changed:  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 
+== oc-none-1
+tests: ℹ pass 13 ℹ fail 0 
+changed:  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 
+== cc-ext-1
+tests: ℹ pass 12 ℹ fail 0 
+changed:  M src/repositories/user-repository.js  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: order-service.js payment-service.js user-service.js 
+== cc-ext-2
+tests: ℹ pass 12 ℹ fail 0 
+changed:  M src/repositories/user-repository.js  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: order-service.js payment-service.js user-service.js 
+== oc-hook-2
+tests: ℹ pass 13 ℹ fail 0 
+changed:  M src/repositories/user-repository.js  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: order-service.js payment-service.js user-service.js 
+== oc-none-2
+tests: ℹ pass 13 ℹ fail 0 
+changed:  M src/services/auth-service.js  M tests/auth-service.test.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 

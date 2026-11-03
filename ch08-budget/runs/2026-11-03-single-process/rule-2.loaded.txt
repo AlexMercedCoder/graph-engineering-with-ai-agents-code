@@ -1,0 +1,11 @@
+  load    skill listing: 17 skills, 7989 chars
+  load    instructions: CLAUDE.md (717 chars)
+request   1  payload   31,870  then Read
+  load    path-scoped: .claude/rules/api-conventions.md (224 chars)
+request   2  payload   32,678
+  ------  compaction (manual), 32752 tokens before
+  load    file re-read: .claude/rules/api-conventions.md (594 chars)
+  load    file re-read: src/api/routes.js (1305 chars)
+  load    skill listing: 17 skills, 7989 chars
+  load    instructions: CLAUDE.md (717 chars)
+request   3  payload   34,347

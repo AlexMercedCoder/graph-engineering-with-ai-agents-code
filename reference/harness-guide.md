@@ -16,7 +16,7 @@ production.
 | Harness | Version verified | Verification date | Source |
 |---|---|---|---|
 | Claude Code | 2.1.231 | 2026-08-13 | Official hooks and plugins references |
-| OpenAI Codex CLI | 0.147.0 | 2026-08-13 | Official hooks reference |
+| OpenAI Codex | 0.147.0 | 2026-08-13 | Official hooks reference |
 | Google Antigravity | agy CLI 1.1.12, Hub 2.8.0 | 2026-08-13 | Official hooks, skills, and plugin docs |
 | OpenCode | 1.18.18 | 2026-08-13 | Official plugins and skills docs |
 | Pi | 0.84.1 | 2026-08-13 | Official extensions docs |
@@ -26,7 +26,7 @@ production.
 | Harness | Skills root | Subagents root | Hooks live in | Plugins |
 |---|---|---|---|---|
 | Claude Code | `.claude/skills/` (project), `~/.claude/skills/` (personal) | `.claude/agents/`, `~/.claude/agents/` | `.claude/settings.json`, or a skill/subagent definition | `.claude-plugin/` with `plugin.json` |
-| OpenAI Codex CLI | `.codex/` skills directory | `.codex/agents/` | `hooks.json`, or `[hooks]` in `config.toml` | plugin manifest or `hooks/hooks.json` |
+| OpenAI Codex | `.codex/` skills directory | `.codex/agents/` | `hooks.json`, or `[hooks]` in `config.toml` | plugin manifest or `hooks/hooks.json` |
 | Google Antigravity | `.agents/skills/` (workspace), `~/.gemini/antigravity-cli/skills/` (global) | `.agents/` agents directory | `.agents/hooks.json`, or `~/.gemini/config/hooks.json` | `~/.gemini/antigravity-cli/plugins/` |
 | OpenCode | `.opencode/skills/` (project), `~/.config/opencode/skills/` (user) | `.opencode/agents/` | A plugin module in the project | `.opencode/plugins/`, `~/.config/opencode/plugins/` |
 | Pi | `.pi/skills/` (project), `~/.pi/agent/skills/` (global) | `.pi/agents/` | A TypeScript extension | `~/.pi/agent/extensions/`, `.pi/extensions/` |
@@ -120,7 +120,7 @@ guarantee is identical; the file differs.
 | Harness | Where a hook lives | How it is written | Event vocabulary | How it refuses |
 |---|---|---|---|---|
 | Claude Code | `.claude/settings.json`, `~/.claude/settings.json`, or a skill/subagent definition | Shell command (or HTTP, MCP tool, prompt, or agent handler), event JSON on stdin | The widest catalogue: `PreToolUse`, `PostToolUse`, `PermissionRequest`, `SubagentStop`, `Stop`, and two dozen more | Exit code 2, or JSON `permissionDecision` |
-| OpenAI Codex CLI | `hooks.json` or `[hooks]` in `config.toml`, at `~/.codex/` or `<repo>/.codex/` | Shell command with a `matcher` | `PreToolUse`, `PermissionRequest`, `PostToolUse`, `UserPromptSubmit`, `SubagentStop`, `Stop`, and session events | Exit code 2, or a JSON `decision` |
+| OpenAI Codex | `hooks.json` or `[hooks]` in `config.toml`, at `~/.codex/` or `<repo>/.codex/` | Shell command with a `matcher` | `PreToolUse`, `PermissionRequest`, `PostToolUse`, `UserPromptSubmit`, `SubagentStop`, `Stop`, and session events | Exit code 2, or a JSON `decision` |
 | Google Antigravity | `.agents/hooks.json` (workspace) or `~/.gemini/config/hooks.json` (global) | Shell command with a `matcher` | `PreToolUse`, `PreInvocation`, `PostInvocation`, plus `PostToolUse` and `Stop` | JSON `decision` with `allow`, `deny`, or `force_ask` |
 | OpenCode | A plugin module in `.opencode/plugins/` | TypeScript or JavaScript function | `tool.execute.before`, `tool.execute.after`, plus session, message, and permission events | Throw from the handler |
 | Pi | A TypeScript extension in `~/.pi/agent/extensions/` or `.pi/extensions/` | In-process TypeScript via `pi.on()` | Events observe; hooks intercept, including `tool_call` | Return `{ block: true }` |
@@ -134,8 +134,16 @@ the exact decision values differ, and one harness has historically parsed
 forces a human prompt even in an unattended run. Where a harness cannot prompt,
 fall back to `deny` with a rejection message that names the approved path.
 
-The working hooks are in `ch06-hooks/scripts/`, and the Claude Code wiring that
-registers them is in `ch06-hooks/settings.json`. `ch15-governed-workflow/`
+A guard has to match the tool that actually edits files. In OpenCode 1.19.5
+with an OpenAI GPT model, the agent edits through an `apply_patch` tool rather
+than `edit` or `write`, so a guard that checks only those names never fires.
+Read the target paths from the patch text, on its `*** Add File:`,
+`*** Update File:`, and `*** Delete File:` lines, and from `*** Move to:` lines
+for renames (checked November 2026).
+
+The working hooks are in `ch06-hooks/scripts/`, the Claude Code wiring that
+registers them is in `ch06-hooks/settings.json`, and the OpenCode equivalent is
+`ch06-hooks/opencode/guards.js`. `ch15-governed-workflow/`
 shows the approval gate that demands a human decision in front of irreversible
 tool calls.
 

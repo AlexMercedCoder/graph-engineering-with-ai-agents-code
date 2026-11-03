@@ -1,0 +1,13 @@
+{
+ "session_id": "c6496432-2972-4224-9494-86a6f2d6cd68",
+ "payloads": [
+  31461,
+  33238
+ ],
+ "events": [
+  {
+   "event": "skill_listing",
+   "chars": 8153
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+## 1. Commit a change to protect-paths.sh without bumping version
+$ claude plugin marketplace update book-platform
+Updating marketplace: book-platform...Validating local marketplace
+✔ Successfully updated marketplace: book-platform
+$ claude plugin update team-workflow@book-platform --scope project
+Checking for updates for plugin "team-workflow@book-platform" at project scope…
+✔ team-workflow is already at the latest version (1.0.0).
+0
+## 2. Bump version to 1.1.0
+$ claude plugin update team-workflow@book-platform --scope project
+Checking for updates for plugin "team-workflow@book-platform" at project scope…
+✔ Plugin "team-workflow" updated from 1.0.0 to 1.1.0 for scope project (<scratch>/work/v2-proj). Restart to apply changes.
+<scratch>/iso2/plugins/cache/book-platform/team-workflow/:
+.
+..
+1.0.0
+1.1.0
+
+<scratch>/iso2/plugins/cache/book-platform/team-workflow/1.0.0:
+.
+..
+agents
+CHANGELOG.md
+.claude-plugin
+hooks
+.in_use
+.orphaned_at
+README.md
+skills
+1
+## 3. Remove version field; commit twice
+4efe5bdbef70635d346c05d0ffde93bd33bb2fbd
+$ claude plugin update team-workflow@book-platform --scope project
+Checking for updates for plugin "team-workflow@book-platform" at project scope…
+✔ Plugin "team-workflow" updated from 1.1.0 to 4efe5bdbef70 for scope project (<scratch>/work/v2-proj). Restart to apply changes.
+1.0.0
+1.1.0
+4efe5bdbef70
+6bc06e575fdb963ce974f94940c13832d79a1e40
+$ claude plugin update team-workflow@book-platform --scope project
+Checking for updates for plugin "team-workflow@book-platform" at project scope…
+✔ Plugin "team-workflow" updated from 4efe5bdbef70 to 6bc06e575fdb for scope project (<scratch>/work/v2-proj). Restart to apply changes.
+1.0.0
+1.1.0
+4efe5bdbef70
+6bc06e575fdb

@@ -1,0 +1,16 @@
+== cc-hook-1
+tests: ℹ pass 10 ℹ fail 0 
+changed:  M src/services/order-service.js  M tests/order-service.test.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 
+== cc-none-1
+tests: ℹ pass 9 ℹ fail 1 
+changed:  M src/services/order-service.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 
+== cc-hook-2
+tests: ℹ pass 10 ℹ fail 0 
+changed:  M src/services/order-service.js  M tests/order-service.test.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 
+== cc-none-2
+tests: ℹ pass 9 ℹ fail 1 
+changed:  M src/services/order-service.js 
+db.js importers: auth-service.js order-service.js payment-service.js user-service.js 

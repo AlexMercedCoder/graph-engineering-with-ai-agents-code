@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-command -v jq >/dev/null 2>&1 || { echo "protect-paths: jq not installed, hook skipped" >&2; exit 0; }
+command -v jq >/dev/null 2>&1 || { echo "protect-paths: jq is not installed, so this call can't be checked. Install jq." >&2; exit 2; }
 
 input=$(cat)
-tool=$(printf '%s' "$input" | jq -r '.tool_name // ""')
+tool=$(printf '%s' "$input" | jq -r '.tool_name // ""') || { echo "protect-paths: couldn't read the hook input, so the call is refused." >&2; exit 2; }
 path=$(printf '%s' "$input" | jq -r '.tool_input.file_path // ""')
 
 case "$tool" in
-  Write|Edit|MultiEdit) ;;
+  Write|Edit) ;;
   *) exit 0 ;;
 esac
 

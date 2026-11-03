@@ -1,0 +1,66 @@
+{
+ "payloads": [
+  12138,
+  13178,
+  13674,
+  14031,
+  15054,
+  15891,
+  16255,
+  16689
+ ],
+ "tools": [
+  [
+   "glob",
+   "{\"pattern\": \"{src/services/**,docs/rules/**,**/AGENTS.md,package.json,scripts/check-routes.js}\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/docs/rules/api.md\"}"
+  ],
+  [
+   "bash",
+   "{\"command\": \"git status --short\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/api/routes.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/services/order-service.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/scripts/check-routes.js\"}"
+  ],
+  [
+   "glob",
+   "{\"pattern\": \"src/repositories/*\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/docs/rules/repositories.md\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/repositories/order-repository.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/repositories/user-repository.js\"}"
+  ],
+  [
+   "apply_patch",
+   "{\"patchText\": \"*** Begin Patch\\n*** Update File: src/services/order-service.js\\n@@\\n import { query } from '../db.js';\\n+import { OrderRepository } from '../repositories/order-repository.js';\\n@@\\n ex"
+  ],
+  [
+   "bash",
+   "{\"command\": \"node scripts/check-routes.js\"}"
+  ],
+  [
+   "bash",
+   "{\"command\": \"npm test\"}"
+  ]
+ ]
+}

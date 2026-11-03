@@ -1,0 +1,103 @@
+diff --git a/src/repositories/user-repository.js b/src/repositories/user-repository.js
+index ddada04..f2320fa 100644
+--- a/src/repositories/user-repository.js
++++ b/src/repositories/user-repository.js
+@@ -17,6 +17,20 @@ export class UserRepository {
+     });
+   }
+ 
++  findActiveByEmail(email) {
++    return new Promise((resolve, reject) => {
++      query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) =>
++        err ? reject(err) : resolve(rows[0] ?? null));
++    });
++  }
++
++  setLastLogin(id, when) {
++    return new Promise((resolve, reject) => {
++      update('users', id, { last_login_at: when }, (err, row) =>
++        err ? reject(err) : resolve(row));
++    });
++  }
++
+   softDelete(id, when) {
+     return new Promise((resolve, reject) => {
+       update('users', id, { deleted_at: when }, (err, row) =>
+diff --git a/src/services/auth-service.js b/src/services/auth-service.js
+index 9a683b0..bba95bf 100644
+--- a/src/services/auth-service.js
++++ b/src/services/auth-service.js
+@@ -1,11 +1,14 @@
+-import { query } from '../db.js';
++import { UserRepository } from '../repositories/user-repository.js';
++
++// Callback-style API over UserRepository. Callers still pass node-style callbacks.
++const users = new UserRepository();
++
++function toCallback(promise, callback) {
++  promise.then((value) => callback(null, value), (err) => callback(err));
++}
+ 
+-// Callback-style database access. Chapter 5 migrates this to UserRepository.
+ export function findByEmail(email, callback) {
+-  query('users', (u) => u.email === email && u.deleted_at === null, (err, rows) => {
+-    if (err) return callback(err);
+-    callback(null, rows[0] ?? null);
+-  });
++  toCallback(users.findActiveByEmail(email), callback);
+ }
+ 
+ export function isActive(email, callback) {
+@@ -14,3 +17,13 @@ export function isActive(email, callback) {
+     callback(null, Boolean(user));
+   });
+ }
++
++// Stamps last_login_at on the active user with this email. Calls back with the
++// updated user, or null if no active user has that email.
++export function recordLogin(email, callback) {
++  findByEmail(email, (err, user) => {
++    if (err) return callback(err);
++    if (!user) return callback(null, null);
++    toCallback(users.setLastLogin(user.id, new Date().toISOString()), callback);
++  });
++}
+diff --git a/tests/auth-service.test.js b/tests/auth-service.test.js
+index 8ea5570..45a4fc3 100644
+--- a/tests/auth-service.test.js
++++ b/tests/auth-service.test.js
+@@ -1,6 +1,6 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+-import { findByEmail, isActive } from '../src/services/auth-service.js';
++import { findByEmail, isActive, recordLogin } from '../src/services/auth-service.js';
+ 
+ test('findByEmail ignores soft-deleted users', (t, done) => {
+   findByEmail('alan@example.com', (err, user) => {
+@@ -17,3 +17,26 @@ test('isActive is true for a live user', (t, done) => {
+     done();
+   });
+ });
++
++test('recordLogin sets last_login_at on an active user', (t, done) => {
++  const before = Date.now();
++  recordLogin('grace@example.com', (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user.email, 'grace@example.com');
++    const stamped = Date.parse(user.last_login_at);
++    assert.ok(stamped >= before && stamped <= Date.now());
++    findByEmail('grace@example.com', (err2, stored) => {
++      assert.equal(err2, null);
++      assert.equal(stored.last_login_at, user.last_login_at);
++      done();
++    });
++  });
++});
++
++test('recordLogin skips soft-deleted users', (t, done) => {
++  recordLogin('alan@example.com', (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user, null);
++    done();
++  });
++});

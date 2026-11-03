@@ -1,0 +1,43 @@
+diff --git a/src/services/order-service.js b/src/services/order-service.js
+index 12cb020..48eafe9 100644
+--- a/src/services/order-service.js
++++ b/src/services/order-service.js
+@@ -5,9 +5,18 @@ export function listOrdersForUser(userId, callback) {
+   query('orders', (o) => o.user_id === userId && o.deleted_at === null, callback);
+ }
+ 
++// Sums paid, non-deleted orders, leaving out orders whose user has been soft-deleted.
+ export function totalPaidCents(callback) {
+-  query('orders', (o) => o.status === 'paid' && o.deleted_at === null, (err, rows) => {
++  query('users', (u) => u.deleted_at === null, (err, users) => {
+     if (err) return callback(err);
+-    callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
++    const activeUserIds = new Set(users.map((u) => u.id));
++    query(
++      'orders',
++      (o) => o.status === 'paid' && o.deleted_at === null && activeUserIds.has(o.user_id),
++      (err2, rows) => {
++        if (err2) return callback(err2);
++        callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
++      },
++    );
+   });
+ }
+diff --git a/tests/order-service.test.js b/tests/order-service.test.js
+index 4cbad96..c9dd0e0 100644
+--- a/tests/order-service.test.js
++++ b/tests/order-service.test.js
+@@ -11,10 +11,11 @@ test('listOrdersForUser returns only that user orders', (t, done) => {
+   });
+ });
+ 
+-test('totalPaidCents counts only paid orders', (t, done) => {
++test('totalPaidCents counts only paid orders from active users', (t, done) => {
+   totalPaidCents((err, total) => {
+     assert.equal(err, null);
+-    assert.equal(total, 4200 + 9900 + 500);
++    // Order 13 (500) belongs to soft-deleted user 3, so it is excluded.
++    assert.equal(total, 4200 + 9900);
+     done();
+   });
+ });

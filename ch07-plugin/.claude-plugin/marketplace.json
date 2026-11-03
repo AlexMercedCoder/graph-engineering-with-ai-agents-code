@@ -1,0 +1,17 @@
+{
+  "name": "book-platform",
+  "owner": { "name": "Alex Merced" },
+  "description": "The plugins from Chapter 7 of Graph Engineering with AI Agents.",
+  "plugins": [
+    {
+      "name": "team-workflow",
+      "source": "./team-workflow",
+      "description": "Review and migration skills, isolated workers, and the hooks that bound them."
+    },
+    {
+      "name": "release-tools",
+      "source": "./release-tools",
+      "description": "Draft migrations and review releases."
+    }
+  ]
+}

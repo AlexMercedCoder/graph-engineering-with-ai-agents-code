@@ -1,0 +1,7 @@
+{"ts": "2026-11-03T17:05:43Z", "session": "d1c582d5-875e-4116-989e-2bea0e85b8e8", "event": "PreToolUse", "agent": "main", "tool": "Read", "target": "<run-dir>/package.json"}
+{"ts": "2026-11-03T17:05:43Z", "session": "d1c582d5-875e-4116-989e-2bea0e85b8e8", "event": "PostToolUse", "agent": "main", "tool": "Read", "target": "<run-dir>/package.json"}
+{"ts": "2026-11-03T17:05:53Z", "session": "d1c582d5-875e-4116-989e-2bea0e85b8e8", "event": "PreToolUse", "agent": "main", "tool": "Agent", "target": "Run project test suite"}
+{"ts": "2026-11-03T17:05:55Z", "session": "d1c582d5-875e-4116-989e-2bea0e85b8e8", "event": "PreToolUse", "agent": "test-runner", "tool": "Bash", "target": "node --version && npm test 2>&1; echo \"EXIT=$?\""}
+{"ts": "2026-11-03T17:05:58Z", "session": "d1c582d5-875e-4116-989e-2bea0e85b8e8", "event": "PreToolUse", "agent": "test-runner", "tool": "Bash", "target": "node --version && npm test"}
+{"ts": "2026-11-03T17:05:58Z", "session": "d1c582d5-875e-4116-989e-2bea0e85b8e8", "event": "PostToolUse", "agent": "test-runner", "tool": "Bash", "target": "node --version && npm test"}
+{"ts": "2026-11-03T17:06:00Z", "session": "d1c582d5-875e-4116-989e-2bea0e85b8e8", "event": "PostToolUse", "agent": "main", "tool": "Agent", "target": "Run project test suite"}

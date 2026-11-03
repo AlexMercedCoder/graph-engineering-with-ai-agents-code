@@ -1,0 +1,25 @@
+diff --git a/src/services/order-service.js b/src/services/order-service.js
+index 12cb020..abd92b3 100644
+--- a/src/services/order-service.js
++++ b/src/services/order-service.js
+@@ -5,9 +5,18 @@ export function listOrdersForUser(userId, callback) {
+   query('orders', (o) => o.user_id === userId && o.deleted_at === null, callback);
+ }
+ 
++// Excludes orders belonging to soft-deleted users.
+ export function totalPaidCents(callback) {
+-  query('orders', (o) => o.status === 'paid' && o.deleted_at === null, (err, rows) => {
++  query('users', (u) => u.deleted_at === null, (err, users) => {
+     if (err) return callback(err);
+-    callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
++    const activeUserIds = new Set(users.map((u) => u.id));
++    query(
++      'orders',
++      (o) => o.status === 'paid' && o.deleted_at === null && activeUserIds.has(o.user_id),
++      (err, rows) => {
++        if (err) return callback(err);
++        callback(null, rows.reduce((sum, o) => sum + o.total_cents, 0));
++      },
++    );
+   });
+ }

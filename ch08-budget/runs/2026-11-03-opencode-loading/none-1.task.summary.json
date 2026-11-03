@@ -1,0 +1,52 @@
+{
+ "payloads": [
+  11870,
+  12268,
+  12623,
+  14183,
+  14595,
+  14873
+ ],
+ "tools": [
+  [
+   "glob",
+   "{\"pattern\": \"**/*order*\"}"
+  ],
+  [
+   "glob",
+   "{\"pattern\": \"package.json\"}"
+  ],
+  [
+   "glob",
+   "{\"pattern\": \"**/AGENTS.md\"}"
+  ],
+  [
+   "bash",
+   "{\"command\": \"git status --short\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/services/order-service.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/package.json\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/tests/order-service.test.js\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/src/db.js\"}"
+  ],
+  [
+   "apply_patch",
+   "{\"patchText\": \"*** Begin Patch\\n*** Update File: src/services/order-service.js\\n@@\\n export function totalPaidCents(callback) {\\n@@\\n   });\\n }\\n+\\n+export function countPaidOrders(callback) {\\n+  que"
+  ],
+  [
+   "bash",
+   "{\"command\": \"npm test\"}"
+  ]
+ ]
+}

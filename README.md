@@ -25,7 +25,7 @@ cd graph-engineering-with-ai-agents-code
 ```
 
 That runs everything checkable without an agent, a network connection, or an API
-key. It should report `passed 19, failed 0`. If it does, every exercise that does
+key. It should report `passed 27, failed 0` (`passed 24` without PyYAML, which skips the three Chapter 11 checks). If it does, every exercise that does
 not need a harness will work on your machine.
 
 ## What you need
@@ -56,9 +56,9 @@ in the source with the one-line change that switches them to a real provider.
 | 3 | `ch03-context-wall/` | The seven-task ladder and its rules, scripts to measure payloads, score tasks, and record the curve, and real ladder, compaction, and stress-test runs in Claude Code and OpenAI Codex |
 | 4 | `ch04-routing/` | Four skills, the 20-prompt routing evaluation with a runner for Claude Code and OpenCode, a scorer, four description versions, and 320 real routing sessions plus access, tool-rule, and fork tests |
 | 5 | `ch05-subagents/` | The `test-runner`, `module-migrator`, and `migration-dispatcher` subagents, the node files and `run-graph.sh` (the execution graph as a shell script), and real runs of isolation, dispatching, an agent team, subagent memory, and the script |
-| 6 | `ch06-hooks/` | Six hooks and the settings that register them. All verified by `verify.sh` |
-| 7 | `ch07-plugin/` | The whole Part 2 graph packaged as an installable plugin |
-| 8 | `ch08-budget/` | A split configuration: a small always-loaded core plus three path-scoped rules |
+| 6 | `ch06-hooks/` | Six hook scripts, the settings that register them (with `onFailure` on the blocking three), an OpenCode plugin with the same guards, and real blocking, feedback, audit, scoping, and trust runs |
+| 7 | `ch07-plugin/` | The Part 2 graph packaged as the `team-workflow` plugin (rebuilt from Chapters 4 to 6 by `tools/sync-from-chapters.sh`), `release-tools` 1.0.0 and 1.1.0 (the conflicting plugin and its fix), a `book-platform` marketplace, and real install, version, namespacing, collision, precedence, and CLAUDE.md layering runs |
+| 8 | `ch08-budget/` | The split configuration, the 146-line guide written for the book and its pruned version, `loaded-context.py`, compressed and grouped skill sets with a routing runner, and real pricing, loading, compaction, listing, and deferral runs |
 | 9 | `ch09-mcp/` | A working knowledge server with real data, plus `cli.py`, the dependency-free command line surface |
 | 10 | `ch10-graph/` | Ten cross-referencing documents, an extraction pipeline into SQLite, three traversal tools, and the 20-question benchmark |
 | 11 | `ch11-catalog/` | A semantic layer in the Apache Ossie shape, and lineage validation with the four checks |
@@ -72,7 +72,7 @@ in the source with the one-line change that switches them to a real provider.
 | Resource | Path | What is here |
 |---|---|---|
 | The worked project | `sample-project/` | The order-management API the book builds on: four service modules, two repositories, a router, and ten tests |
-| Skills, hooks, and plugins across five harnesses | `reference/harness-guide.md` | How Claude Code, OpenAI Codex CLI, Google Antigravity, OpenCode, and Pi implement skills, subagents, hooks, and plugins, with the per-harness file locations and event vocabulary |
+| Skills, hooks, and plugins across five harnesses | `reference/harness-guide.md` | How Claude Code, OpenAI Codex, Google Antigravity, OpenCode, and Pi implement skills, subagents, hooks, and plugins, with the per-harness file locations and event vocabulary |
 | Appendix A | `ags/` | The Chapter 5 migration expressed as an AGS 1.0 document |
 | Appendix B | `appendix-b-loro-magagent/` | The MagAgent and Loro command and code snippets that demonstrate AGS in two custom harnesses |
 | Verification | `verify.sh` | Runs everything checkable with no agent and no network |
@@ -80,7 +80,7 @@ in the source with the one-line change that switches them to a real provider.
 ## The harness guide
 
 Chapter 1 through Chapter 9 assume you have at least one of the five harnesses:
-Claude Code, OpenAI Codex CLI, Google Antigravity, OpenCode, or Pi. The same
+Claude Code, OpenAI Codex, Google Antigravity, OpenCode, or Pi. The same
 skills, subagents, hooks, and plugins map to a different configuration file and
 directory structure in each one. The `reference/harness-guide.md` reference maps
 each mechanism onto all five, so you can take the material in this repository and

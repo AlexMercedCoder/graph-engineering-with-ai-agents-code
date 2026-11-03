@@ -1,0 +1,8 @@
+== oc-hook-1: tmp-build exists: 6
+== cc-hook-1: tmp-build exists: gone
+== cc-none-1: tmp-build exists: gone
+== cc-hook-2: tmp-build exists: gone
+== oc-none-1: tmp-build exists: gone
+== cc-none-2: tmp-build exists: gone
+== oc-hook-2: tmp-build exists: gone
+== oc-none-2: tmp-build exists: gone

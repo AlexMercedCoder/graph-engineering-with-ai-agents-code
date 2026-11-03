@@ -1,0 +1,5 @@
+Adding marketplace…✔ Successfully added marketplace: book-platform (declared in project settings)
+$ claude plugin install team-workflow@book-platform --scope project
+Installing plugin "team-workflow@book-platform"...✔ Successfully installed plugin: team-workflow@book-platform (scope: project)
+    Version: 1.0.0
+<scratch>/iso2/plugins/cache/book-platform/team-workflow/1.0.0

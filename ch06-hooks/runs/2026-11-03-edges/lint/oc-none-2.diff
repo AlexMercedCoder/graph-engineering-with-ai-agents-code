@@ -1,0 +1,77 @@
+diff --git a/src/services/auth-service.js b/src/services/auth-service.js
+index 9a683b0..fe82c4f 100644
+--- a/src/services/auth-service.js
++++ b/src/services/auth-service.js
+@@ -1,4 +1,4 @@
+-import { query } from '../db.js';
++import { query, update } from '../db.js';
+ 
+ // Callback-style database access. Chapter 5 migrates this to UserRepository.
+ export function findByEmail(email, callback) {
+@@ -14,3 +14,11 @@ export function isActive(email, callback) {
+     callback(null, Boolean(user));
+   });
+ }
++
++export function recordLogin(email, callback) {
++  findByEmail(email, (err, user) => {
++    if (err) return callback(err);
++    if (!user) return callback(null, null);
++    update('users', user.id, { last_login_at: new Date().toISOString() }, callback);
++  });
++}
+diff --git a/tests/auth-service.test.js b/tests/auth-service.test.js
+index 8ea5570..a08d49e 100644
+--- a/tests/auth-service.test.js
++++ b/tests/auth-service.test.js
+@@ -1,6 +1,7 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+-import { findByEmail, isActive } from '../src/services/auth-service.js';
++import { findByEmail, isActive, recordLogin } from '../src/services/auth-service.js';
++import { findUser } from '../src/services/user-service.js';
+ 
+ test('findByEmail ignores soft-deleted users', (t, done) => {
+   findByEmail('alan@example.com', (err, user) => {
+@@ -17,3 +18,41 @@ test('isActive is true for a live user', (t, done) => {
+     done();
+   });
+ });
++
++test('recordLogin persists the current time for an active user', (t, done) => {
++  const before = Date.now();
++  recordLogin('ada@example.com', (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user.email, 'ada@example.com');
++    const timestamp = Date.parse(user.last_login_at);
++    assert.ok(timestamp >= before && timestamp <= Date.now());
++    findByEmail('ada@example.com', (findErr, savedUser) => {
++      assert.equal(findErr, null);
++      assert.equal(savedUser.last_login_at, user.last_login_at);
++      done();
++    });
++  });
++});
++
++test('recordLogin ignores soft-deleted users', (t, done) => {
++  findUser(3, (findErr, originalUser) => {
++    assert.equal(findErr, null);
++    recordLogin('alan@example.com', (err, user) => {
++      assert.equal(err, null);
++      assert.equal(user, null);
++      findUser(3, (savedErr, savedUser) => {
++        assert.equal(savedErr, null);
++        assert.deepEqual(savedUser, originalUser);
++        done();
++      });
++    });
++  });
++});
++
++test('recordLogin returns null for an unknown email', (t, done) => {
++  recordLogin('missing@example.com', (err, user) => {
++    assert.equal(err, null);
++    assert.equal(user, null);
++    done();
++  });
++});

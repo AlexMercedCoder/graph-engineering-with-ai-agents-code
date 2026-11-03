@@ -1,0 +1,7 @@
+  load    skill listing: 18 skills, 8153 chars
+request   1  payload   31,475  then Skill
+request   2  payload   40,053
+  ------  compaction (manual), 40388 tokens before
+  load    invoked skill: release-checklist (20000 chars)
+  load    skill listing: 18 skills, 8153 chars
+request   3  payload   39,057

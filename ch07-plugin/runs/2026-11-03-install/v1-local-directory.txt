@@ -1,0 +1,63 @@
+$ claude plugin marketplace add <mkt-dir> --scope project
+Adding marketplace…✔ Successfully added marketplace: book-platform (declared in project settings)
+$ claude plugin install team-workflow@book-platform --scope project
+Installing plugin "team-workflow@book-platform"...✔ Successfully installed plugin: team-workflow@book-platform (scope: project)
+$ cat .claude/settings.json
+{
+  "extraKnownMarketplaces": {
+    "book-platform": {
+      "source": {
+        "source": "directory",
+        "path": "<scratch>/work/mkt-dir"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "team-workflow@book-platform": true
+  }
+}
+$ claude plugin list
+Installed plugins:
+
+  ❯ team-workflow@book-platform
+    Version: 1.0.0
+    Read from: <scratch>/work/mkt-dir/team-workflow
+    Scope: project
+    Status: ✔ enabled
+
+$ claude plugin details team-workflow
+Team Workflow (team-workflow) 1.0.0
+  Description: Review and migration skills, isolated workers, and the hooks that bound them.
+  Source: team-workflow@book-platform
+
+Component inventory
+  Skills (4)  code-review, explain-module, fix-lint, migrate-module
+  Agents (3)  module-migrator, migration-dispatcher, test-runner
+  Hooks (3)  PreToolUse, PostToolUse, Stop  (harness-only — no model context cost)
+  MCP servers (0)
+  LSP servers (0)
+
+Projected token cost
+  Always-on:   ~431 tok   added to every session
+
+Per-component (rounded)
+  component             always-on  on-invoke
+  explain-module              ~60        ~70
+  code-review                 ~80       ~110
+  fix-lint                    ~60        ~50
+  migrate-module              ~70       ~460
+  module-migrator             ~60       ~240
+  migration-dispatcher        ~50       ~170
+  test-runner                 ~50       ~130
+
+  On-invoke cost is paid each time a skill or agent fires.
+  Token counts are estimates and may differ from actual usage.
+$ ls plugins root
+<scratch>/iso1/plugins
+<scratch>/iso1/plugins/marketplaces
+<scratch>/iso1/plugins/installed_plugins.json
+<scratch>/iso1/plugins/cache
+<scratch>/iso1/plugins/known_marketplaces.json
+<scratch>/iso1/plugins/cache/book-platform
+<scratch>/iso1/plugins/cache/book-platform/team-workflow
+<scratch>/iso1/plugins/cache/book-platform/team-workflow/1.0.0

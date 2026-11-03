@@ -1,0 +1,26 @@
+{
+ "session_id": "e812325c-f32a-4651-95db-5d61aad2f33a",
+ "payloads": [
+  31904,
+  32080,
+  33033,
+  34109,
+  36154
+ ],
+ "events": [
+  {
+   "event": "skill_listing",
+   "chars": 7989
+  },
+  {
+   "event": "instructions",
+   "files": [
+    "CLAUDE.md"
+   ]
+  },
+  {
+   "event": "nested_memory",
+   "path": ".claude/rules/test-conventions.md"
+  }
+ ]
+}

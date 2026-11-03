@@ -1,0 +1,1 @@
+2026-11-03T17:21:13.343Z [ERROR] Skipping frontmatter hooks for agent 'test-runner': the folder its definition file came from is not trusted (source: projectSettings). Run Claude Code in that folder once and accept the trust dialog, or set projects["<run-dir>"].hasTrustDialogAccepted: true in <home>/.claude.json.

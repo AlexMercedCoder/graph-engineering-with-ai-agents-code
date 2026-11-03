@@ -1,0 +1,6 @@
+{"ts": "2026-11-03T17:06:09Z", "session": "9e5f28db-4ad2-4b85-b0c0-2eb72cb4667b", "event": "PreToolUse", "agent": "main", "tool": "Read", "target": "<run-dir>/package.json"}
+{"ts": "2026-11-03T17:06:09Z", "session": "9e5f28db-4ad2-4b85-b0c0-2eb72cb4667b", "event": "PostToolUse", "agent": "main", "tool": "Read", "target": "<run-dir>/package.json"}
+{"ts": "2026-11-03T17:06:12Z", "session": "9e5f28db-4ad2-4b85-b0c0-2eb72cb4667b", "event": "PreToolUse", "agent": "main", "tool": "Agent", "target": "Run project test suite"}
+{"ts": "2026-11-03T17:06:14Z", "session": "9e5f28db-4ad2-4b85-b0c0-2eb72cb4667b", "event": "PreToolUse", "agent": "test-runner", "tool": "Bash", "target": "npm test 2>&1"}
+{"ts": "2026-11-03T17:06:15Z", "session": "9e5f28db-4ad2-4b85-b0c0-2eb72cb4667b", "event": "PostToolUse", "agent": "test-runner", "tool": "Bash", "target": "npm test 2>&1"}
+{"ts": "2026-11-03T17:06:17Z", "session": "9e5f28db-4ad2-4b85-b0c0-2eb72cb4667b", "event": "PostToolUse", "agent": "main", "tool": "Agent", "target": "Run project test suite"}
