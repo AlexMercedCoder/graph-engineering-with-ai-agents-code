@@ -1,0 +1,31 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 13,
+ "run": 1,
+ "answer": "For OrderService to serve a request, five things need to be running: OrderService itself plus the four below. I followed its dependencies up to 4 hops.\n\n| Component | Type | How it's reached | Why it's needed |\n|---|---|---|---|\n| **OrdersPostgresDatabase** | Database | OrderService stores data in it | OrderService's own data store |\n| **PaymentsAPI** | API | OrderService calls it | OrderService calls it while handling requests |\n| **UserService** | Service | OrderService depends on it | A direct dependency of OrderService |\n| **UsersPostgresDatabase** | Database | UserService stores data in it | UserService can't work without it, so OrderService needs it too |\n\nThe dependency chain:\n```\nOrderService\n\u251c\u2500\u2500 STORES     \u2192 OrdersPostgresDatabase\n\u251c\u2500\u2500 CALLS      \u2192 PaymentsAPI           (no dependencies of its own in the graph)\n\u2514\u2500\u2500 DEPENDS_ON \u2192 UserService\n                 \u2514\u2500\u2500 STORES \u2192 UsersPostgresDatabase\n```\n\n**What the dependencies need:**\n- **UserService** needs **UsersPostgresDatabase**. That's the only indirect requirement, and it's why OrderService relies on a database it doesn't use directly.\n- **PaymentsAPI** has no dependencies recorded in the graph. If it really uses a database or another provider, that link is missing from the graph, so treat \"PaymentsAPI needs nothing else\" with some caution.\n\n**Configuration keys:** I couldn't find any. My only configuration tool starts from a key name and shows which services it affects. It can't list the keys a service uses, and the dependency search doesn't return configuration links. If you have candidate key names (for example, database connection strings or the PaymentsAPI URL), I can check each one to see whether it affects these services.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "PaymentsAPI"
+   }
+  }
+ ],
+ "input_tokens": 13872,
+ "output_tokens": 934
+}

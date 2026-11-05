@@ -1,0 +1,39 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 6,
+ "run": 1,
+ "answer": "For identity resolution, AuditService relies on **UserService**, which reads from **UsersPostgresDatabase**. One thing to know up front: the graph records the dependency itself, but none of its relationships are labelled \"identity resolution.\" I'm treating UserService as the identity provider because it's AuditService's only user-related dependency.\n\n**The chain:**\n\n1. **AuditService \u2192 UserService** (DEPENDS_ON). This is AuditService's only dependency on another service.\n2. **UserService \u2192 UsersPostgresDatabase** (STORES). User data lives in this database.\n3. **ORDER_DB_URL** sets the connection to UserService's read replica. The name is misleading: it says \"ORDER\" but it configures UserService. It was never renamed because three deployment scripts still read it. Be careful before renaming or changing it.\n\n**Not part of identity resolution:**\n- **AuditIcebergTable** is where AuditService stores its audit records (STORES). It's AuditService's own storage, not part of user lookup.\n- No configuration keys are recorded directly on AuditService.\n\nIf UserService, UsersPostgresDatabase or ORDER_DB_URL goes down or is misconfigured, AuditService loses identity resolution.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 3
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 3
+   }
+  }
+ ],
+ "input_tokens": 14538,
+ "output_tokens": 745,
+ "cost_usd": 0.04553599999999999
+}

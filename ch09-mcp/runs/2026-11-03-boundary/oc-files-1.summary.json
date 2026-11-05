@@ -1,0 +1,40 @@
+{
+ "payloads": [
+  11847,
+  11972,
+  13378
+ ],
+ "requests": 3,
+ "input_total": 37197,
+ "first_request": 11847,
+ "tools": [
+  [
+   "grep",
+   "{\"pattern\": \"fraud|manual review|threshold\", \"include\": \"*\"}"
+  ],
+  [
+   "read",
+   "{\"filePath\": \"<run-dir>/docs/architecture.md\"}"
+  ]
+ ],
+ "tool_result_chars": 5737,
+ "results": [
+  {
+   "chars": 264,
+   "error": false,
+   "head": "Found 1 matches\n<run-dir>/docs/architecture.md:\n  Line 82: ## Fraud scoring thresholds\n",
+   "has_0.82": false
+  },
+  {
+   "chars": 5473,
+   "error": false,
+   "head": "<path><run-dir>/docs/architecture.md</path>\n<type>file</type>\n<content>\n1: # Architecture\n2: \n3: ## Service map\n4: The plat",
+   "has_0.82": true
+  }
+ ],
+ "final": "According to [`docs/architecture.md:82\u201389`](docs/architecture.md#L82-L89), an order is **held for manual review if either condition is met**:\n\n- **Fraud score > 0.82**, or\n- **Order amount > USD 2,500 and account age < 7 days**.\n\nThe score uses these signal weights:\n\n| Signal | Weight |\n|---|---:|\n| Velocity (orders per card per hour) | 0.35 |\n| Billing/shipping country mismatch | 0.25 |\n| Account age | 0.20 |\n| Order amount | 0.20 |\n\nOrders scoring **between 0.65 and 0.82** are captured but flagged for a next-day audit.\n\nThe manual-review rules explicitly say \u201cabove\u201d and \u201cyounger than,\u201d so exactly **0.82**, **USD 2,500**, or **7 days** does not, by itself, cross the corresponding threshold.",
+ "init": {},
+ "diagnosis_correct": false,
+ "leak_in_answer": true,
+ "leak_in_context": true
+}

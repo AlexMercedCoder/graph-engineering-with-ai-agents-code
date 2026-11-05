@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 11,
+ "run": 1,
+ "answer": "Two services call the NotificationsAPI directly, so they're the ones most likely to break. Six more are exposed through them. This comes from walking the dependency graph backward up to 4 hops from NotificationsAPI.\n\n**Direct callers (highest risk):**\n1. **BillingService** calls NotificationsAPI.\n2. **PaymentsService** calls NotificationsAPI.\n\n**Through BillingService:**\n3. **RenewalsWorker** depends on BillingService.\n4. **ReportingService** depends on BillingService.\n\n**Through PaymentsService:**\n5. **PaymentsAPI** is exposed by PaymentsService, so its behaviour can change.\n6. **OrderService** calls PaymentsAPI.\n7. **OrdersAPI** is exposed by OrderService.\n8. **SearchService** depends on OrderService.\n\n**What the graph can't tell me:**\n- **Whether anything actually breaks.** The graph records that these services call or depend on each other, not how they use retries. Whether a change breaks anything depends on how BillingService and PaymentsService treat NotificationsAPI retries. For example, they might assume retries won't send duplicates, use their own timeouts, or run their own retry logic on top. Check those two first. If neither relies on the current behaviour, the six further down are probably safe.\n- **No config key found.** I checked `notifications.retry` and the graph has no key by that name. Retry behaviour may be set under a different key, or not tracked in the graph at all. If you know the actual key name, I can trace which services it affects.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "notifications.retry"
+   }
+  }
+ ],
+ "input_tokens": 14682,
+ "output_tokens": 815
+}

@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 12,
+ "run": 2,
+ "answer": "If BillingService goes down, two services stop working: **RenewalsWorker** and **ReportingService**. Both depend on it directly, and nothing else depends on it within four hops.\n\n**Services that break**\n\n| Service | How it connects to BillingService |\n|---|---|\n| **RenewalsWorker** | `RenewalsWorker -DEPENDS_ON-> BillingService` |\n| **ReportingService** | `ReportingService -DEPENDS_ON-> BillingService` |\n\nNothing depends on RenewalsWorker or ReportingService in turn, so the impact ends there.\n\n**What BillingService uses (these keep running)**\n\nThese are things BillingService relies on. They don't fail when it does, but any work that goes through BillingService to reach them stops:\n\n- **PaymentsAPI** (BillingService calls it): charges started by billing, including those for RenewalsWorker, won't happen.\n- **NotificationsAPI** (BillingService calls it): billing notifications, such as invoices or receipts, won't be sent.\n- **OrderService** and **UserService**: BillingService depends on both. They keep running and serving their other callers.\n- **BillingPostgresDatabase** and **OrdersPostgresDatabase**: BillingService stores data in both. They stay up, but no new billing data gets written until BillingService is back.\n\n**Limits of this answer**\n- The graph has no separate BillingService endpoints, so I couldn't check for callers of specific billing APIs. The search only covered callers of the service as a whole.\n- No configuration keys came up in this search. To find services that share billing settings (and could fail along with it), I'd need the names of BillingService's configuration keys to trace.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService"
+   }
+  }
+ ],
+ "input_tokens": 9194,
+ "output_tokens": 830
+}

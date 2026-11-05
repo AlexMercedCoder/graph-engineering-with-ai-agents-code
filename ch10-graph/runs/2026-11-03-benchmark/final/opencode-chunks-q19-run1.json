@@ -1,0 +1,27 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 19,
+ "run": 1,
+ "answer": "If **PaymentsService** is down, these two direct callers of its **PaymentsAPI** can no longer take payments:\n\n| Direct caller | Payment functionality affected | Documentation |\n|---|---|---|\n| **OrderService** | Authorizing and capturing payments for orders. | `order-service#Integrations` |\n| **RenewalsWorker** | Taking renewal payments; it calls PaymentsAPI directly because renewals have no cart. | `renewals-worker#Integrations` |\n\n**PaymentsService** exposes **PaymentsAPI** (`payments-service#Overview`). No database or configuration key is involved in identifying these direct callers.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "PaymentsService direct API callers payment services dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"PaymentsAPI\" services callers",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 4403,
+ "output_tokens": 189,
+ "cost_usd": null
+}

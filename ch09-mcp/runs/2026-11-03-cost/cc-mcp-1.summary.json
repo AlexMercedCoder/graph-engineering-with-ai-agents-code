@@ -1,0 +1,74 @@
+{
+ "payloads": [
+  33144,
+  33843,
+  34514,
+  34955
+ ],
+ "requests": 4,
+ "input_total": 136456,
+ "first_request": 33144,
+ "tools": [
+  [
+   "ToolSearch",
+   "{\"query\": \"select:mcp__project-knowledge__lookup_error_code,mcp__project-knowledge__get_config_schema,mcp__project-knowledge__find_architecture_docs\", \"max_results\": 3}"
+  ],
+  [
+   "mcp__project-knowledge__lookup_error_code",
+   "{\"code\": \"E4021\"}"
+  ],
+  [
+   "mcp__project-knowledge__get_config_schema",
+   "{\"service\": \"payments\"}"
+  ],
+  [
+   "Grep",
+   "{\"pattern\": \"AUTH_HOLD_MINUTES|CAPTURE_DELAY_MINUTES|CAPTURE_TIMEOUT|MAX_CAPTURE_RETRIES\", \"output_mode\": \"content\"}"
+  ]
+ ],
+ "tool_result_chars": 1948,
+ "results": [
+  {
+   "chars": 263,
+   "error": false,
+   "head": "[{\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__lookup_error_code\"}, {\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__get_config_schema\"}, {\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__find_architecture_docs\"}]",
+   "has_0.82": false
+  },
+  {
+   "chars": 188,
+   "error": false,
+   "head": "{\"result\":\"E4021: Payment authorization expired\\nCause: The authorization hold lapsed before capture.\\nHandling: Re-authorize, then capture. Do not retry capture alone.\\nRetryable: False\"}",
+   "has_0.82": false
+  },
+  {
+   "chars": 1064,
+   "error": false,
+   "head": "{\"result\":\"KEY                    TYPE      REQUIRED  DEFAULT              NOTES\\nPAYMENT_API_KEY        string    True      (value not shown)    Provider API key for this environment.\\nPAYMENT_BASE_URL       string    True      None                 Provider endpoint. Sandbox and live endpoints diff",
+   "has_0.82": false
+  },
+  {
+   "chars": 433,
+   "error": false,
+   "head": "config/staging/payments.conf:4:CAPTURE_TIMEOUT=30\nconfig/staging/payments.conf:5:CAPTURE_DELAY_MINUTES=15\nconfig/staging/payments.conf:6:AUTH_HOLD_MINUTES=10\nconfig/staging/payments.conf:7:MAX_CAPTURE_RETRIES=4\nconfig/production/payments.conf:4:CAPTURE_TIMEOUT=30\nconfig/production/payments.conf:5:CA",
+   "has_0.82": false
+  }
+ ],
+ "final": "The likely cause is that staging sets `AUTH_HOLD_MINUTES=10`, which is less than its `CAPTURE_DELAY_MINUTES=15`. Payment holds expire before the capture worker runs.\n\n**What E4021 means:** \"Payment authorization expired.\" The hold on the payment lapsed before it was captured. It is **not retryable**: the fix is to re-authorize and then capture, not to retry the capture alone.\n\n**What the config schema says:**\n- `CAPTURE_DELAY_MINUTES` (default 15) is how many minutes after authorization the capture worker captures.\n- `AUTH_HOLD_MINUTES` (default 60) is how long the provider holds an authorization. The schema says it *must be greater than `CAPTURE_DELAY_MINUTES` or holds lapse before capture*.\n\n**What staging actually has** (`config/staging/payments.conf:5-6`):\n```\nCAPTURE_DELAY_MINUTES=15\nAUTH_HOLD_MINUTES=10    \u2190 production has 60\n```\n\nSo every authorization in staging expires at minute 10, and the capture worker tries to capture it at minute 15. That would produce E4021 on every capture. The other capture settings (`CAPTURE_TIMEOUT=30`, `MAX_CAPTURE_RETRIES=4`) are the same in staging and production, so they aren't the cause.\n\n**Suggested fix (I haven't changed anything):** set `AUTH_HOLD_MINUTES=60` in `config/staging/payments.conf` to match production and the default, or use any value comfortably above 15. Also check that 60 minutes is within what the provider's sandbox actually allows for a hold. If someone shortened it on purpose to test expiry, lower `CAPTURE_DELAY_MINUTES` with it. Payments that already failed with E4021 have to be re-authorized; retrying the capture won't work.\n\nI only checked the timing settings. I didn't look at `PAYMENT_BASE_URL` or `PROVIDER_REGION` in staging because they don't relate to this error.",
+ "init": {
+  "mcp_servers": [
+   {
+    "name": "project-knowledge",
+    "status": "connected",
+    "source": "dynamic"
+   }
+  ],
+  "mcp_tools": [
+   "mcp__project-knowledge__find_architecture_docs",
+   "mcp__project-knowledge__get_config_schema",
+   "mcp__project-knowledge__lookup_error_code"
+  ]
+ },
+ "diagnosis_correct": true,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

@@ -1,0 +1,40 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 13,
+ "run": 2,
+ "answer": "For OrderService to serve a request, five things need to be running: OrderService itself, plus the four below.\n\n**What OrderService uses directly** (one step away in the dependency graph):\n1. **OrdersPostgresDatabase** (STORES): OrderService keeps its data here.\n2. **PaymentsAPI** (CALLS): OrderService calls this API. The graph shows nothing PaymentsAPI depends on, even looking 4 steps out.\n3. **UserService** (DEPENDS_ON): OrderService needs this service.\n\n**What its dependencies need:**\n4. **UsersPostgresDatabase** (STORES): UserService keeps its data here. OrderService doesn't link to it directly, but it still needs it, because UserService can't work without it.\n\n```\nOrderService\n\u251c\u2500\u2500 OrdersPostgresDatabase   (STORES)\n\u251c\u2500\u2500 PaymentsAPI              (CALLS)  \u2192 no further dependencies\n\u2514\u2500\u2500 UserService              (DEPENDS_ON)\n    \u2514\u2500\u2500 UsersPostgresDatabase (STORES)\n```\n\n**Configuration keys:** none are named here. The only config tool starts from a key and finds the services it affects. It can't list the keys a service uses, so I couldn't check whether any keys apply to these services. If you have candidate key names, I can trace each one.\n\n**Caveat:** this only covers CALLS, DEPENDS_ON and STORES links that are recorded in the graph. PaymentsAPI showing no dependencies may just mean its backing systems aren't modelled, not that it has none.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "PaymentsAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 19043,
+ "output_tokens": 1007
+}

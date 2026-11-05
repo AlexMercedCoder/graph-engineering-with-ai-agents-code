@@ -1,0 +1,40 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 20,
+ "run": 2,
+ "answer": "Within two hops, BillingService depends on six things: three directly and three more through OrderService.\n\n**Direct dependencies (1 hop)**\n| Dependency | Type | Relationship |\n|---|---|---|\n| BillingPostgresDatabase | Database | BillingService **STORES** data here |\n| NotificationsAPI | API | BillingService **CALLS** it |\n| OrderService | Service | BillingService **DEPENDS_ON** it |\n\n**Through OrderService (2 hops)**\n| Dependency | Type | Relationship (from OrderService) |\n|---|---|---|\n| OrdersPostgresDatabase | Database | OrderService **STORES** data here |\n| PaymentsAPI | API | OrderService **CALLS** it |\n| UserService | Service | OrderService **DEPENDS_ON** it |\n\nNotificationsAPI depends on nothing further, so the second hop comes only from OrderService. I didn't query BillingPostgresDatabase's dependencies separately. The two-hop query from BillingService returned only these six entities, though, so the database adds nothing at the second hop.\n\n**Configuration keys:** none came up. The dependency tool follows CALLS, DEPENDS_ON and STORES relationships, not CONFIGURES. To see which config keys affect any of these services, they would need to be traced key by key.\n\n**What this means:** BillingService needs OrderService to work. Through it, BillingService also relies on PaymentsAPI, UserService and OrdersPostgresDatabase, even though it never connects to them itself. An outage in any of those could affect billing.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 18913,
+ "output_tokens": 988
+}

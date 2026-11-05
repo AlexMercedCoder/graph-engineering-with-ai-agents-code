@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 9,
+ "run": 2,
+ "answer": "**RenewalsWorker re-bills active subscriptions monthly**, running as a scheduled job on the **first of each month**.\n\nIf a renewal authorization fails, it retries on **days three and seven**. After the third failure, the subscription is suspended and the customer is emailed through the normal billing receipt flow.\n\nThe relevant configuration key is **`AUTH_HOLD_MINUTES`**, which controls how long a renewal authorization is held before capture; it does not set the billing frequency. The cited documentation names no additional service, API, or database involved.\n\nSources: `renewals-worker#Overview`, `renewals-worker#Operations`, `renewals-worker#Configuration`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "RenewalsWorker subscription re-bill frequency schedule",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2342,
+ "output_tokens": 168,
+ "cost_usd": null
+}

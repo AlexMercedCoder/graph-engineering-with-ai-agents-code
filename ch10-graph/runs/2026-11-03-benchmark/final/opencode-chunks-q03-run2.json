@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 3,
+ "run": 2,
+ "answer": "OrderService uses the **`orders` PostgreSQL database** to store orders and their line items. Line items are immutable once an order is placed.\n\nSource: `order-service#Data`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService database",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2306,
+ "output_tokens": 67,
+ "cost_usd": null
+}

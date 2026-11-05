@@ -1,0 +1,34 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 14,
+ "run": 2,
+ "answer": "**BillingService** and **PaymentsService** are the two services the docs list as calling the **NotificationsAPI** directly.\n\n**How the failure spreads**\n- **NotificationsService** provides the **NotificationsAPI**. Any service that sends an email, SMS or push message goes through this API rather than contacting a provider itself.\n- NotificationsService keeps queued messages in the **notifications Redis instance**. A message stays there until a provider accepts it or its retries run out. If that Redis instance is lost, the queue is gone. Messages already waiting are lost, and new ones have nowhere to wait before delivery.\n\n**The direct callers that are affected**\n1. **BillingService** calls the NotificationsAPI to send **receipts** after a capture succeeds, so receipts would not be delivered.\n2. **PaymentsService** calls the NotificationsAPI when an **authorization is declined**, so customers would not be told about declines. This matters because checkout may already have returned, which makes this message the customer's only notice.\n\n**Why the callers may not notice**\n- Retries are set by **`RETRY_ATTEMPTS`**: three attempts with a 250ms backoff. A message that fails all three moves to the **dead-letter list**, and **the caller is not told**. A caller only learns a message failed if it polls the message status. Unless BillingService and PaymentsService do that, they will keep running as if delivery worked.\n\n**Not affected directly**\n- **OrderService** calls the PaymentsAPI and depends on UserService. It reaches notifications only indirectly, through PaymentsService's decline messages and BillingService's receipts.\n- **ApiGateway** (which calls the OrdersAPI and UsersAPI), **SearchService** and **UserService** have no documented calls to the NotificationsAPI.\n\nThe docs don't explicitly describe what happens when Redis fails. The impact above comes from the queue living in that instance. They also don't say where the dead-letter list is stored. If it's in the same Redis instance, the record of failed messages would be lost too.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "notifications Redis instance",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that call NotificationsAPI",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "sends email SMS push notification user-service integrations",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 15394,
+ "output_tokens": 1081,
+ "cost_usd": 0.063199
+}

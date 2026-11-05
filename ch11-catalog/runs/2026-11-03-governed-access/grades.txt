@@ -1,0 +1,16 @@
+claude-catalog-1             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=2 skill=no
+claude-catalog-2             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=3 skill=no
+claude-raw-1                 4/6  q1:correct q2:wrong q3:correct q4:correct q5:correct q6:disclosed  tools=6 skill=no
+claude-raw-2                 4/6  q1:correct q2:wrong q3:correct q4:correct q5:correct q6:disclosed  tools=5 skill=no
+claude-skill-1               6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=13 skill=yes
+claude-skill-2               6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=13 skill=yes
+claude-tools-1               6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=12 skill=no
+claude-tools-2               6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=12 skill=no
+opencode-catalog-1           6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=4 skill=no
+opencode-catalog-2           6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=4 skill=no
+opencode-raw-1               3/6  q1:correct q2:wrong q3:wrong q4:correct q5:correct q6:disclosed  tools=4 skill=no
+opencode-raw-2               3/6  q1:correct q2:wrong q3:wrong q4:correct q5:correct q6:disclosed  tools=4 skill=no
+opencode-skill-1             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=17 skill=yes
+opencode-skill-2             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=17 skill=yes
+opencode-tools-1             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=9 skill=no
+opencode-tools-2             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=9 skill=no

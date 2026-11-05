@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 12,
+ "run": 1,
+ "answer": "If **BillingService** goes down, the architecture graph identifies two affected services:\n\n- **RenewalsWorker** \u2014 directly depends on **BillingService**, so work requiring that dependency will be blocked.\n- **ReportingService** \u2014 directly depends on **BillingService**, so reporting functionality requiring that dependency will be blocked.\n\nNo additional affected services were found within four dependency hops. The graph establishes these dependencies, but does not show whether either service fails entirely or continues with reduced functionality. No specific APIs, databases, or configuration keys were identified in the affected paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 4
+   }
+  }
+ ],
+ "input_tokens": 2545,
+ "output_tokens": 144
+}

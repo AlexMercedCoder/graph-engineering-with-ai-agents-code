@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 20,
+ "run": 1,
+ "answer": "BillingService directly needs 3 things: one API, one service and one database. Counting their own needs adds 4 more, so 7 things in total within two hops.\n\n**Hop 1: what BillingService needs directly**\n\n| Kind | Name | Service behind it / notes |\n|---|---|---|\n| API it calls | **NotificationsAPI** | Served by **NotificationsService**. BillingService uses it to send receipts once a payment capture succeeds. |\n| Service it depends on | **OrderService** | Provides the order line items. |\n| Database | **billing Postgres database** | Holds the invoices. |\n\n**Hop 2: what each of those needs**\n\n*NotificationsService (behind NotificationsAPI)*\n- Database: **notifications Redis instance**, which holds queued messages.\n- No API calls or service dependencies are documented.\n\n*OrderService*\n- API it calls: **PaymentsAPI**, served by **PaymentsService**, to authorize and capture payments.\n- Service it depends on: **UserService**, to look up the customer who placed the order.\n- Database: **orders Postgres database**.\n\n**All 7 items**\n- APIs: NotificationsAPI, PaymentsAPI\n- Services: NotificationsService, OrderService, UserService, PaymentsService\n- Databases: billing Postgres, notifications Redis, orders Postgres\n\n**Limits**\n- I didn't look further than PaymentsService and UserService, because that would be a third hop. For reference, PaymentsService stores data in the payments Postgres database and uses the config keys `PAYMENT_API_KEY` and `CAPTURE_TIMEOUT` (in seconds, default 30). It also calls NotificationsAPI.\n- The docs don't list any configuration keys for BillingService, OrderService or NotificationsService.\n- The \"no dependencies\" result for NotificationsService means the docs don't mention any. That doesn't prove it has none.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingService dependencies APIs calls database",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI served by which service",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService integrations depends on calls stores database",
+    "k": 6
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsService integrations depends on calls",
+    "k": 4
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "exposes the PaymentsAPI",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 21535,
+ "output_tokens": 1415,
+ "cost_usd": 0.07707399999999999
+}

@@ -25,7 +25,7 @@ cd graph-engineering-with-ai-agents-code
 ```
 
 That runs everything checkable without an agent, a network connection, or an API
-key. It should report `passed 27, failed 0` (`passed 24` without PyYAML, which skips the three Chapter 11 checks). If it does, every exercise that does
+key. It should report `passed 37, failed 0`. Without PyYAML it skips the nine Chapter 11 checks, and without the MCP SDK (`pip install "mcp>=2,<3"`) it skips two Chapter 9 checks. If it does, every exercise that does
 not need a harness will work on your machine.
 
 ## What you need
@@ -59,9 +59,9 @@ in the source with the one-line change that switches them to a real provider.
 | 6 | `ch06-hooks/` | Six hook scripts, the settings that register them (with `onFailure` on the blocking three), an OpenCode plugin with the same guards, and real blocking, feedback, audit, scoping, and trust runs |
 | 7 | `ch07-plugin/` | The Part 2 graph packaged as the `team-workflow` plugin (rebuilt from Chapters 4 to 6 by `tools/sync-from-chapters.sh`), `release-tools` 1.0.0 and 1.1.0 (the conflicting plugin and its fix), a `book-platform` marketplace, and real install, version, namespacing, collision, precedence, and CLAUDE.md layering runs |
 | 8 | `ch08-budget/` | The split configuration, the 146-line guide written for the book and its pruned version, `loaded-context.py`, compressed and grouped skill sets with a routing runner, and real pricing, loading, compaction, listing, and deferral runs |
-| 9 | `ch09-mcp/` | A working knowledge server with real data, plus `cli.py`, the dependency-free command line surface |
-| 10 | `ch10-graph/` | Ten cross-referencing documents, an extraction pipeline into SQLite, three traversal tools, and the 20-question benchmark |
-| 11 | `ch11-catalog/` | A semantic layer in the Apache Ossie shape, and lineage validation with the four checks |
+| 9 | `ch09-mcp/` | The knowledge server on MCP Python SDK 2.x over stdio and Streamable HTTP with bearer-token scopes, its teaching skill, the gate checker, and `cli.py` |
+| 10 | `ch10-graph/` | Ten cross-referencing documents, a model-backed extraction pipeline with incremental refresh into SQLite (and LadybugDB for Cypher), the graph MCP server, a vector-search baseline, and the 20-question benchmark with its grader |
+| 11 | `ch11-catalog/` | A semantic layer in the Apache Ossie shape over a local SQLite warehouse, lineage validation with the four checks, and a governed catalog MCP server with its skill and benchmark |
 | 12 | `ch12-router/` | The retrieval router, its evaluation set, and the evidence document schema |
 | 13 | `ch13-desktop-port/` | The port-to-desktop mapping, the terminology, and the design principle (no code to script) |
 | 14 | `ch14-observability/` | Jaeger via Docker Compose, the telemetry environment, and the no-tracing audit-log substitute |

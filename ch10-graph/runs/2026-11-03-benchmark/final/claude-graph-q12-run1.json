@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 12,
+ "run": 1,
+ "answer": "Within two hops, **two services** stop working if **BillingService** goes down:\n\n| Hop | Service | How it connects |\n|---|---|---|\n| 1 | **RenewalsWorker** | RenewalsWorker \u2014DEPENDS_ON\u2192 BillingService |\n| 1 | **ReportingService** | ReportingService \u2014DEPENDS_ON\u2192 BillingService |\n\n**Second hop:** nothing found. No service depends on or calls RenewalsWorker or ReportingService, so the impact ends at the first hop.\n\n**Calls to BillingService's API:** none showed up. The graph treats a service and the API it exposes as one place, so any caller of a BillingService API would have been included above. Both affected services connect directly through a DEPENDS_ON link.\n\nThis came from one backward search (`find_dependents` on BillingService, depth 2). No databases or configuration keys came up, and I didn't check them separately.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9182,
+ "output_tokens": 514,
+ "cost_usd": 0.0356798
+}

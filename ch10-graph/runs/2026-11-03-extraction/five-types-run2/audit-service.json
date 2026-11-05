@@ -1,0 +1,41 @@
+{
+ "doc": "audit-service.md",
+ "sha256": "f2de69deba37b0248f45818cc1747f6072317dd2ddae742be38908d9a195e405",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:29:51+00:00",
+ "usage": {
+  "input_tokens": 3449,
+  "output_tokens": 363,
+  "cost_usd": 0.0148909
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "AuditService",
+    "type": "Service"
+   },
+   {
+    "name": "user service",
+    "type": "Service"
+   },
+   {
+    "name": "audit Iceberg table",
+    "type": "Database"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "AuditService",
+    "type": "STORES",
+    "target": "audit Iceberg table",
+    "sentence": "AuditService stores records in the audit Iceberg table."
+   },
+   {
+    "source": "AuditService",
+    "type": "DEPENDS_ON",
+    "target": "user service",
+    "sentence": "It depends on the user service for identity resolution: a record carries the resolved user, not the raw token."
+   }
+  ]
+ }
+}

@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 11,
+ "run": 1,
+ "answer": "Five services are affected within two hops of a change to **NotificationsAPI**'s retry semantics.\n\n**Hop 1: services that call NotificationsAPI directly**\n1. **BillingService** calls NotificationsAPI.\n2. **PaymentsService** calls NotificationsAPI.\n\n**Hop 2: services that depend on those, or call their APIs**\n3. **RenewalsWorker** depends on BillingService.\n4. **ReportingService** depends on BillingService.\n5. **OrderService** calls **PaymentsAPI**, which PaymentsService exposes.\n\n**How I counted:** The graph tool treats a service and the API it exposes as one node. That's why OrderService counts as a second hop: it calls PaymentsAPI, which belongs to PaymentsService, and PaymentsService calls NotificationsAPI. No databases or configuration keys came up on these paths. I only followed CALLS and DEPENDS_ON links, so I didn't check whether any configuration key controls NotificationsAPI's retry behaviour.\n\n**Which ones to look at first:** BillingService and PaymentsService feel the change directly, so start with them. The other three are affected only through them. If BillingService and PaymentsService keep their own retry and error behaviour the same, the change may never reach the second-hop services.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9364,
+ "output_tokens": 560,
+ "cost_usd": 0.0509024
+}

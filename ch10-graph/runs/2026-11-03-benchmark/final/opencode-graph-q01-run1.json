@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 1,
+ "run": 1,
+ "answer": "**NotificationsService stores data in `NotificationsRedisInstance`**, a Redis instance, through a `STORES` relationship.\n\nThe architecture data does not specify what kind of data it stores.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 2636,
+ "output_tokens": 68,
+ "cost_usd": null
+}

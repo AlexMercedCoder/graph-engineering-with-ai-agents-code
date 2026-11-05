@@ -1,0 +1,37 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 15,
+ "run": 2,
+ "answer": "Changing UserService's token validation could affect **6 services within two hops**. One caveat first: the graph has no node for token validation itself. I couldn't find an endpoint or a config key called `token_validation`, so this is the blast radius of **UserService** as a whole. It's an upper bound on what a token-validation change could touch.\n\n**Hop 1: services that depend directly on UserService**\n- **ApiGateway** (ApiGateway \u2192 DEPENDS_ON \u2192 UserService). This is the most likely consumer of token validation, since it sits at the edge and checks incoming requests.\n- **AuditService** (AuditService \u2192 DEPENDS_ON \u2192 UserService)\n- **OrderService** (OrderService \u2192 DEPENDS_ON \u2192 UserService)\n\n**Hop 2: services affected through OrderService**\n- **BillingService** (BillingService \u2192 OrderService \u2192 UserService)\n- **ReportingService** (ReportingService \u2192 OrderService \u2192 UserService)\n- **SearchService** (SearchService \u2192 OrderService \u2192 UserService)\n\n**What UserService depends on**\n- **UsersPostgresDatabase** (UserService STORES data there). It's not affected by the change, but if the change alters what gets stored or looked up, this is where it would show.\n\n**Points to note**\n- **OrderService is the main risk.** All three second-hop services reach UserService only through it. If OrderService keeps working with the new validation, BillingService, ReportingService and SearchService are probably fine.\n- **The graph doesn't say which dependents actually call token validation.** It records service-level DEPENDS_ON edges, not specific endpoints. To narrow the list, check the code in ApiGateway, AuditService and OrderService for calls to the validation path.\n- **No configuration key is mapped to token validation.** The graph does have a config key `AUTH_HOLD_MINUTES`, but nothing links it to UserService token validation, so I left it out.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService token validation"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "token_validation"
+   }
+  }
+ ],
+ "input_tokens": 14538,
+ "output_tokens": 1056
+}

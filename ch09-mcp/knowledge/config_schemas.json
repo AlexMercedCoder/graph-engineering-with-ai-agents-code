@@ -1,18 +1,305 @@
 {
-  "payments": {
-    "PAYMENT_API_KEY":   {"type":"string","required":true,"default":null,"secret":true},
-    "PAYMENT_BASE_URL":  {"type":"string","required":true,"default":null,"secret":false},
-    "CAPTURE_TIMEOUT":   {"type":"integer","required":false,"default":30,"secret":false},
-    "AUTH_HOLD_MINUTES": {"type":"integer","required":false,"default":60,"secret":false}
+ "payments": {
+  "PAYMENT_API_KEY": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Provider API key for this environment."
   },
-  "orders": {
-    "ORDER_DB_URL":      {"type":"string","required":true,"default":null,"secret":true},
-    "MAX_LINE_ITEMS":    {"type":"integer","required":false,"default":50,"secret":false},
-    "ALLOW_QUOTES":      {"type":"boolean","required":false,"default":true,"secret":false}
+  "PAYMENT_BASE_URL": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": false,
+   "description": "Provider endpoint. Sandbox and live endpoints differ."
   },
-  "notifications": {
-    "NOTIFY_WEBHOOK_URL":{"type":"string","required":true,"default":null,"secret":false},
-    "RETRY_ATTEMPTS":    {"type":"integer","required":false,"default":3,"secret":false},
-    "RETRY_BACKOFF_MS":  {"type":"integer","required":false,"default":250,"secret":false}
+  "PROVIDER_REGION": {
+   "type": "string",
+   "required": false,
+   "default": "us",
+   "secret": false,
+   "description": "Provider region; must match the merchant account."
+  },
+  "CAPTURE_TIMEOUT": {
+   "type": "integer",
+   "required": false,
+   "default": 30,
+   "secret": false,
+   "description": "Seconds to wait for a capture call before failing it."
+  },
+  "CAPTURE_DELAY_MINUTES": {
+   "type": "integer",
+   "required": false,
+   "default": 15,
+   "secret": false,
+   "description": "Minutes after authorization that the capture worker captures."
+  },
+  "AUTH_HOLD_MINUTES": {
+   "type": "integer",
+   "required": false,
+   "default": 60,
+   "secret": false,
+   "description": "Minutes the provider holds an authorization. Must exceed CAPTURE_DELAY_MINUTES or holds lapse before capture."
+  },
+  "WEBHOOK_SECRET": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Shared secret for verifying provider webhooks."
+  },
+  "MAX_CAPTURE_RETRIES": {
+   "type": "integer",
+   "required": false,
+   "default": 4,
+   "secret": false,
+   "description": "Capture retries on retryable provider errors."
   }
+ },
+ "orders": {
+  "ORDER_DB_URL": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Connection string for the orders database."
+  },
+  "MAX_LINE_ITEMS": {
+   "type": "integer",
+   "required": false,
+   "default": 50,
+   "secret": false,
+   "description": "Largest order accepted."
+  },
+  "ALLOW_QUOTES": {
+   "type": "boolean",
+   "required": false,
+   "default": true,
+   "secret": false,
+   "description": "Whether orders may start as quotes."
+  },
+  "QUOTE_VALID_DAYS": {
+   "type": "integer",
+   "required": false,
+   "default": 14,
+   "secret": false,
+   "description": "Days a quote stays valid."
+  },
+  "RESERVE_INVENTORY": {
+   "type": "boolean",
+   "required": false,
+   "default": true,
+   "secret": false,
+   "description": "Reserve inventory at authorization."
+  }
+ },
+ "notifications": {
+  "NOTIFY_WEBHOOK_URL": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": false,
+   "description": "Endpoint that receives notifications."
+  },
+  "RETRY_ATTEMPTS": {
+   "type": "integer",
+   "required": false,
+   "default": 3,
+   "secret": false,
+   "description": "Retries for a failed webhook."
+  },
+  "RETRY_BACKOFF_MS": {
+   "type": "integer",
+   "required": false,
+   "default": 250,
+   "secret": false,
+   "description": "Backoff between webhook retries."
+  },
+  "QUEUE_CAPACITY": {
+   "type": "integer",
+   "required": false,
+   "default": 10000,
+   "secret": false,
+   "description": "Outbound queue size before E6003."
+  },
+  "TEMPLATE_DIR": {
+   "type": "string",
+   "required": false,
+   "default": "templates/",
+   "secret": false,
+   "description": "Where notification templates live."
+  }
+ },
+ "users": {
+  "USER_DB_URL": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Connection string for the users database."
+  },
+  "SESSION_TTL_MINUTES": {
+   "type": "integer",
+   "required": false,
+   "default": 720,
+   "secret": false,
+   "description": "Session token lifetime."
+  },
+  "LOCKOUT_ATTEMPTS": {
+   "type": "integer",
+   "required": false,
+   "default": 5,
+   "secret": false,
+   "description": "Failed logins before lockout."
+  },
+  "LOCKOUT_WINDOW_MINUTES": {
+   "type": "integer",
+   "required": false,
+   "default": 15,
+   "secret": false,
+   "description": "Window for counting failed logins."
+  },
+  "AVATAR_MAX_BYTES": {
+   "type": "integer",
+   "required": false,
+   "default": 2097152,
+   "secret": false,
+   "description": "Largest avatar upload."
+  }
+ },
+ "auth": {
+  "SIGNING_KEY": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Key that signs session tokens."
+  },
+  "SIGNING_KEY_PREVIOUS": {
+   "type": "string",
+   "required": false,
+   "default": null,
+   "secret": true,
+   "description": "Previous signing key, accepted during rotation."
+  },
+  "TOKEN_ISSUER": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": false,
+   "description": "Issuer claim written into session tokens."
+  },
+  "RESET_LINK_TTL_MINUTES": {
+   "type": "integer",
+   "required": false,
+   "default": 30,
+   "secret": false,
+   "description": "Password reset link lifetime."
+  }
+ },
+ "reporting": {
+  "REPORT_DB_URL": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Connection string for the read replica."
+  },
+  "REPORT_TIMEOUT_SECONDS": {
+   "type": "integer",
+   "required": false,
+   "default": 60,
+   "secret": false,
+   "description": "Query timeout before E7001."
+  },
+  "MAX_RANGE_DAYS": {
+   "type": "integer",
+   "required": false,
+   "default": 366,
+   "secret": false,
+   "description": "Widest report date range."
+  },
+  "MAX_EXPORT_ROWS": {
+   "type": "integer",
+   "required": false,
+   "default": 100000,
+   "secret": false,
+   "description": "Largest synchronous export."
+  },
+  "STALENESS_BANNER_SECONDS": {
+   "type": "integer",
+   "required": false,
+   "default": 60,
+   "secret": false,
+   "description": "Replica lag that triggers the staleness banner."
+  }
+ },
+ "search": {
+  "SEARCH_URL": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": false,
+   "description": "Search cluster endpoint."
+  },
+  "SEARCH_API_KEY": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Search cluster key."
+  },
+  "INDEX_PREFIX": {
+   "type": "string",
+   "required": false,
+   "default": "app",
+   "secret": false,
+   "description": "Prefix for index names per environment."
+  },
+  "REINDEX_BATCH": {
+   "type": "integer",
+   "required": false,
+   "default": 500,
+   "secret": false,
+   "description": "Documents per reindex batch."
+  }
+ },
+ "gateway": {
+  "UPSTREAM_TIMEOUT_MS": {
+   "type": "integer",
+   "required": false,
+   "default": 5000,
+   "secret": false,
+   "description": "Timeout for calls to services behind the gateway."
+  },
+  "RATE_LIMIT_PER_MINUTE": {
+   "type": "integer",
+   "required": false,
+   "default": 600,
+   "secret": false,
+   "description": "Requests per client per minute."
+  },
+  "CORS_ORIGINS": {
+   "type": "string",
+   "required": false,
+   "default": "",
+   "secret": false,
+   "description": "Comma-separated allowed origins."
+  },
+  "TLS_CERT_PATH": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": false,
+   "description": "Path to the TLS certificate."
+  },
+  "TLS_KEY_PATH": {
+   "type": "string",
+   "required": true,
+   "default": null,
+   "secret": true,
+   "description": "Path to the TLS private key."
+  }
+ }
 }

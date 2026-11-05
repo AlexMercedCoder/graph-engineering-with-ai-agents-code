@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 11,
+ "run": 2,
+ "answer": "Five services are affected within two hops of a retry-semantics change to **NotificationsAPI**.\n\n**Hop 1: services that call NotificationsAPI directly**\n1. **BillingService**: `BillingService -CALLS-> NotificationsAPI`\n2. **PaymentsService**: `PaymentsService -CALLS-> NotificationsAPI`\n\n**Hop 2: services that depend on those, or call their APIs**\n3. **RenewalsWorker**: `RenewalsWorker -DEPENDS_ON-> BillingService`, which calls NotificationsAPI\n4. **ReportingService**: `ReportingService -DEPENDS_ON-> BillingService`, which calls NotificationsAPI\n5. **OrderService**: `OrderService -CALLS-> PaymentsAPI`. PaymentsService exposes PaymentsAPI and calls NotificationsAPI.\n\n**Notes**\n- The graph treats PaymentsAPI and PaymentsService as one place. That's why OrderService counts as two hops away, not three.\n- BillingService is the bigger risk. Two of the hop-2 services, RenewalsWorker and ReportingService, reach NotificationsAPI only through it. Change how BillingService handles retries (for example, idempotency or duplicate notifications) and both are affected.\n- No databases or configuration keys came up in this traversal. I didn't check whether a config key sets NotificationsAPI's retry behaviour. If retries are set in config, run `trace_configuration` on NotificationsAPI before making the change.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9364,
+ "output_tokens": 638,
+ "cost_usd": 0.039529999999999996
+}

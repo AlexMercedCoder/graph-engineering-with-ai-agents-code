@@ -1,0 +1,16 @@
+{
+ "payloads": [
+  12235
+ ],
+ "requests": 1,
+ "input_total": 12235,
+ "first_request": 12235,
+ "tools": [],
+ "tool_result_chars": 0,
+ "results": [],
+ "final": "OK",
+ "init": {},
+ "diagnosis_correct": false,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

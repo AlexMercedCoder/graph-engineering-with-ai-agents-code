@@ -1,0 +1,25 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 4,
+ "run": 2,
+ "answer": "AuditService stores its records in **AuditIcebergTable**, via a direct `STORES` relationship.\n\nIt also depends on **UserService**, which stores data in **UsersPostgresDatabase**. That database is an indirect dependency, not AuditService\u2019s record store.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "AuditService"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 3876,
+ "output_tokens": 105
+}

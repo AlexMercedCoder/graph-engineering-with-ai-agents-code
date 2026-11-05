@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 12,
+ "run": 2,
+ "answer": "If **BillingService** goes down, **2 services** are affected within two hops:\n\n| Service | Dependency path | Distance |\n|---|---|---|\n| **RenewalsWorker** | `RenewalsWorker \u2192 DEPENDS_ON \u2192 BillingService` | 1 hop |\n| **ReportingService** | `ReportingService \u2192 DEPENDS_ON \u2192 BillingService` | 1 hop |\n\nThe dependency graph returned no additional second-hop services or services calling a BillingService API. No API names, databases, or configuration keys were involved in the returned paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2711,
+ "output_tokens": 144,
+ "cost_usd": null
+}

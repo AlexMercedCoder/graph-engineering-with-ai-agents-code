@@ -1,0 +1,47 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 18,
+ "run": 2,
+ "answer": "ReportingService depends directly on two services, and through them on two APIs, one more service and three databases. I queried the dependency graph at depth 4, then one hop at a time to get the shape below.\n\n**Dependency tree**\n\n```\nReportingService\n\u251c\u2500\u2500 BillingService            (DEPENDS_ON)\n\u2502   \u251c\u2500\u2500 BillingPostgresDatabase   (STORES)\n\u2502   \u251c\u2500\u2500 NotificationsAPI          (CALLS)\n\u2502   \u2514\u2500\u2500 OrderService              (DEPENDS_ON)  \u2190 same node as below\n\u2514\u2500\u2500 OrderService              (DEPENDS_ON)\n    \u251c\u2500\u2500 OrdersPostgresDatabase    (STORES)\n    \u251c\u2500\u2500 PaymentsAPI               (CALLS)\n    \u2514\u2500\u2500 UserService               (DEPENDS_ON)\n        \u2514\u2500\u2500 UsersPostgresDatabase     (STORES)\n```\n\n**Everything it depends on**\n\n- **Direct services:** BillingService, OrderService\n- **Indirect service:** UserService (through OrderService)\n- **APIs:** NotificationsAPI (through BillingService), PaymentsAPI (through OrderService)\n- **Databases:**\n  - BillingPostgresDatabase (through BillingService)\n  - OrdersPostgresDatabase (through OrderService)\n  - UsersPostgresDatabase (through OrderService \u2192 UserService)\n\n**Notes**\n\n- ReportingService reaches OrderService two ways: directly, and through BillingService. If OrderService has a problem, both of ReportingService's direct dependencies are affected, so it's the most important one to watch.\n- NotificationsAPI and PaymentsAPI have no dependencies of their own in the graph, so the tree stops there.\n- The graph doesn't link any configuration keys to these dependency edges. The dependency tool doesn't follow configuration links, though, so to check a specific key you'd need to run `trace_configuration` on it.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "ReportingService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "ReportingService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 14356,
+ "output_tokens": 1132
+}

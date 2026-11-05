@@ -1,0 +1,45 @@
+{
+ "doc": "user-service.md",
+ "sha256": "29af9e494a166675a02a313797bd26d2eb6e08c5c4db297e0e888d135909fe4e",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:12:03+00:00",
+ "usage": {
+  "input_tokens": 3398,
+  "output_tokens": 576,
+  "cost_usd": 0.0168169
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "UserService",
+    "type": "Service"
+   },
+   {
+    "name": "UsersAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "users",
+    "type": "Database"
+   },
+   {
+    "name": "ORDER_DB_URL",
+    "type": "Configuration"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "UserService",
+    "type": "STORES",
+    "target": "users",
+    "sentence": "UserService stores users in the users Postgres database."
+   },
+   {
+    "source": "ORDER_DB_URL",
+    "type": "CONFIGURES",
+    "target": "UserService",
+    "sentence": "It is configured by ORDER_DB_URL for its read replica, a historical name kept because three deployment scripts read it."
+   }
+  ]
+ }
+}

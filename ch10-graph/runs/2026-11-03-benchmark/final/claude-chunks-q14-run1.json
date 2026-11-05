@@ -1,0 +1,34 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 14,
+ "run": 1,
+ "answer": "Two services call the NotificationsAPI directly, so both lose message delivery: **BillingService** and **PaymentsService**.\n\n**How the dependency works**\n- **NotificationsService** provides the **NotificationsAPI**. Any service that needs to send an email, SMS or push message goes through this API instead of contacting a provider itself.\n- NotificationsService keeps queued messages in the **notifications Redis instance**. A message stays there until a provider accepts it or it runs out of retries. If that Redis instance is lost, there's nowhere to hold messages waiting for delivery.\n\n**Direct callers that are affected**\n1. **BillingService** calls the NotificationsAPI to send **receipts** after a capture succeeds.\n2. **PaymentsService** calls the NotificationsAPI on a **declined authorization**, so the customer hears about a decline even after checkout has returned.\n\n**Indirect, not direct**\n- **OrderService** calls the **PaymentsAPI**, not the NotificationsAPI. Its decline notices go through PaymentsService, so it's only affected indirectly.\n- **ApiGateway**, **SearchService** and **UserService** don't call the NotificationsAPI at all.\n\n**Failures may go unnoticed**\n- Under normal operation, NotificationsService makes up to three delivery attempts with a 250ms backoff, set by **`RETRY_ATTEMPTS`**. A message that fails all three goes to the **dead-letter list**, and **the caller isn't told**. Callers only find out by polling the message status.\n- The docs don't describe what happens when Redis itself is unavailable, so I can't say whether the NotificationsAPI rejects new messages or appears to accept them. Given the no-callback design, BillingService and PaymentsService may not notice failures unless they poll message status.\n- The documented credential-rotation behaviour, where the queue holds messages until new credentials load, also depends on the Redis queue. So it doesn't help when Redis is gone.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "notifications Redis instance",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that call NotificationsAPI",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "sends email SMS push notification to user",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 15403,
+ "output_tokens": 1020,
+ "cost_usd": 0.06189499999999999
+}

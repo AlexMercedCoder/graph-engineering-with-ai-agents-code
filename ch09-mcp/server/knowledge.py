@@ -53,18 +53,21 @@ def suggest_nearby(code, limit=2):
 
 
 def render_schema(schema):
-    rows = ["KEY                  TYPE      REQUIRED  DEFAULT"]
+    rows = ["KEY                    TYPE      REQUIRED  DEFAULT              NOTES"]
     for key, meta in schema.items():
         default = "(value not shown)" if meta["secret"] else str(meta["default"])
-        rows.append(f"{key:<21}{meta['type']:<10}{str(meta['required']):<10}{default}")
+        rows.append(f"{key:<23}{meta['type']:<10}{str(meta['required']):<10}{default:<21}{meta.get('description', '')}")
     return "\n".join(rows)
 
 
-def search_sections(topic):
-    """Rank sections by term overlap with the topic. No embeddings required."""
+def search_sections(topic, classifications):
+    """Rank the sections an identity may see by term overlap with the topic.
+    Sections outside `classifications` are never read. No embeddings required."""
     terms = [t for t in re.split(r"\W+", (topic or "").lower()) if len(t) > 2]
     scored = []
     for section in SECTIONS:
+        if section["classification"] not in classifications:
+            continue
         haystack = (section["title"] + " " + section["body"]).lower()
         score = sum(haystack.count(t) for t in terms)
         if score:
@@ -83,6 +86,15 @@ def visible_classifications(identity):
 
 
 def current_identity():
-    """In a real deployment this comes from the validated token. See Chapter 9."""
+    """Who is asking. Over HTTP it is the subject of the validated bearer token;
+    over stdio, where the server runs as your own process, it comes from the
+    environment, as the MCP authorization specification recommends."""
     import os
+    try:
+        from mcp.server.auth.middleware.auth_context import get_access_token
+        token = get_access_token()
+    except ImportError:  # the CLI runs without the SDK
+        token = None
+    if token is not None:
+        return token.subject
     return os.environ.get("KB_IDENTITY", "engineer")

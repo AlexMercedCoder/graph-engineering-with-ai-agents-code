@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 12,
+ "run": 1,
+ "answer": "Two services stop working, and both are one hop away. Nothing in the docs depends on either of them, so the second hop is empty.\n\n**Hop 1: services that depend on BillingService**\n1. **ReportingService** depends on BillingService for invoice totals (it also depends on OrderService for order status). It stores nothing and computes every report on request, and report generation has no retries. With BillingService down, revenue reports fail and show an error page, including the end-of-month snapshot used for the monthly close.\n2. **RenewalsWorker** depends on BillingService. It also calls the **PaymentsAPI** directly, configured by `AUTH_HOLD_MINUTES`. Its monthly re-billing can't run properly. Customer emails also stop, because a suspended subscription's email goes \"through the normal billing receipt flow\", which is BillingService calling the **NotificationsAPI**.\n\n**Hop 2: services that depend on those**\n- I found no service that depends on or calls ReportingService or RenewalsWorker, so nothing more fails here.\n\n**Calls to \"its API\"**\n- The docs don't name an API exposed by BillingService. My searches for one returned only the APIs other services expose (PaymentsAPI, OrdersAPI, UsersAPI, NotificationsAPI). So no extra callers came from that side.\n\n**Related but not counted**\n- **OrderService** and **NotificationsAPI** are things BillingService *uses*. They aren't affected when it fails.\n- **PaymentsService** is only related by sharing a team with BillingService, so it isn't a dependency. Its decline rates reach ReportingService by hand, not through BillingService.\n- BillingService's own data lives in the **billing Postgres database**. Invoice generation runs every 15 minutes, and a failed run leaves orders in the pending queue for the next run. So an outage delays invoices but doesn't lose them.\n\nThis answer relies on similarity search over the docs. If a dependency on ReportingService or RenewalsWorker is described in wording the searches didn't match, the second hop could be missing it.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingService dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls Billing API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingAPI exposes invoices API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on ReportingService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on RenewalsWorker",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 17417,
+ "output_tokens": 1242,
+ "cost_usd": 0.0805516
+}

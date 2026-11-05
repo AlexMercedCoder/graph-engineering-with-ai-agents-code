@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 15,
+ "run": 1,
+ "answer": "If UserService goes down, **6 services** are affected within two hops: 3 directly and 3 through those.\n\n**Hop 1: services that depend on UserService or call its UsersAPI**\n1. **ApiGateway** calls the **UsersAPI** and depends on UserService to validate tokens. If UserService is down, the gateway can't check tokens, so requests coming through the edge are likely to fail.\n2. **OrderService** depends on UserService to look up the customer placing an order.\n3. **AuditService** depends on UserService to identify users, because each audit record stores the resolved user rather than the raw token.\n\n**Hop 2: services that depend on a hop-1 service or call its API**\n4. **SearchService** depends on OrderService and reads order changes from it every minute.\n5. **BillingService** depends on OrderService for line items.\n6. **ReportingService** depends on OrderService for order status (and on BillingService for invoice totals).\n\nApiGateway also calls OrderService's **OrdersAPI**, but it's already counted in hop 1. The docs I searched show nothing that depends on or calls AuditService or ApiGateway, so those two add nothing at hop 2. That search covers the docs the tool returned, not every possible caller.\n\n**Left out on purpose**\n- **RenewalsWorker** is 3 hops away (UserService \u2192 OrderService \u2192 BillingService \u2192 RenewalsWorker). It also calls the **PaymentsAPI** directly instead of going through OrderService.\n- **PaymentsService** and **NotificationsService** are called *by* affected services (the PaymentsAPI and NotificationsAPI), but they don't depend on UserService. Being called by an affected service doesn't put them in the blast radius.\n- SearchService shares an on-call rotation with ApiGateway. That's an organisational link, not a dependency.\n\n**Related data and config**\n- UserService stores its data in the **users Postgres database**.\n- Its read replica is set by the config key **ORDER_DB_URL**. Despite the name, this belongs to UserService, not OrderService; the old name is kept because three deployment scripts read it. OrderService uses the separate **orders Postgres database**, so it isn't connected to UserService through this key.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService dependencies callers",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls User API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls OrdersAPI depends on OrderService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on AuditService audit API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on ApiGateway gateway",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 17176,
+ "output_tokens": 1350,
+ "cost_usd": 0.08175080000000001
+}

@@ -1,19 +1,28 @@
-# A deliberately small semantic layer over the sample warehouse.
-# Written in the Apache Ossie shape: datasets, fields, relationships, metrics,
-# and an ai_context block. Small enough to read, big enough to reject a bad query.
+# The Chapter 11 semantic layer over the sample insurance warehouse.
+# Written in the Apache Ossie shape (datasets, fields, relationships, metrics,
+# ai_context) with two additions the validator needs: dimensions as named
+# objects, and each metric's lineage (the columns it derives from).
+#
+# The warehouse has ten tables. The catalog models six of them. The other four
+# (dim_policyholder, fct_premiums_v1, stg_premium_raw, dim_date) exist and are
+# deliberately left out, so an agent working through the catalog never sees them.
+
+revision: "2026-11-03"
 
 datasets:
   - name: fct_policy_premium
-    description: One row per policy premium transaction.
+    description: One row per premium transaction on a policy, including quotes that never bound.
     primary_key: [premium_id]
     fields:
       - {name: premium_id, type: integer}
       - {name: policy_id, type: integer}
-      - {name: geo_id, type: integer}
+      - {name: geo_id, type: integer, description: Region the policy is written in.}
       - {name: product_id, type: integer}
-      - {name: premium_amt, type: decimal}
+      - {name: agent_id, type: integer}
+      - {name: premium_amt, type: decimal, description: Premium excluding taxes and fees.}
+      - {name: premium_amt_gross, type: decimal, description: Premium including taxes and fees. No metric uses it.}
       - {name: cancellation_amt, type: decimal}
-      - {name: status, type: string}
+      - {name: status, type: string, description: "written, cancelled, or quote"}
       - {name: eff_dt, type: date}
   - name: dim_geography
     description: Region and territory lookup.
@@ -23,54 +32,139 @@ datasets:
       - {name: region, type: string}
       - {name: territory, type: string}
   - name: dim_product
-    description: Product line lookup.
+    description: Product line and distribution channel lookup.
     primary_key: [product_id]
     fields:
       - {name: product_id, type: integer}
       - {name: product_line, type: string}
       - {name: distribution_channel, type: string}
+  - name: dim_agent
+    description: Selling agents. geo_id is the agent's office, not the policy's region.
+    primary_key: [agent_id]
+    fields:
+      - {name: agent_id, type: integer}
+      - {name: agent_name, type: string}
+      - {name: geo_id, type: integer}
+  - name: fct_claims
+    description: One row per claim.
+    primary_key: [claim_id]
+    fields:
+      - {name: claim_id, type: integer}
+      - {name: policy_id, type: integer}
+      - {name: claim_amt, type: decimal, description: Amount claimed.}
+      - {name: paid_amt, type: decimal, description: Amount paid. Final only when status is closed.}
+      - {name: status, type: string, description: "open or closed"}
+      - {name: severity, type: string}
+      - {name: reported_dt, type: date}
+      - {name: closed_dt, type: date}
+  - name: fct_commissions
+    description: Commission paid to agents on written premium.
+    primary_key: [commission_id]
+    access: [finance]
+    fields:
+      - {name: commission_id, type: integer}
+      - {name: agent_id, type: integer}
+      - {name: premium_id, type: integer}
+      - {name: commission_amt, type: decimal}
+      - {name: paid_dt, type: date}
 
 relationships:
   # "on" is quoted deliberately: YAML 1.1 reads a bare on/off/yes/no as a boolean,
   # so an unquoted `on:` key becomes True and the join column disappears.
   - {name: premium_to_geography, from: fct_policy_premium, to: dim_geography, "on": geo_id}
   - {name: premium_to_product,   from: fct_policy_premium, to: dim_product,   "on": product_id}
+  - {name: premium_to_agent,     from: fct_policy_premium, to: dim_agent,     "on": agent_id}
+  - {name: agent_office,         from: dim_agent,          to: dim_geography, "on": geo_id}
+  - {name: commission_to_agent,  from: fct_commissions,    to: dim_agent,     "on": agent_id}
+
+dimensions:
+  - {name: region,                 dataset: dim_geography, column: region, via: premium_to_geography}
+  - {name: product_line,           dataset: dim_product,   column: product_line, via: premium_to_product}
+  - {name: distribution_channel,   dataset: dim_product,   column: distribution_channel, via: premium_to_product}
+  - {name: policy_effective_month, dataset: fct_policy_premium, expression: "strftime('%Y-%m', eff_dt)", grain: month}
+  - {name: severity,               dataset: fct_claims,    column: severity}
+  - {name: claim_closed_month,     dataset: fct_claims,    expression: "strftime('%Y-%m', closed_dt)", grain: month}
+  - {name: agent_name,             dataset: dim_agent,     column: agent_name, via: commission_to_agent}
 
 metrics:
   - name: net_written_premium
     label: Net Written Premium
-    description: Gross written premium less cancellations, recognized in the month written.
-    type: derived
+    description: Gross written premium less cancellations, recognized in the month the premium takes effect.
     expression: SUM(premium_amt) - SUM(cancellation_amt)
     grain: month
-    dimensions: [product_line, region, distribution_channel, eff_dt]
+    time: eff_dt
+    dimensions: [product_line, region, distribution_channel, policy_effective_month]
     owner: finance-reporting
     bindings:
       table: fct_policy_premium
       filters: ["status != 'quote'"]
+    lineage: [fct_policy_premium.premium_amt, fct_policy_premium.cancellation_amt, fct_policy_premium.status]
   - name: gross_written_premium
     label: Gross Written Premium
-    description: Total premium written before cancellations.
-    type: simple
+    description: Premium written before cancellations, excluding taxes and fees, recognized in the month it takes effect.
     expression: SUM(premium_amt)
     grain: month
-    dimensions: [product_line, region, distribution_channel, eff_dt]
+    time: eff_dt
+    dimensions: [product_line, region, distribution_channel, policy_effective_month]
     owner: finance-reporting
     bindings:
       table: fct_policy_premium
       filters: ["status != 'quote'"]
+    lineage: [fct_policy_premium.premium_amt, fct_policy_premium.status]
+  - name: policies_written
+    label: Policies Written
+    description: Count of distinct policies with written premium in the period. Quotes are not policies.
+    expression: COUNT(DISTINCT policy_id)
+    grain: month
+    time: eff_dt
+    dimensions: [product_line, region, distribution_channel, policy_effective_month]
+    owner: finance-reporting
+    bindings:
+      table: fct_policy_premium
+      filters: ["status != 'quote'"]
+    lineage: [fct_policy_premium.policy_id, fct_policy_premium.status]
+  - name: claims_paid
+    label: Claims Paid
+    description: Amount paid on closed claims, recognized in the month the claim closed.
+    expression: SUM(paid_amt)
+    grain: month
+    time: closed_dt
+    dimensions: [severity, claim_closed_month]
+    owner: claims-operations
+    bindings:
+      table: fct_claims
+      filters: ["status = 'closed'"]
+    lineage: [fct_claims.paid_amt, fct_claims.status, fct_claims.closed_dt]
+  - name: commission_paid
+    label: Commission Paid
+    description: Commission paid to agents, recognized in the month paid.
+    expression: SUM(commission_amt)
+    grain: month
+    time: paid_dt
+    dimensions: [agent_name]
+    owner: sales-compensation
+    access: [finance]
+    bindings:
+      table: fct_commissions
+      filters: []
+    lineage: [fct_commissions.commission_amt, fct_commissions.paid_dt]
 
 ai_context:
   instructions: >
-    Resolve a business question to one metric, confirm the dimension appears in
+    Resolve a business question to one metric, confirm every dimension appears in
     that metric's dimension list, then generate. Never name a table directly.
+    If the question needs a metric that is not listed, say the catalog does not
+    model it rather than approximating it from another metric.
   synonyms:
     net_written_premium: [NWP, net premium, written premium net of cancellations]
+    gross_written_premium: [GWP, gross premium, written premium]
+    policies_written: [policy count, new policies, number of policies]
+    claims_paid: [paid claims, claim payments, losses paid]
     region: [geography, territory group]
     product_line: [line of business, LOB]
   example_queries:
     - "What was net written premium by region last quarter?"
     - "Show gross written premium by product line for 2026."
 
-# Deliberately NOT modelled, so the reader can see a refusal rather than a guess:
-#   reinsurance recoveries, loss ratio, claim severity
+# Deliberately not modelled, so the reader sees a refusal rather than a guess.
+not_modelled: [loss ratio, reinsurance recoveries, claim frequency]

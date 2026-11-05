@@ -1,0 +1,26 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 4,
+ "run": 2,
+ "answer": "AuditService stores its records in **AuditIcebergTable**. The graph records this as a direct `AuditService -STORES-> AuditIcebergTable` relationship, and it's the only storage target listed for the service.\n\nEverything the answer involves:\n- **AuditService** is the service in question.\n- **AuditIcebergTable** is where it stores its records. The name suggests an Apache Iceberg table, but the graph only records it as a storage target.\n- **UserService** also showed up: AuditService `DEPENDS_ON` it. That's a runtime dependency, not storage, and I'm only including it because the lookup returned it.\n- **No configuration keys** are recorded as configuring AuditService, so nothing in the graph sets its storage location through config.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  }
+ ],
+ "input_tokens": 9262,
+ "output_tokens": 424,
+ "cost_usd": 0.0347226
+}

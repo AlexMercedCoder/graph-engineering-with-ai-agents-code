@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 17,
+ "run": 2,
+ "answer": "A change to **OrderService\u2019s line-item format** affects four downstream services:\n\n| Service | Dependency on OrderService |\n|---|---|\n| **BillingService** | Directly depends on OrderService |\n| **ReportingService** | Directly depends on OrderService |\n| **SearchService** | Directly depends on OrderService |\n| **RenewalsWorker** | Indirectly depends on OrderService through BillingService |\n\nThe dependency graph was traced up to four hops and returned these four affected services. It identified no APIs, databases, or configuration keys in these dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 4
+   }
+  }
+ ],
+ "input_tokens": 2603,
+ "output_tokens": 149
+}

@@ -1,0 +1,68 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 15,
+ "run": 2,
+ "answer": "**The two-hop blast radius includes UserService, ApiGateway, OrderService, AuditService, SearchService, and PaymentsService.** ApiGateway is the confirmed direct consumer of token validation; effects on identity resolution, indexing, and payments are conditional on how the change alters accepted requests or resolved users.\n\nHere, a hop means a service-to-service relationship; APIs label those relationships rather than adding extra hops.\n\n### Impact by distance\n\n| Distance | Service / API | Potential impact |\n|---|---|---|\n| **0 \u2014 changed component** | **UserService / UsersAPI** | Changes session-token acceptance. Validation results are cached for **60 seconds**, so revoked tokens currently remain accepted until their cache entries expire. |\n| **1** | **ApiGateway \u2192 UsersAPI** | Explicitly depends on UserService for token validation. Changes can admit or reject requests at the edge. ApiGateway fronts every public endpoint, so the entry-point impact is broad. It passes upstream 5xx responses to clients unchanged and does not retry. |\n| **1** | **OrderService / OrdersAPI \u2192 UserService** | Resolves the ordering customer through UserService. Changes that affect identity resolution or request admission can affect order creation, reading, and cancellation. |\n| **1** | **AuditService \u2192 UserService** | Resolves identities through UserService; audit records contain the resolved user rather than the raw token. Identity-resolution changes can affect audit attribution or recording. |\n| **2** | **SearchService \u2192 OrderService \u2192 UserService** | Reads order changes every minute. Effects on orders can propagate to the storefront\u2019s order-history index. |\n| **2** | **UserService \u2192 OrderService \u2192 PaymentsAPI / PaymentsService** *(impact propagation)* | OrderService calls PaymentsAPI for authorization and capture. Changed order admission or identity resolution can alter which payment operations occur. |\n| **2, also directly exposed** | **UserService \u2192 ApiGateway \u2192 OrdersAPI / OrderService** *(impact propagation)* | Gateway acceptance decisions affect requests reaching OrdersAPI. OrderService is already in the one-hop set through its direct UserService dependency. |\n\nSources: `user-service#Overview`, `user-service#Operations`, `api-gateway#Overview`, `api-gateway#Integrations`, `api-gateway#Operations`, `order-service#Overview`, `order-service#Integrations`, `audit-service#Integrations`, `search-service#Integrations`, `payments-service#Overview`.\n\n### Databases and configuration associated with those services\n\nThese are relevant stores and settings, **not evidence that changing validation requires changing each one**:\n\n| Owner | Named database / configuration | Relevance |\n|---|---|---|\n| **UserService** | **users Postgres database**; **`ORDER_DB_URL`** | Stores users, retaining soft-deleted rows so orders and audit records still resolve. `ORDER_DB_URL` configures UserService\u2019s read replica despite its historical name; three deployment scripts read it. |\n| **ApiGateway** | **`GATEWAY_RATE_LIMITS`** | Gateway rate-limit configuration, loaded at startup; changes require a rolling restart. It is not documented as a token-validation setting. |\n| **OrderService** | **orders Postgres database** | Stores orders and their line items. |\n| **AuditService** | **audit Iceberg table** | Stores append-only audit records, retained for seven years. |\n| **SearchService** | **search OpenSearch cluster** | Holds the order index, which can be rebuilt from OrderService. |\n| **PaymentsService** | **payments Postgres database**; **`PAYMENT_API_KEY`**; **`CAPTURE_TIMEOUT`** | Stores authorizations. The keys configure provider access and capture timeout; the timeout defaults to 30 seconds. |\n\nSources: `user-service#Data`, `user-service#Configuration`, `api-gateway#Configuration`, `order-service#Data`, `audit-service#Data`, `search-service#Data`, `payments-service#Data`, `payments-service#Configuration`.\n\n**Boundary:** PaymentsService\u2019s call to **NotificationsAPI / NotificationsService** is a third service hop along the order/payment path. Shared on-call ownership between ApiGateway and SearchService, and shared team ownership between PaymentsService and BillingService, do not establish runtime impact paths. The documentation explicitly connects **token validation** only to ApiGateway; OrderService and AuditService depend on **identity resolution**, so their impact should be treated as conditional.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService token validation dependencies callers authentication token configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService UsersAPI depends token validation consumers integrations",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "ApiGateway OrderService AuditService upstream callers dependencies APIs database configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService Overview Configuration Operations database OrdersAPI",
+    "k": 4
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "AuditService Overview Configuration Operations database API",
+    "k": 4
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "depends on AuditService ApiGateway UserService integrations",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "SearchService Overview Configuration PaymentsService Overview Configuration",
+    "k": 6
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "user-service Data users database search-service Data Configuration order-service Configuration",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 11449,
+ "output_tokens": 1189
+}

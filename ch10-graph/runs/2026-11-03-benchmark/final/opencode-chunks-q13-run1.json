@@ -1,0 +1,48 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 13,
+ "run": 1,
+ "answer": "**Within two dependency hops, OrderService involves 3 other services, 2 called APIs, and 3 Postgres databases.** This counts an API call together with the service implementing it as one dependency hop.\n\n| Hop | From | Dependency | Purpose |\n|---|---|---|---|\n| 1 | **OrderService** | **PaymentsAPI**, implemented by **PaymentsService** | Authorize and capture payments. |\n| 1 | **OrderService** | **UserService** | Resolve the ordering customer. |\n| 1 | **OrderService** | **`orders` Postgres database** | Store orders and their immutable line items. |\n| 2 | **PaymentsService** | **NotificationsAPI**, implemented by **NotificationsService** | Notify the customer when an authorization is declined. |\n| 2 | **PaymentsService** | **`payments` Postgres database** | Store authorizations and payment-provider references. |\n| 2 | **UserService** | **`users` Postgres database** | Store users, including soft-deleted rows needed to resolve existing orders. |\n\n### Configuration involved\n- **PaymentsService**\n  - **`PAYMENT_API_KEY`**\n  - **`CAPTURE_TIMEOUT`** \u2014 seconds; defaults to **30**.\n- **UserService**\n  - **`ORDER_DB_URL`** \u2014 configures its read replica. Despite the name, the documentation assigns this key to **UserService**.\n\n### Counts and boundary\n- **Services:** 3 dependencies \u2014 **PaymentsService**, **UserService**, **NotificationsService** \u2014 or **4 including OrderService**.\n- **Called APIs:** 2 \u2014 **PaymentsAPI**, **NotificationsAPI**.\n- **Databases:** 3 \u2014 **`orders`**, **`payments`**, **`users`**, all Postgres.\n- **Configuration keys:** 3 \u2014 **`PAYMENT_API_KEY`**, **`CAPTURE_TIMEOUT`**, **`ORDER_DB_URL`**.\n\nOrderService exposes **OrdersAPI**, and UserService exposes **UsersAPI**, but neither is an additional documented outbound API call in this traversal. NotificationsService\u2019s **`notifications` Redis instance** is at **hop 3**, beyond the requested depth.\n\nSources: architecture documentation sections **OrderService \u2192 Integrations / Data / Overview**, **PaymentsService \u2192 Overview / Integrations / Data / Configuration**, **UserService \u2192 Overview / Data / Configuration**, and **NotificationsService \u2192 Overview / Data**.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService dependencies calls APIs databases configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "PaymentsAPI PaymentsService overview integrations data dependencies database",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService overview integrations data dependencies API database configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService Configuration ORDER_DB_URL",
+    "k": 3
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI NotificationsService overview integrations data configuration",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7437,
+ "output_tokens": 669,
+ "cost_usd": null
+}

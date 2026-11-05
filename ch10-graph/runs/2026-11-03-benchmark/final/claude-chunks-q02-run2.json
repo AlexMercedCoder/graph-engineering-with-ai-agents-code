@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 2,
+ "run": 2,
+ "answer": "The NotificationsAPI makes **three delivery attempts with a 250 ms backoff**, and if all three fail the message is dropped into a dead-letter list without telling the caller.\n\n**Services and APIs**\n- **NotificationsService** provides the **NotificationsAPI**. Any service that sends email, SMS or push messages goes through this API instead of calling a provider directly.\n- **PaymentsService** is one caller. It calls the NotificationsAPI when an authorization is declined.\n- **ApiGateway** has its own, separate retry rule: it does not retry failed upstream requests. A 5xx is passed to the client unchanged, and the client library decides whether to retry.\n\n**Configuration key**\n- **`RETRY_ATTEMPTS`** sets the number of attempts (three). The docs don't name a setting for the 250 ms backoff.\n\n**Retry behaviour**\n1. A message stays queued while delivery is attempted, up to three times with a 250 ms backoff.\n2. It leaves the queue as soon as a provider accepts it.\n3. If all three attempts fail, the message moves to the **dead-letter list**.\n4. **The caller is not told about the failure.** To confirm delivery, a caller has to poll the message status.\n\n**Database**\n- Queued messages are stored in the **notifications Redis instance**. The docs don't say whether the dead-letter list is also stored there.\n\n**What this means in practice:** because failures are silent, a caller like PaymentsService won't know that a decline notification never reached the customer unless it polls the message status.\n\nSources: the notifications-service docs (Delivery and retries, Overview, Data), the payments-service docs (Integrations) and the api-gateway docs (Operations).",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 8479,
+ "output_tokens": 730,
+ "cost_usd": 0.0425034
+}

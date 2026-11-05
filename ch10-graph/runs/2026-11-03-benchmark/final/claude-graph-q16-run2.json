@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 16,
+ "run": 2,
+ "answer": "Two services call **PaymentsAPI** directly:\n\n1. **OrderService**, through `OrderService -CALLS-> PaymentsAPI`\n2. **RenewalsWorker**, through `RenewalsWorker -CALLS-> PaymentsAPI`\n\nI limited the dependents search to one hop, so only direct `CALLS` relationships to PaymentsAPI are included. Services that reach PaymentsAPI only through OrderService or RenewalsWorker are left out.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 9127,
+ "output_tokens": 394,
+ "cost_usd": 0.033058199999999996
+}

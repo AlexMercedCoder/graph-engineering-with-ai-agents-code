@@ -1,0 +1,26 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 6,
+ "run": 1,
+ "answer": "AuditService depends on **UserService** for identity resolution. UserService stores user data in **UsersPostgresDatabase**.\n\nThe identity-resolution dependency chain is:\n`AuditService \u2192 UserService \u2192 UsersPostgresDatabase`\n\nAuditService also stores audit records in **AuditIcebergTable**, though that is a storage dependency rather than an identity-resolution dependency. The graph identifies no additional API endpoints or configuration keys for this dependency.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 3
+   }
+  }
+ ],
+ "input_tokens": 3892,
+ "output_tokens": 140
+}

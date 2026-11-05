@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 20,
+ "run": 2,
+ "answer": "Within two hops, BillingService needs **9 things**: 2 services and 1 API it uses directly, 1 database of its own, and 5 more things those depend on. The tool returned 9 results against its limit of 25, so the list wasn't cut off.\n\n**Hop 1: what BillingService uses directly**\n| Relationship | Entity | Service behind it |\n|---|---|---|\n| CALLS | **NotificationsAPI** | **NotificationsService** |\n| DEPENDS_ON | **OrderService** | none (it's a service) |\n| STORES | **BillingPostgresDatabase** | none (it's a database) |\n\n**Hop 2: what each of those needs**\n- **NotificationsService** (behind NotificationsAPI)\n  - STORES in **NotificationsRedisInstance**\n  - The graph shows no API calls or service dependencies for it.\n- **OrderService**\n  - CALLS **PaymentsAPI**, which **PaymentsService** serves\n  - DEPENDS_ON **UserService**\n  - STORES in **OrdersPostgresDatabase**\n- **BillingPostgresDatabase**: databases have no further dependencies.\n\n**Totals**\n- **APIs (2):** NotificationsAPI, PaymentsAPI\n- **Services (4):** NotificationsService, OrderService, PaymentsService, UserService\n- **Databases and stores (3):** BillingPostgresDatabase, NotificationsRedisInstance, OrdersPostgresDatabase\n\nThe tool treats an API and the service that serves it as one step. So NotificationsService counts as hop 1, the same as NotificationsAPI. Because of that, NotificationsRedisInstance and everything OrderService uses count as hop 2. The question didn't ask about configuration keys, so none are included.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9555,
+ "output_tokens": 918,
+ "cost_usd": 0.0465956
+}

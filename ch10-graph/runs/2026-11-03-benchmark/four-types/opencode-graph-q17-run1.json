@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 17,
+ "run": 1,
+ "answer": "A line-item format change in **OrderService** has a potential blast radius of **four downstream services**, including indirect dependents:\n\n| Affected service | Dependency path | Impact level |\n|---|---|---|\n| **BillingService** | BillingService \u2192 OrderService | Direct |\n| **ReportingService** | ReportingService \u2192 OrderService | Direct |\n| **SearchService** | SearchService \u2192 OrderService | Direct |\n| **RenewalsWorker** | RenewalsWorker \u2192 BillingService \u2192 OrderService | Indirect |\n\nAll arrows represent `DEPENDS_ON` relationships. **RenewalsWorker** is affected transitively because it depends on **BillingService**, which depends on **OrderService**.\n\nThe dependency lookup covered up to four hops and returned no additional affected services. It identified no named APIs, databases, or configuration keys. These are dependency-based potential impacts; the graph does not establish which services actually consume the line-item format.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 4
+   }
+  }
+ ],
+ "input_tokens": 2601,
+ "output_tokens": 221
+}

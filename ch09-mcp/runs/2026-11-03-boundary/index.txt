@@ -1,0 +1,8 @@
+boundary cc files 2: req=3 in=101294 first=33030 toolchars=5140 diag=False leakA=True leakC=True tools=['Grep', 'Read']
+boundary cc mcp 2: req=5 in=179252 first=33130 toolchars=7642 diag=False leakA=False leakC=False tools=['Grep', 'Glob', 'Read', 'Read', 'ToolSearch', 'mcp__project-knowledge__find_architecture_docs', 'mcp__project-knowledge__get_config_schema', 'mcp__project-knowledge__get_config_schema']
+boundary cc files 1: req=4 in=134927 first=33026 toolchars=2064 diag=False leakA=True leakC=True tools=['Grep', 'Read', 'Grep']
+boundary cc mcp 1: req=5 in=177861 first=33124 toolchars=6101 diag=True leakA=False leakC=False tools=['Grep', 'ToolSearch', 'mcp__project-knowledge__find_architecture_docs', 'Glob', 'mcp__project-knowledge__get_config_schema', 'mcp__project-knowledge__find_architecture_docs', 'Grep']
+boundary oc files 1: req=3 in=37197 first=11847 toolchars=5737 diag=False leakA=True leakC=True tools=['grep', 'read']
+boundary oc files 2: req=3 in=37199 first=11847 toolchars=5737 diag=False leakA=True leakC=True tools=['grep', 'read']
+boundary oc mcp 1: req=4 in=50655 first=12247 toolchars=2257 diag=False leakA=False leakC=False tools=['project-knowledge_find_architecture_docs', 'grep', 'list_mcp_resources']
+boundary oc mcp 2: req=4 in=50637 first=12239 toolchars=2257 diag=False leakA=False leakC=False tools=['project-knowledge_find_architecture_docs', 'grep', 'list_mcp_resources']

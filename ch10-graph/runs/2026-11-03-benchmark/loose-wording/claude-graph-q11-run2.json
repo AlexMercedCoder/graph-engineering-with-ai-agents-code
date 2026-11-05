@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 11,
+ "run": 2,
+ "answer": "Two services call NotificationsAPI directly, so they would break first. Six more depend on it through them. One caveat: the graph only records who calls or depends on whom. It has nothing about retry behaviour, so it can't tell me which callers actually rely on the current retry semantics. Treat this as the full list of what *could* break, not a confirmed list.\n\n**Direct callers (most likely to break)**\n1. **BillingService**: BillingService \u2192 CALLS \u2192 NotificationsAPI\n2. **PaymentsService**: PaymentsService \u2192 CALLS \u2192 NotificationsAPI\n\nThese are the services whose own retry, idempotency or timeout logic is coupled to NotificationsAPI. Check them first.\n\n**Indirect, through BillingService**\n3. **RenewalsWorker**: DEPENDS_ON BillingService\n4. **ReportingService**: DEPENDS_ON BillingService\n\n**Indirect, through PaymentsService and the API it exposes**\n5. **PaymentsAPI**: exposed by PaymentsService\n6. **OrderService**: CALLS PaymentsAPI\n7. **OrdersAPI**: exposed by OrderService\n8. **SearchService**: DEPENDS_ON OrderService\n\n**Configuration:** I looked for a `NotificationsAPI.retry` key and none exists. The graph has no recorded retry setting for this API, so retry behaviour is probably set in each caller's code or client config.\n\n**Databases:** none came up, since this lookup only follows CALLS and DEPENDS_ON links.\n\n**Next step:** check how BillingService and PaymentsService handle NotificationsAPI retries (idempotency keys, duplicate-send handling, timeout budgets). That will show whether the six services further downstream would actually notice a change.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "NotificationsAPI.retry"
+   }
+  }
+ ],
+ "input_tokens": 14685,
+ "output_tokens": 838
+}

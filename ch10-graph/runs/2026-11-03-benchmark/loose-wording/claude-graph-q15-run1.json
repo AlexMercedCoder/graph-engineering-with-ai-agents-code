@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 15,
+ "run": 1,
+ "answer": "Changing UserService token validation affects **8 entities within two hops**: 6 services and 2 APIs.\n\n**Hop 1: depends directly on UserService or is exposed by it**\n| Entity | Type | How it connects |\n|---|---|---|\n| **ApiGateway** | service | ApiGateway depends on UserService |\n| **AuditService** | service | AuditService depends on UserService |\n| **OrderService** | service | OrderService depends on UserService |\n| **UsersAPI** | API | UserService exposes UsersAPI |\n\n**Hop 2: connected through OrderService**\n| Entity | Type | How it connects |\n|---|---|---|\n| **BillingService** | service | BillingService depends on OrderService, which depends on UserService |\n| **ReportingService** | service | ReportingService depends on OrderService, which depends on UserService |\n| **SearchService** | service | SearchService depends on OrderService, which depends on UserService |\n| **OrdersAPI** | API | OrderService exposes OrdersAPI |\n\n**What this means**\n- **OrderService is the main path for spread.** Three of the four second-hop items reach UserService only through it. If OrderService passes tokens along or checks them again, it needs testing first.\n- **ApiGateway** probably sits in front of all incoming traffic. Any change to which tokens are accepted or how they're formatted will show up there right away.\n- **UsersAPI** and **OrdersAPI** are the externally exposed endpoints. Their clients will notice any change in authentication behaviour, such as a different error response.\n\n**Limits of this answer**\n- The graph links services at the service level. It has nothing specific to \"token validation,\" so this list is every service that depends on UserService for any reason. Some of them may not actually use token validation.\n- No databases came up within two hops.\n- I couldn't find a configuration key for this. A lookup for `token_validation` returned no match. If you know the real key name (for example a JWT secret or issuer setting), I can trace which services it configures.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "token_validation"
+   }
+  }
+ ],
+ "input_tokens": 14341,
+ "output_tokens": 924
+}

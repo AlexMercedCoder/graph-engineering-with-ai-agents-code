@@ -245,6 +245,35 @@ integrity. Versioning resolves from the first of: `version` in `plugin.json`,
 The worked example is `ch07-plugin/team-workflow/`. The manuscript's chapter 7
 shows the full manifest and marketplace file shapes.
 
+## MCP servers
+
+Chapters 9 to 11 register their servers per project so nothing touches your
+user configuration. The two harnesses below were run on 2026-11-03 (Claude Code
+2.1.316, OpenCode 1.19.5); the others are pointers only.
+
+| Harness | Project config | Local (stdio) server | Remote (HTTP) server |
+|---|---|---|---|
+| Claude Code | `.mcp.json` at the project root | `{"type": "stdio", "command": "python3", "args": [...], "env": {...}}` | `{"type": "http", "url": "...", "headers": {"Authorization": "Bearer ${VAR}"}}` |
+| OpenCode | `mcp` key in `opencode.json` | `{"type": "local", "command": ["python3", ...], "environment": {...}}` | `{"type": "remote", "url": "...", "headers": {"Authorization": "Bearer {env:VAR}"}}` |
+
+Behavior observed in those runs:
+
+- `claude -p` started a project's `.mcp.json` servers without asking for
+  approval. `--mcp-config <file> --strict-mcp-config` uses only the servers in
+  that file and excludes user-level servers and claude.ai connectors.
+- Claude Code defers MCP tool schemas behind its tool search by default; a tool
+  marked with the `anthropic/alwaysLoad` meta key is sent up front. OpenCode
+  sends every schema on the first request.
+- OpenCode's default permissions ask before reading `*.env` files, and
+  `opencode run` treats the unanswered question as a refusal.
+- On a 403 for a missing scope, OpenCode tried to step up through the
+  authorization server named in the protected resource metadata (discovery,
+  then `POST /register`). Claude Code reported a tool error and carried on.
+- Pi has built-in MCP support from 0.99; earlier releases need the
+  `pi-mcp-adapter` package. OpenAI Codex and Google Antigravity configure MCP
+  servers in their own files (Antigravity uses `mcp_config.json`); check their
+  documentation for the current keys.
+
 ## Choosing a mechanism
 
 | You need | Reach for | Chapter |

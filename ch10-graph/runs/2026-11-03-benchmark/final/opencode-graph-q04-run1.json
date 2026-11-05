@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 4,
+ "run": 1,
+ "answer": "AuditService stores its records in **AuditIcebergTable**, as shown by the direct `AuditService \u2014STORES\u2192 AuditIcebergTable` relationship.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "AuditService"
+   }
+  }
+ ],
+ "input_tokens": 2672,
+ "output_tokens": 55,
+ "cost_usd": null
+}

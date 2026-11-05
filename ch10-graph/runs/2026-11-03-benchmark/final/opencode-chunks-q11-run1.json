@@ -1,0 +1,41 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 11,
+ "run": 1,
+ "answer": "**Five distinct downstream services are affected within two hops of `NotificationsAPI`: `BillingService`, `PaymentsService`, `OrderService`, `RenewalsWorker`, and `ReportingService`.** `NotificationsService` owns the changed API and is the starting point, not included in that five-service count.\n\n| Hop | Affected service | Dependency path toward the changed API |\n|---|---|---|\n| 1 | `BillingService` | Calls `NotificationsAPI` to send receipts after a successful capture. |\n| 1 | `PaymentsService` | Calls `NotificationsAPI` after a declined authorization. |\n| 2 | `OrderService` | Calls `PaymentsAPI`, exposed by `PaymentsService`. |\n| 2 | `RenewalsWorker` | Depends on `BillingService` and also calls `PaymentsAPI` directly. Counted once. |\n| 2 | `ReportingService` | Depends on `BillingService` for invoice totals. |\n\nSources: `billing-service#Integrations`, `payments-service#Integrations`, `payments-service#Overview`, `order-service#Integrations`, `renewals-worker#Integrations`, and `reporting-service#Integrations`.\n\n**Relevant retry configuration and storage:** `NotificationsService` currently uses three attempts with a 250 ms backoff, configured by `RETRY_ATTEMPTS`. It stores queued messages in the **notifications Redis instance**. Exhausted messages move to a dead-letter list without notifying the caller; callers needing confirmation poll message status. These details make the five services above the dependency-based impact set, though the actual behavioral effect depends on the retry change. Sources: `notifications-service#Overview`, `notifications-service#Delivery and retries`, and `notifications-service#Data`.\n\nThe traversal follows callers and dependents outward. `BillingService` depending on `OrderService` does not itself make `OrderService` a second-hop dependent; its qualifying path is through `PaymentsAPI`. Shared team ownership and manually copied reporting data do not create dependency hops.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI callers depends retry semantics service dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"NotificationsAPI\" services calls",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"PaymentsService\" \"BillingService\" depends calls API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "PaymentsService exposes PaymentsAPI BillingService API callers depend BillingAPI",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 7629,
+ "output_tokens": 549,
+ "cost_usd": null
+}

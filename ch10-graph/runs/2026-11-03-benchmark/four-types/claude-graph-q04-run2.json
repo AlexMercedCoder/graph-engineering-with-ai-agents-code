@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 4,
+ "run": 2,
+ "answer": "**AuditService** writes its records to **AuditIcebergTable**. That's the only direct `STORES` relationship it has in the graph.\n\n**UsersPostgresDatabase** also appears in AuditService's dependencies, but only two hops away. AuditService has a `DEPENDS_ON` relationship with **UserService**, and UserService is what stores data in UsersPostgresDatabase. So AuditService relies on that database indirectly through UserService, but doesn't keep its own records there.\n\nA default lookup (depth 2) lists both stores side by side. I reran it with depth 1, and only AuditIcebergTable came back as a direct store.\n\n**Involved:**\n- AuditService (service)\n- AuditIcebergTable (where audit records are stored)\n- UserService (service AuditService depends on)\n- UsersPostgresDatabase (UserService's database; AuditService reaches it only through UserService)\n\nNo configuration keys came up.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "AuditService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 13633,
+ "output_tokens": 562
+}

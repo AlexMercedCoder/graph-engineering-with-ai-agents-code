@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 15,
+ "run": 1,
+ "answer": "Changing token validation in **UserService** has a potential blast radius of **six dependent services within two hops**.\n\n| Distance | Affected service | Dependency path |\n|---|---|---|\n| 1 hop | **ApiGateway** | ApiGateway \u2192 UserService |\n| 1 hop | **AuditService** | AuditService \u2192 UserService |\n| 1 hop | **OrderService** | OrderService \u2192 UserService |\n| 2 hops | **BillingService** | BillingService \u2192 OrderService \u2192 UserService |\n| 2 hops | **ReportingService** | ReportingService \u2192 OrderService \u2192 UserService |\n| 2 hops | **SearchService** | SearchService \u2192 OrderService \u2192 UserService |\n\nAll paths use `DEPENDS_ON` relationships. These identify potential impact; whether a service actually breaks depends on how the token-validation behavior changes.\n\nThe two-hop graph result names no specific API endpoints, databases, or configuration keys.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2639,
+ "output_tokens": 223
+}

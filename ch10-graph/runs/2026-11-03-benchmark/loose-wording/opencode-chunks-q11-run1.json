@@ -1,0 +1,33 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 11,
+ "run": 1,
+ "answer": "**BillingService and PaymentsService are the documented downstream services at risk if NotificationsAPI changes its retry semantics.** The documentation establishes dependency, but does not prove that every retry change would break them.\n\n| Service | Dependency and potential impact |\n|---|---|\n| **BillingService** | Calls **NotificationsAPI** to send receipts after a successful capture. Retry changes could affect receipt delivery timing or whether receipts arrive. |\n| **PaymentsService** | Calls **NotificationsAPI** after a declined authorization, including after checkout has returned. Retry changes could affect delivery of decline notifications. |\n| **NotificationsService** | Exposes **NotificationsAPI** and implements its retry behavior, so its delivery processing is directly affected. |\n\nThe relevant contract and storage are:\n\n- **`RETRY_ATTEMPTS`**: the documented retry configuration key. Current behavior is **three attempts with a 250 ms backoff**.\n- **notifications Redis instance**: stores queued messages until a provider accepts them or retries run out.\n- After retry exhaustion, a message moves to the **dead-letter list**, and the caller **is not notified**. Callers needing confirmation poll message status. Changes to exhaustion, failure signaling, or status behavior could therefore affect caller assumptions.\n\nSources: `billing-service#Integrations`, `payments-service#Integrations`, `notifications-service#Overview`, `notifications-service#Delivery and retries`, and `notifications-service#Data`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics dependent services",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"NotificationsAPI\" callers dependencies retry status",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"BillingService\" \"NotificationsAPI\" receipts",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 6535,
+ "output_tokens": 380
+}

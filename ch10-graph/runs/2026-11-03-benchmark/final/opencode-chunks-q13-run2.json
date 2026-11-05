@@ -1,0 +1,62 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 13,
+ "run": 2,
+ "answer": "**OrderService\u2019s two-hop requirements are PaymentsService (through PaymentsAPI), UserService, NotificationsService (through NotificationsAPI), and the `orders`, `payments`, and `users` Postgres databases.** The documented configuration keys in that scope are `PAYMENT_API_KEY`, `CAPTURE_TIMEOUT`, and `ORDER_DB_URL`.\n\nHere, a hop means one level of service dependencies; an API and the service implementing it are listed together.\n\n| Hop | From | Required API, service, or database | Purpose |\n|---|---|---|---|\n| 1 | OrderService | **PaymentsAPI \u2192 PaymentsService** | Authorizes and captures payments. |\n| 1 | OrderService | **UserService** | Resolves the ordering customer. |\n| 1 | OrderService | **`orders` Postgres database** | Stores orders and their immutable line items. |\n| 2 | PaymentsService | **NotificationsAPI \u2192 NotificationsService** | Sends a notification when an authorization is declined. |\n| 2 | PaymentsService | **`payments` Postgres database** | Stores authorizations and payment-provider references. |\n| 2 | UserService | **`users` Postgres database** | Stores users, including soft-deleted user rows. |\n\n### Configuration within this scope\n\n- **PaymentsService**\n  - `PAYMENT_API_KEY`: payment-provider credential.\n  - `CAPTURE_TIMEOUT`: timeout in seconds; defaults to **30**.\n- **UserService**\n  - `ORDER_DB_URL`: configures its read replica. Despite the name, this key belongs to **UserService**; it is retained for compatibility with three deployment scripts.\n\nPaymentsService also wraps an **external payment provider**, whose name and API are not specified in the retrieved documentation.\n\n### Counts\n\nExcluding OrderService itself, the two-hop scope contains:\n\n- **3 services:** PaymentsService, UserService, NotificationsService.\n- **2 called APIs:** PaymentsAPI, NotificationsAPI.\n- **3 storage databases:** `orders` Postgres, `payments` Postgres, `users` Postgres.\n- **3 configuration keys:** `PAYMENT_API_KEY`, `CAPTURE_TIMEOUT`, `ORDER_DB_URL`.\n\nOrderService exposes **OrdersAPI**, and UserService exposes **UsersAPI**; these are not additional documented outbound API calls. NotificationsService\u2019s **`notifications` Redis instance** is one level farther out\u2014hop 3 under this counting convention.\n\n**Sources:** `order-service` \u2192 Overview, Integrations, Data; `payments-service` \u2192 Overview, Integrations, Data, Configuration; `user-service` \u2192 Overview, Data, Configuration; `notifications-service` \u2192 Overview, Data.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService dependencies APIs calls databases configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService Configuration orders Postgres database dependencies",
+    "k": 4
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "PaymentsAPI provided by PaymentsService integrations dependencies data configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService integrations depends calls API stores database configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "user-service Integrations calls depends",
+    "k": 2
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI exposes NotificationsService",
+    "k": 2
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "order-service Configuration configured",
+    "k": 2
+   }
+  }
+ ],
+ "input_tokens": 7616,
+ "output_tokens": 769,
+ "cost_usd": null
+}

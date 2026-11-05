@@ -1,0 +1,31 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 10,
+ "run": 2,
+ "answer": "UserService gets its read replica from the configuration key **`ORDER_DB_URL`**.\n\nThe name is misleading, because it sounds like an order database setting. According to the graph, it's an old name that was kept because three deployment scripts still read it. I checked the link in both directions: looking up UserService returns `ORDER_DB_URL`, and looking up `ORDER_DB_URL` returns only UserService.\n\nEntities involved:\n- **Service:** UserService\n- **Configuration key:** `ORDER_DB_URL`, used for UserService's read replica\n- **Database:** UsersPostgresDatabase, which UserService stores data in. The graph doesn't say outright that the replica belongs to this database, but it's the only database linked to UserService.\n\nThe graph doesn't name the three deployment scripts. Find them before you rename the key, or they'll break.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "ORDER_DB_URL"
+   }
+  }
+ ],
+ "input_tokens": 14185,
+ "output_tokens": 514,
+ "cost_usd": 0.0387082
+}

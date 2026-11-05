@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 5,
+ "run": 1,
+ "answer": "The key is **`CAPTURE_TIMEOUT`**, but I couldn't find its default. The graph doesn't store one.\n\n**What the graph shows**\n- **`CAPTURE_TIMEOUT`** configures **PaymentsService**. Looking up `CAPTURE_TIMEOUT` (and the lowercase `capture_timeout`) gives: \"PaymentsService: It is configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT.\"\n- **`PAYMENT_API_KEY`** is the only other key on PaymentsService. It handles credentials, not the timeout.\n- **What PaymentsService connects to:**\n  - It calls **NotificationsAPI**.\n  - It stores data in **PaymentsPostgresDatabase**.\n  - Nothing depends on it within 2 hops, so changing the timeout shouldn't directly affect any other service.\n\n**Names that returned nothing:** `payments.capture_timeout` and `PAYMENTS_CAPTURE_TIMEOUT`.\n\n**What's missing**\nThe graph links keys to the services they configure, but it doesn't record values or defaults. To find the default, check the PaymentsService source, its config files or environment templates (such as `.env.example`, Helm values or a config schema), or its deployment manifests. If you point me at the repo, I can look there.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "payments.capture_timeout"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "PAYMENTS_CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "capture_timeout"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsService"
+   }
+  }
+ ],
+ "input_tokens": 19333,
+ "output_tokens": 1022
+}

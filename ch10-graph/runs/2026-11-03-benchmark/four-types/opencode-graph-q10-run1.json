@@ -1,0 +1,24 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 10,
+ "run": 1,
+ "answer": "The available graph shows that **UserService** stores data in **UsersPostgresDatabase**, but it does not identify the configuration key used for UserService\u2019s read replica.\n\nI can\u2019t reliably name that key from the information returned by the tools.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "UserService read replica"
+   }
+  }
+ ],
+ "input_tokens": 3897,
+ "output_tokens": 100
+}

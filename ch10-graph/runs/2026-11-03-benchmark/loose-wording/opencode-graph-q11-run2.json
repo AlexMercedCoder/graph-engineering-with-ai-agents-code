@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 11,
+ "run": 2,
+ "answer": "A change to **NotificationsAPI** retry semantics could affect **six services**, directly or transitively:\n\n| Service | Dependency path to NotificationsAPI |\n|---|---|\n| **BillingService** | Calls **NotificationsAPI** directly |\n| **PaymentsService** | Calls **NotificationsAPI** directly |\n| **RenewalsWorker** | Depends on **BillingService**, which calls **NotificationsAPI** |\n| **ReportingService** | Depends on **BillingService**, which calls **NotificationsAPI** |\n| **OrderService** | Calls **PaymentsAPI**, exposed by **PaymentsService**, which calls **NotificationsAPI** |\n| **SearchService** | Depends on **OrderService**, which calls **PaymentsAPI**, exposed by **PaymentsService**, which calls **NotificationsAPI** |\n\nThe affected API surface also includes **PaymentsAPI** and **OrdersAPI** (exposed by **OrderService**).\n\n**BillingService and PaymentsService are the first services to check** because they directly consume NotificationsAPI. The graph establishes the potential blast radius, but does not prove which services will actually break\u2014that depends on their assumptions about retry behavior. No databases or configuration keys were identified in the returned dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 4
+   }
+  }
+ ],
+ "input_tokens": 2774,
+ "output_tokens": 269
+}

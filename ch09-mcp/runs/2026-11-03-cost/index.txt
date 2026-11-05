@@ -1,0 +1,8 @@
+cost cc mcp 2: req=4 in=136365 first=33145 toolchars=1845 diag=True leakA=False leakC=False tools=['ToolSearch', 'mcp__project-knowledge__lookup_error_code', 'mcp__project-knowledge__get_config_schema', 'Grep']
+cost cc files 1: req=3 in=107078 first=33041 toolchars=9335 diag=True leakA=False leakC=False tools=['Grep', 'Glob', 'Read', 'Read', 'Read']
+cost cc mcp 1: req=4 in=136456 first=33144 toolchars=1948 diag=True leakA=False leakC=False tools=['ToolSearch', 'mcp__project-knowledge__lookup_error_code', 'mcp__project-knowledge__get_config_schema', 'Grep']
+cost cc files 2: req=4 in=141383 first=33047 toolchars=6922 diag=True leakA=False leakC=False tools=['Grep', 'Bash', 'Read', 'Read', 'Read', 'Grep']
+cost oc mcp 1: req=2 in=24839 first=12263 toolchars=1215 diag=False leakA=False leakC=False tools=['project-knowledge_lookup_error_code', 'project-knowledge_get_config_schema']
+cost oc mcp 2: req=2 in=24835 first=12261 toolchars=1215 diag=False leakA=False leakC=False tools=['project-knowledge_lookup_error_code', 'project-knowledge_get_config_schema']
+cost oc files 1: req=5 in=67284 first=11855 toolchars=16189 diag=True leakA=False leakC=True tools=['grep', 'glob', 'read', 'read', 'read', 'read', 'read', 'read']
+cost oc files 2: req=6 in=86617 first=11849 toolchars=18821 diag=True leakA=False leakC=True tools=['read', 'glob', 'glob', 'glob', 'grep', 'read', 'read', 'grep', 'read', 'read', 'read', 'grep', 'read']

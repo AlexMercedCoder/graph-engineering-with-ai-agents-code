@@ -1,6 +1,6 @@
-"""The Chapter 9 MCP server. Requires the MCP Python SDK:
+"""The Chapter 9 MCP server over stdio. Requires the MCP Python SDK 2.x:
 
-    pip install "mcp[cli]"
+    pip install "mcp>=2,<3"
     python3 server.py
 
 The tool bodies live in tools.py so that cli.py can expose the same operations
@@ -14,16 +14,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tools import find_architecture_docs, get_config_schema, lookup_error_code
 
 try:
-    from mcp.server.fastmcp import FastMCP
+    from mcp.server import MCPServer
 except ImportError:  # pragma: no cover
     raise SystemExit(
-        "The MCP SDK is not installed. Either run:\n"
-        "    pip install \"mcp[cli]\"\n"
+        "The MCP SDK 2.x is not installed. Either run:\n"
+        "    pip install \"mcp>=2,<3\"\n"
         "or use the dependency-free command line surface:\n"
         "    python3 cli.py error-code E4021"
     )
 
-mcp = FastMCP("project-knowledge")
+mcp = MCPServer("project-knowledge")
 
 mcp.tool()(lookup_error_code)
 mcp.tool()(get_config_schema)

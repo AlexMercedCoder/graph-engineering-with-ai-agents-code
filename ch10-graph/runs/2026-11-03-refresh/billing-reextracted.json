@@ -1,0 +1,61 @@
+{
+ "doc": "billing-service.md",
+ "sha256": "e84c3a8c20cd80fea32551318b45e57bc745d773d736fae89a04050030c69fa8",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T03:17:41+00:00",
+ "usage": {
+  "input_tokens": 3490,
+  "output_tokens": 373,
+  "cost_usd": 0.0151549
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "BillingService",
+    "type": "Service"
+   },
+   {
+    "name": "billing Postgres database",
+    "type": "Database"
+   },
+   {
+    "name": "OrderService",
+    "type": "Service"
+   },
+   {
+    "name": "NotificationsAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "PaymentsAPI",
+    "type": "APIEndpoint"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "BillingService",
+    "type": "STORES",
+    "target": "billing Postgres database",
+    "sentence": "BillingService stores invoices in the billing Postgres database."
+   },
+   {
+    "source": "BillingService",
+    "type": "DEPENDS_ON",
+    "target": "OrderService",
+    "sentence": "It depends on OrderService for line items."
+   },
+   {
+    "source": "BillingService",
+    "type": "CALLS",
+    "target": "NotificationsAPI",
+    "sentence": "It calls the NotificationsAPI to send receipts once a capture succeeds."
+   },
+   {
+    "source": "BillingService",
+    "type": "CALLS",
+    "target": "PaymentsAPI",
+    "sentence": "It calls the PaymentsAPI to refund a capture that the customer disputes."
+   }
+  ]
+ }
+}

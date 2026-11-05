@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 3,
+ "run": 1,
+ "answer": "**OrderService uses OrdersPostgresDatabase.** It's the only database OrderService has a direct STORES relationship with.\n\nA second database, **UsersPostgresDatabase**, shows up when the graph is searched two levels deep. When I limited the search to one level, it disappeared. So OrderService doesn't use it directly. It most likely reaches it through **UserService**, which OrderService DEPENDS_ON and which presumably stores user data there. The tool doesn't show the path, so that link is an inference.\n\nWhat OrderService depends on directly:\n- **OrdersPostgresDatabase**: STORES, so this is its own database\n- **PaymentsAPI**: CALLS\n- **UserService**: DEPENDS_ON, which in turn leads to **UsersPostgresDatabase**\n\nNo configuration keys came up in this lookup.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 13666,
+ "output_tokens": 526
+}

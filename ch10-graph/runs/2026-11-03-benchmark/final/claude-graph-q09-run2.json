@@ -1,0 +1,43 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 9,
+ "run": 2,
+ "answer": "The graph doesn't say how often RenewalsWorker re-bills subscriptions. No schedule, interval or cron setting is recorded for it.\n\n**What the graph does record:**\n\n- **Configuration:** RenewalsWorker has one configuration key, **AUTH_HOLD_MINUTES**. It sets how long a renewal authorization is held before it is captured. That's a hold time inside a single renewal, not how often renewals run, so it doesn't answer the question.\n- **Dependencies:**\n  - RenewalsWorker calls **PaymentsAPI**, which **PaymentsService** exposes. PaymentsService stores data in **PaymentsPostgresDatabase** and is configured by **PAYMENT_API_KEY** and **CAPTURE_TIMEOUT**. Neither key is a re-billing schedule.\n  - RenewalsWorker depends on **BillingService**. BillingService stores data in **BillingPostgresDatabase**, calls **NotificationsAPI** (exposed by **NotificationsService**) and depends on **OrderService**. No configuration keys are recorded for BillingService.\n\n**Where to look next:** The re-billing frequency is probably set somewhere the graph doesn't cover, such as RenewalsWorker's scheduler or cron definition, its deployment manifest, or the renewal dates stored per subscription in BillingPostgresDatabase.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "RenewalsWorker"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "RenewalsWorker"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "BillingService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "AUTH_HOLD_MINUTES"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  }
+ ],
+ "input_tokens": 20805,
+ "output_tokens": 840,
+ "cost_usd": 0.052285000000000005
+}

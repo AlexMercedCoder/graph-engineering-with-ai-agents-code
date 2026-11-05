@@ -1,0 +1,59 @@
+{
+ "doc": "api-gateway.md",
+ "sha256": "a7c630e0ae07acc9ab87766f9316199329903a20f212a5f8586a0c9a0c1e7f21",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:11:03+00:00",
+ "usage": {
+  "input_tokens": 3480,
+  "output_tokens": 981,
+  "cost_usd": 0.021194900000000003
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "ApiGateway",
+    "type": "Service"
+   },
+   {
+    "name": "user service",
+    "type": "Service"
+   },
+   {
+    "name": "SearchService",
+    "type": "Service"
+   },
+   {
+    "name": "OrdersAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "UsersAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "GATEWAY_RATE_LIMITS",
+    "type": "Configuration"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "ApiGateway",
+    "type": "CALLS",
+    "target": "OrdersAPI",
+    "sentence": "ApiGateway calls the OrdersAPI and the UsersAPI."
+   },
+   {
+    "source": "ApiGateway",
+    "type": "CALLS",
+    "target": "UsersAPI",
+    "sentence": "ApiGateway calls the OrdersAPI and the UsersAPI."
+   },
+   {
+    "source": "ApiGateway",
+    "type": "DEPENDS_ON",
+    "target": "user service",
+    "sentence": "It depends on the user service for token validation, so a request with an expired token is rejected at the edge before any service sees it."
+   }
+  ]
+ }
+}

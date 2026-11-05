@@ -1,0 +1,51 @@
+{
+ "doc": "renewals-worker.md",
+ "sha256": "e4567747d9bd668f2b9f002c64ccde27a4349321f5780bbd522b1ac85e460ccd",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:30:26+00:00",
+ "usage": {
+  "input_tokens": 3434,
+  "output_tokens": 381,
+  "cost_usd": 0.0150109
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "RenewalsWorker",
+    "type": "Service"
+   },
+   {
+    "name": "BillingService",
+    "type": "Service"
+   },
+   {
+    "name": "PaymentsAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "AUTH_HOLD_MINUTES",
+    "type": "Configuration"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "RenewalsWorker",
+    "type": "DEPENDS_ON",
+    "target": "BillingService",
+    "sentence": "It depends on BillingService and calls the PaymentsAPI directly, without going through OrderService, because a renewal has no cart."
+   },
+   {
+    "source": "RenewalsWorker",
+    "type": "CALLS",
+    "target": "PaymentsAPI",
+    "sentence": "It depends on BillingService and calls the PaymentsAPI directly, without going through OrderService, because a renewal has no cart."
+   },
+   {
+    "source": "AUTH_HOLD_MINUTES",
+    "type": "CONFIGURES",
+    "target": "RenewalsWorker",
+    "sentence": "It is configured by AUTH_HOLD_MINUTES, which sets how long a renewal authorization is held before capture."
+   }
+  ]
+ }
+}

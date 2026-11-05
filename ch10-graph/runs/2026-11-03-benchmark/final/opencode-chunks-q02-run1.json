@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 2,
+ "run": 1,
+ "answer": "**NotificationsAPI**, exposed by **NotificationsService**, uses these delivery retry semantics:\n\n- **Three total attempts**, with a **250 ms backoff**. The attempt count is configured by **`RETRY_ATTEMPTS`**.\n- If all three attempts fail, the message moves to the **dead-letter list**.\n- The caller **is not notified** of the final failure. Callers that need confirmation must **poll the message status**.\n\nSeparately, **ApiGateway** does **not** retry failed upstream requests: it passes a service\u2019s **5xx** response to the client unchanged, and the **client library** decides whether to retry.\n\nSources: `notifications-service#Overview`, `notifications-service#Delivery and retries`, `api-gateway#Operations`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics retries backoff configuration",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 2449,
+ "output_tokens": 190,
+ "cost_usd": null
+}

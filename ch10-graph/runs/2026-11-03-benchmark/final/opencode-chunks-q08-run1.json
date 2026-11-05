@@ -1,0 +1,27 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 8,
+ "run": 1,
+ "answer": "**ApiGateway uses UserService, which exposes UsersAPI, for token validation.** UserService validates the session tokens forwarded by ApiGateway; expired tokens are rejected at the gateway before requests reach downstream services.\n\nValidation results are cached for **60 seconds**, so a token revoked during that window can remain accepted until its cache entry expires.\n\nSources: `api-gateway#Integrations`, `user-service#Overview`, `user-service#Operations`. These sections name no database or configuration key for token validation.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "ApiGateway token validation",
+    "k": 3
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UsersAPI user service token validation",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 3862,
+ "output_tokens": 158,
+ "cost_usd": null
+}

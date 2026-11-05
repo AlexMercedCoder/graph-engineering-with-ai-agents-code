@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 1,
+ "run": 2,
+ "answer": "**NotificationsService stores queued messages in the notifications Redis instance.** Each message remains queued until a provider accepts it or its retries run out.\n\nMessages are submitted through **NotificationsAPI**, which handles requests to send email, SMS, and push messages.\n\nSource: `notifications-service#Data` and `notifications-service#Overview`. No configuration key is specified in these sections.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsService stores database storage configuration",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 2399,
+ "output_tokens": 105,
+ "cost_usd": null
+}

@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 16,
+ "run": 1,
+ "answer": "The docs name two services that call the **PaymentsAPI** directly:\n\n1. **OrderService** calls the PaymentsAPI to authorize and capture payments during checkout (order-service#Integrations). If an authorization times out, it retries once after two seconds. If it times out again, it cancels the checkout and releases the reserved stock (order-service#Operations).\n2. **RenewalsWorker** calls the PaymentsAPI directly rather than going through OrderService, because a renewal has no cart. It also depends on **BillingService** (renewals-worker#Integrations).\n\nRelated parts of the system:\n- **PaymentsService** provides the PaymentsAPI. It wraps the external payment provider so that no other service holds provider credentials. It stores authorizations in the **payments Postgres database**.\n- PaymentsService is configured by **PAYMENT_API_KEY** and **CAPTURE_TIMEOUT**, which is in seconds and defaults to 30.\n\nServices that don't call it directly:\n- **ApiGateway** calls only the **OrdersAPI** and **UsersAPI**, so it reaches payments only through OrderService.\n- **BillingService** calls the **NotificationsAPI**, not the PaymentsAPI.\n\nThe docs mention no other callers of the PaymentsAPI.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that call PaymentsAPI",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls PaymentsAPI refund checkout gateway",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 14130,
+ "output_tokens": 636,
+ "cost_usd": 0.049303799999999995
+}

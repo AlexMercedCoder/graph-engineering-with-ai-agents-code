@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 16,
+ "run": 1,
+ "answer": "Two services directly call **PaymentsAPI**:\n\n- **OrderService** \u2014 `OrderService -CALLS-> PaymentsAPI`\n- **RenewalsWorker** \u2014 `RenewalsWorker -CALLS-> PaymentsAPI`",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 2529,
+ "output_tokens": 75
+}

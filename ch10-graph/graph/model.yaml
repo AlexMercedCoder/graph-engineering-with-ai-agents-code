@@ -1,0 +1,60 @@
+# The project's semantic model, in the Apache Ossie shape (datasets,
+# relationships, ai_context). The extraction prompt and validator in
+# ontology.py use the same type names; change them together.
+datasets:
+  - name: service
+    description: A deployable unit that owns one area of behavior.
+    fields:
+      - name: name
+    primary_key: [name]
+  - name: api_endpoint
+    description: An API a service exposes to other services.
+    fields:
+      - name: name
+      - name: owning_service
+    primary_key: [name]
+
+  - name: database
+    description: A store a service keeps its data in.
+    fields:
+      - name: name
+    primary_key: [name]
+
+  - name: configuration
+    description: A configuration key a service reads.
+    fields:
+      - name: key
+    primary_key: [key]
+
+relationships:
+  - name: calls
+    from: service
+    to: api_endpoint
+    description: The service sends requests to this API.
+  - name: exposes
+    from: service
+    to: api_endpoint
+    description: The service owns and serves this API.
+  - name: depends_on
+    from: service
+    to: service
+    description: The service cannot do its job if the target is unavailable.
+  - name: stores
+    from: service
+    to: database
+    description: The service keeps its data in this store.
+  - name: configures
+    from: configuration
+    to: service
+    description: The key changes how the service behaves.
+
+ai_context:
+  instructions: >
+    When asked what a change will affect, follow calls and depends_on
+    backward from the changed thing. Report the path, not only the endpoint.
+  synonyms:
+    service: [microservice, component, app, worker]
+    api_endpoint: [route, endpoint, api]
+  example_queries:
+    - "What breaks if the notifications API changes?"
+    - "Which services does billing depend on?"

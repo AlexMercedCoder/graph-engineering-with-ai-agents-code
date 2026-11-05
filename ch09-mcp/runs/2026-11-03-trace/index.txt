@@ -1,0 +1,2 @@
+trace oc trace 1: req=3 in=37839 first=12263 toolchars=2860 diag=False leakA=False leakC=False tools=['project-knowledge_lookup_error_code', 'project-knowledge_get_config_schema', 'project-knowledge_find_architecture_docs']
+trace cc trace 1: req=5 in=172637 first=33141 toolchars=2218 diag=True leakA=False leakC=False tools=['ToolSearch', 'mcp__project-knowledge__lookup_error_code', 'mcp__project-knowledge__get_config_schema', 'Grep', 'Read', 'Read', 'Grep']

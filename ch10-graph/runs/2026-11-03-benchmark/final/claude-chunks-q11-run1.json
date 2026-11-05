@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 11,
+ "run": 1,
+ "answer": "Five services are affected within two hops of NotificationsAPI: two call it directly and three more depend on those two.\n\n**What's changing:** NotificationsService exposes NotificationsAPI. Today a message gets three attempts with a 250ms backoff, set by the `RETRY_ATTEMPTS` config key. Queued messages live in the notifications Redis instance. If all three attempts fail, the message moves to the dead-letter list and the caller isn't told. Callers that need confirmation have to poll the message status.\n\n**Hop 1: services that call NotificationsAPI (2)**\n1. **PaymentsService** (exposes PaymentsAPI) calls it when an authorization is declined.\n2. **BillingService** calls it to send receipts after a capture succeeds. It stores invoices in the billing Postgres database.\n\n**Hop 2: services that depend on those or call their APIs (3)**\n3. **OrderService** calls PaymentsAPI to authorize and capture.\n4. **RenewalsWorker** depends on BillingService and also calls PaymentsAPI directly, so it reaches the change through both hop-1 services.\n5. **ReportingService** depends on BillingService for invoice totals. Its dashboards also show PaymentsService decline rates, but finance copies those in by hand each week, so that isn't a service link.\n\n**Not counted (three hops or more, or no link):**\n- **SearchService** depends on OrderService, which makes it a third hop.\n- **ApiGateway** calls OrdersAPI and UsersAPI, not PaymentsAPI, BillingService or NotificationsAPI, so it's also a third hop at the nearest.\n- **UserService** is something OrderService depends on, not the other way round, so it isn't downstream of the change.\n\nPaymentsService and BillingService are run by the same team, so a single team would handle both direct callers. Neither caller is told when a message fails, so changing the retry count or backoff could quietly change how many decline notices and receipts never arrive. It would only show up for services that poll the message status.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI callers retry",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "sends email SMS push notification via NotificationsAPI",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls the PaymentsAPI depends on PaymentsService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls the BillingAPI depends on BillingService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "ApiGateway routes upstream services",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 23685,
+ "output_tokens": 1363,
+ "cost_usd": 0.083445
+}

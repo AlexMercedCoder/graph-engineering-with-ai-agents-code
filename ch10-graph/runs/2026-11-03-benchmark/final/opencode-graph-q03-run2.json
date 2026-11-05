@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 3,
+ "run": 2,
+ "answer": "OrderService uses **OrdersPostgresDatabase**, connected by a direct `STORES` relationship:\n\n`OrderService \u2192 STORES \u2192 OrdersPostgresDatabase`",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService"
+   }
+  }
+ ],
+ "input_tokens": 2794,
+ "output_tokens": 55,
+ "cost_usd": null
+}

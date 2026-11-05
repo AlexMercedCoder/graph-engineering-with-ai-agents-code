@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 19,
+ "run": 1,
+ "answer": "If **PaymentsService** is down, these services can no longer take payments because they directly call **PaymentsAPI**, which PaymentsService exposes:\n\n- **OrderService**\n- **RenewalsWorker**\n\nNo databases or configuration keys are involved in these direct dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 2694,
+ "output_tokens": 84,
+ "cost_usd": null
+}

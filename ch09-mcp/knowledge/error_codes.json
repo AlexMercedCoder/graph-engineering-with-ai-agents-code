@@ -1,8 +1,359 @@
 {
-  "E4021": {"code":"E4021","title":"Payment authorization expired","cause":"The authorization hold lapsed before capture.","handling":"Re-authorize, then capture. Do not retry capture alone.","retryable":false},
-  "E4022": {"code":"E4022","title":"Payment authorization declined","cause":"The issuer declined the authorization request.","handling":"Surface the decline to the customer. Do not retry automatically.","retryable":false},
-  "E4020": {"code":"E4020","title":"Payment provider unreachable","cause":"The provider endpoint timed out.","handling":"Retry with exponential backoff, up to four attempts.","retryable":true},
-  "E5010": {"code":"E5010","title":"Order total mismatch","cause":"The order total does not equal the sum of its line items.","handling":"Recompute the total from line items and reject the write.","retryable":false},
-  "E5011": {"code":"E5011","title":"Order already captured","cause":"Capture was called twice for one authorization.","handling":"Treat as success. Capture is idempotent by order id.","retryable":false},
-  "E3001": {"code":"E3001","title":"User soft-deleted","cause":"The user row has a non-null deleted_at.","handling":"Return 404. Do not resurrect the row implicitly.","retryable":false}
+ "E1001": {
+  "code": "E1001",
+  "title": "Session token missing",
+  "cause": "The request carried no session token in the Authorization header.",
+  "handling": "Send the token. Do not retry without one.",
+  "retryable": false
+ },
+ "E1002": {
+  "code": "E1002",
+  "title": "Session token expired",
+  "cause": "The session token is past its expiry time.",
+  "handling": "Refresh the session through the auth service, then retry once.",
+  "retryable": true
+ },
+ "E1003": {
+  "code": "E1003",
+  "title": "Session token signature invalid",
+  "cause": "The token signature does not verify against the current signing key.",
+  "handling": "Treat as a forged or corrupted token. Force a new login.",
+  "retryable": false
+ },
+ "E1004": {
+  "code": "E1004",
+  "title": "Session revoked",
+  "cause": "The user signed out on another device or an administrator revoked the session.",
+  "handling": "Force a new login. Do not refresh.",
+  "retryable": false
+ },
+ "E1010": {
+  "code": "E1010",
+  "title": "Password reset token reused",
+  "cause": "A password reset link was opened a second time.",
+  "handling": "Ask the user to request a new link.",
+  "retryable": false
+ },
+ "E1011": {
+  "code": "E1011",
+  "title": "Too many login attempts",
+  "cause": "The account exceeded five failed logins in fifteen minutes.",
+  "handling": "Wait for the lockout window to pass. Do not retry automatically.",
+  "retryable": false
+ },
+ "E1020": {
+  "code": "E1020",
+  "title": "Role not permitted",
+  "cause": "The caller's role does not allow the requested operation.",
+  "handling": "Surface the error. Never retry with an elevated role.",
+  "retryable": false
+ },
+ "E2001": {
+  "code": "E2001",
+  "title": "Required field missing",
+  "cause": "A required field was absent from the request body.",
+  "handling": "Return a 400 naming the field.",
+  "retryable": false
+ },
+ "E2002": {
+  "code": "E2002",
+  "title": "Field type mismatch",
+  "cause": "A field had the wrong type, for example a string where an integer was expected.",
+  "handling": "Return a 400 naming the field and the expected type.",
+  "retryable": false
+ },
+ "E2003": {
+  "code": "E2003",
+  "title": "Field out of range",
+  "cause": "A numeric field fell outside its allowed range.",
+  "handling": "Return a 400 with the allowed range.",
+  "retryable": false
+ },
+ "E2004": {
+  "code": "E2004",
+  "title": "Unknown field",
+  "cause": "The request body contained a field the schema does not define.",
+  "handling": "Reject the request. Silent dropping hides client bugs.",
+  "retryable": false
+ },
+ "E2010": {
+  "code": "E2010",
+  "title": "Currency not supported",
+  "cause": "The currency code is not in the list the payments provider accepts.",
+  "handling": "Return a 400. Do not convert currencies implicitly.",
+  "retryable": false
+ },
+ "E2011": {
+  "code": "E2011",
+  "title": "Amount precision too high",
+  "cause": "An amount carried more decimal places than its currency allows.",
+  "handling": "Return a 400. Never round money silently.",
+  "retryable": false
+ },
+ "E2020": {
+  "code": "E2020",
+  "title": "Email address malformed",
+  "cause": "The email address failed the syntax check.",
+  "handling": "Return a 400.",
+  "retryable": false
+ },
+ "E3001": {
+  "code": "E3001",
+  "title": "User soft-deleted",
+  "cause": "The user row has a non-null deleted_at.",
+  "handling": "Return 404. Do not resurrect the row implicitly.",
+  "retryable": false
+ },
+ "E3002": {
+  "code": "E3002",
+  "title": "User not found",
+  "cause": "No user row exists for the id.",
+  "handling": "Return 404.",
+  "retryable": false
+ },
+ "E3003": {
+  "code": "E3003",
+  "title": "Email already registered",
+  "cause": "Another active user already has this email address.",
+  "handling": "Return 409. Do not reveal which account holds it.",
+  "retryable": false
+ },
+ "E3010": {
+  "code": "E3010",
+  "title": "Profile update conflict",
+  "cause": "Two updates to the same profile raced and the second lost.",
+  "handling": "Re-read the profile and reapply the change once.",
+  "retryable": true
+ },
+ "E3011": {
+  "code": "E3011",
+  "title": "Avatar upload too large",
+  "cause": "The avatar image exceeded 2 MB.",
+  "handling": "Return 413.",
+  "retryable": false
+ },
+ "E4001": {
+  "code": "E4001",
+  "title": "Payment method missing",
+  "cause": "The order has no payment method attached.",
+  "handling": "Ask the customer for a payment method before authorizing.",
+  "retryable": false
+ },
+ "E4002": {
+  "code": "E4002",
+  "title": "Payment method expired",
+  "cause": "The card on file is past its expiry date.",
+  "handling": "Ask the customer to update the card.",
+  "retryable": false
+ },
+ "E4010": {
+  "code": "E4010",
+  "title": "Provider credentials rejected",
+  "cause": "The payments provider rejected PAYMENT_API_KEY.",
+  "handling": "Check the key for the environment. Do not retry.",
+  "retryable": false
+ },
+ "E4011": {
+  "code": "E4011",
+  "title": "Provider rate limit",
+  "cause": "The provider returned a rate limit response.",
+  "handling": "Retry with exponential backoff, up to four attempts.",
+  "retryable": true
+ },
+ "E4020": {
+  "code": "E4020",
+  "title": "Payment provider unreachable",
+  "cause": "The provider endpoint timed out.",
+  "handling": "Retry with exponential backoff, up to four attempts.",
+  "retryable": true
+ },
+ "E4021": {
+  "code": "E4021",
+  "title": "Payment authorization expired",
+  "cause": "The authorization hold lapsed before capture.",
+  "handling": "Re-authorize, then capture. Do not retry capture alone.",
+  "retryable": false
+ },
+ "E4022": {
+  "code": "E4022",
+  "title": "Payment authorization declined",
+  "cause": "The issuer declined the authorization request.",
+  "handling": "Surface the decline to the customer. Do not retry automatically.",
+  "retryable": false
+ },
+ "E4030": {
+  "code": "E4030",
+  "title": "Refund exceeds capture",
+  "cause": "A refund asked for more than the captured amount.",
+  "handling": "Reject the refund and report the captured amount.",
+  "retryable": false
+ },
+ "E4031": {
+  "code": "E4031",
+  "title": "Refund window closed",
+  "cause": "The capture is older than the provider's refund window.",
+  "handling": "Route to manual credit. Do not retry.",
+  "retryable": false
+ },
+ "E4040": {
+  "code": "E4040",
+  "title": "Webhook signature invalid",
+  "cause": "A provider webhook failed signature verification.",
+  "handling": "Drop the event and alert. Never process an unverified webhook.",
+  "retryable": false
+ },
+ "E4041": {
+  "code": "E4041",
+  "title": "Webhook replayed",
+  "cause": "A provider webhook arrived with an event id already processed.",
+  "handling": "Acknowledge it and do nothing. Processing is idempotent by event id.",
+  "retryable": false
+ },
+ "E5001": {
+  "code": "E5001",
+  "title": "Order not found",
+  "cause": "No order row exists for the id.",
+  "handling": "Return 404.",
+  "retryable": false
+ },
+ "E5002": {
+  "code": "E5002",
+  "title": "Order belongs to another user",
+  "cause": "The order's user_id does not match the caller.",
+  "handling": "Return 404, not 403, so order ids cannot be probed.",
+  "retryable": false
+ },
+ "E5010": {
+  "code": "E5010",
+  "title": "Order total mismatch",
+  "cause": "The order total does not equal the sum of its line items.",
+  "handling": "Recompute the total from line items and reject the write.",
+  "retryable": false
+ },
+ "E5011": {
+  "code": "E5011",
+  "title": "Order already captured",
+  "cause": "Capture was called twice for one authorization.",
+  "handling": "Treat as success. Capture is idempotent by order id.",
+  "retryable": false
+ },
+ "E5012": {
+  "code": "E5012",
+  "title": "Order cancelled",
+  "cause": "An operation was attempted on a cancelled order.",
+  "handling": "Return 409.",
+  "retryable": false
+ },
+ "E5020": {
+  "code": "E5020",
+  "title": "Too many line items",
+  "cause": "The order exceeded MAX_LINE_ITEMS.",
+  "handling": "Return 400 with the limit.",
+  "retryable": false
+ },
+ "E5021": {
+  "code": "E5021",
+  "title": "Quote expired",
+  "cause": "The quote is older than its validity period.",
+  "handling": "Ask the customer to re-quote.",
+  "retryable": false
+ },
+ "E5030": {
+  "code": "E5030",
+  "title": "Inventory reservation failed",
+  "cause": "Inventory could not reserve every line item.",
+  "handling": "Release the partial reservation and return 409.",
+  "retryable": true
+ },
+ "E6001": {
+  "code": "E6001",
+  "title": "Webhook URL unreachable",
+  "cause": "The notification webhook did not answer.",
+  "handling": "The service retries RETRY_ATTEMPTS times with RETRY_BACKOFF_MS backoff. Do not add a caller retry.",
+  "retryable": true
+ },
+ "E6002": {
+  "code": "E6002",
+  "title": "Webhook returned 4xx",
+  "cause": "The receiving endpoint rejected the notification.",
+  "handling": "Do not retry. Log the response body for the owner of the endpoint.",
+  "retryable": false
+ },
+ "E6003": {
+  "code": "E6003",
+  "title": "Notification queue full",
+  "cause": "The outbound queue reached its capacity.",
+  "handling": "Back off and retry. Callers already received success when the message was queued.",
+  "retryable": true
+ },
+ "E6010": {
+  "code": "E6010",
+  "title": "Template missing",
+  "cause": "No template exists for the notification type.",
+  "handling": "Fail the send and alert. Never send an empty notification.",
+  "retryable": false
+ },
+ "E6011": {
+  "code": "E6011",
+  "title": "Template variable missing",
+  "cause": "A template referenced a variable the payload lacks.",
+  "handling": "Fail the send and name the variable.",
+  "retryable": false
+ },
+ "E7001": {
+  "code": "E7001",
+  "title": "Report query timed out",
+  "cause": "A reporting query exceeded REPORT_TIMEOUT_SECONDS.",
+  "handling": "Narrow the date range or use the precomputed daily table.",
+  "retryable": true
+ },
+ "E7002": {
+  "code": "E7002",
+  "title": "Report date range too wide",
+  "cause": "The requested range exceeded 366 days.",
+  "handling": "Return 400 with the limit.",
+  "retryable": false
+ },
+ "E7010": {
+  "code": "E7010",
+  "title": "Read replica lagging",
+  "cause": "The reporting replica is more than 60 seconds behind.",
+  "handling": "Serve the report with a staleness banner, or wait.",
+  "retryable": true
+ },
+ "E7020": {
+  "code": "E7020",
+  "title": "Export too large",
+  "cause": "An export exceeded 100,000 rows.",
+  "handling": "Ask for a narrower filter or use the async export.",
+  "retryable": false
+ },
+ "E9001": {
+  "code": "E9001",
+  "title": "Dependency health check failed",
+  "cause": "A downstream dependency failed its health check at startup.",
+  "handling": "The service refuses to start. Fix the dependency first.",
+  "retryable": false
+ },
+ "E9002": {
+  "code": "E9002",
+  "title": "Configuration key missing",
+  "cause": "A required configuration key was not set.",
+  "handling": "The service refuses to start and names the key.",
+  "retryable": false
+ },
+ "E9003": {
+  "code": "E9003",
+  "title": "Configuration value invalid",
+  "cause": "A configuration value failed its type or range check.",
+  "handling": "The service refuses to start and names the key and the rule.",
+  "retryable": false
+ },
+ "E9010": {
+  "code": "E9010",
+  "title": "Feature flag service unreachable",
+  "cause": "Flags could not be fetched.",
+  "handling": "Fall back to the defaults compiled into the service.",
+  "retryable": true
+ }
 }

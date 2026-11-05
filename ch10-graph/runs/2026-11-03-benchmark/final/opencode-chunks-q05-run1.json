@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 5,
+ "run": 1,
+ "answer": "The **PaymentsService** capture timeout is set by **`CAPTURE_TIMEOUT`**, measured in seconds. Its default is **30 seconds**.\n\nSource: `payments-service` \u2192 Configuration.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "PaymentsService capture timeout configuration key default",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2333,
+ "output_tokens": 71,
+ "cost_usd": null
+}

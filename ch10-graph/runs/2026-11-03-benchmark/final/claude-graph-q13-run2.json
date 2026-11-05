@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 13,
+ "run": 2,
+ "answer": "Within two hops, OrderService needs 4 things directly and 4 more through those.\n\n**Hop 1: what OrderService uses directly**\n| Relationship | Target |\n|---|---|\n| CALLS (API) | **PaymentsAPI**, which is served by **PaymentsService** |\n| DEPENDS_ON | **UserService** |\n| STORES | **OrdersPostgresDatabase** |\n\n**Hop 2: what those need**\n- **PaymentsService**, which sits behind PaymentsAPI:\n  - CALLS **NotificationsAPI**, which is served by **NotificationsService**\n  - STORES in **PaymentsPostgresDatabase**\n- **UserService**:\n  - STORES in **UsersPostgresDatabase**\n  - It calls no APIs and depends on no other services within this range.\n\n**Totals, 8 entities in all**\n- **APIs (2):** PaymentsAPI, NotificationsAPI\n- **Services (3):** PaymentsService, UserService, NotificationsService\n- **Databases (3):** OrdersPostgresDatabase, PaymentsPostgresDatabase, UsersPostgresDatabase\n\nA note on how hops are counted: the graph treats an API and the service that serves it as one place. So OrderService \u2192 PaymentsAPI \u2192 PaymentsService is one hop, and anything PaymentsService uses is hop 2. Anything further out, such as what NotificationsService needs, is beyond two hops and not listed. No configuration keys came up, because this search follows only call, dependency and storage links, not configuration.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9603,
+ "output_tokens": 800,
+ "cost_usd": 0.0446742
+}

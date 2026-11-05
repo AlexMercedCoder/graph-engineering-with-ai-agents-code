@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 2,
+ "run": 2,
+ "answer": "The graph doesn't record retry semantics for **NotificationsAPI**. The only retry behaviour it has belongs to a separate node called **NotificationsService**, and nothing in the graph links the two.\n\n**What the graph has on retries**\n- The configuration key **`RETRY_ATTEMPTS`** configures **NotificationsService**: 3 attempts with a 250ms backoff.\n- **NotificationsService** stores data in **NotificationsRedisInstance**. Nothing depends on it within 2 hops.\n\n**What the graph has on NotificationsAPI**\n- It has no recorded dependencies, and no configuration key (`RETRY_ATTEMPTS` or any other) points to it.\n- Services that call it directly:\n  - **BillingService**\n  - **PaymentsService**\n- Services that reach it through BillingService:\n  - **RenewalsWorker**\n  - **ReportingService**\n\n**What this means**\nNotificationsAPI and NotificationsService may be the same thing under two names, or the service may sit behind the API. But the graph has no relationship joining them, so \"3 attempts, 250ms backoff\" can't be confirmed as NotificationsAPI's behaviour. If they are the same component, `RETRY_ATTEMPTS` sets the retries, and changing it would affect BillingService, PaymentsService, RenewalsWorker and ReportingService. Checking the code or deployment config would settle it, and so would adding the missing link to the graph.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "retry"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "RETRY_ATTEMPTS"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  }
+ ],
+ "input_tokens": 14873,
+ "output_tokens": 1038
+}

@@ -1,0 +1,31 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 17,
+ "run": 1,
+ "answer": "A line-item format change in **OrderService** reaches **4 services**: 3 that depend on it directly and 1 that depends on it through another service. I searched up to 4 hops out.\n\n**Direct dependents (1 hop)**\n1. **BillingService**: BillingService DEPENDS_ON OrderService\n2. **ReportingService**: ReportingService DEPENDS_ON OrderService\n3. **SearchService**: SearchService DEPENDS_ON OrderService\n\n**Indirect dependent (2 hops)**\n4. **RenewalsWorker**: RenewalsWorker DEPENDS_ON BillingService, which DEPENDS_ON OrderService. If BillingService passes line-item data on to RenewalsWorker, or behaves differently because of it, the change can reach RenewalsWorker too.\n\nNo other services turned up at hops 3 or 4.\n\n**What OrderService itself relies on.** These are not affected, but they matter if the format change also changes storage:\n- **OrdersPostgresDatabase** (STORES): if line items are stored in the new format, this database's schema or data may need a migration.\n- **UsersPostgresDatabase** (STORES)\n- **PaymentsAPI** (CALLS): this only matters if line items are sent in payment requests.\n- **UserService** (DEPENDS_ON)\n\n**Limits of this answer**\n- The graph records dependencies between services, not which fields or payloads each one uses. It doesn't show whether BillingService, ReportingService or SearchService actually read line items. Treat all three as possibly affected and check their code or contracts.\n- No specific API endpoint or configuration key for the line-item format is recorded. I checked for a `line_item_format` key and it doesn't exist. Without a known endpoint name, I couldn't narrow the impact to one API.\n\n**Suggested order for coordinating the change:** BillingService, ReportingService and SearchService first, then RenewalsWorker once BillingService's handling is settled.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "line_item_format"
+   }
+  }
+ ],
+ "input_tokens": 14280,
+ "output_tokens": 977
+}

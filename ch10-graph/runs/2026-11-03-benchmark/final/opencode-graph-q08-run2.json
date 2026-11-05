@@ -1,0 +1,37 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 8,
+ "run": 2,
+ "answer": "ApiGateway\u2019s recorded authentication-related dependency is **UserService**, and it also calls **UsersAPI**. These point to UserService as the likely token-validation provider, though the available graph does **not explicitly label token validation**.\n\nRelated backing components:\n- **UsersPostgresDatabase** \u2014 UserService stores data here.\n- **`ORDER_DB_URL`** \u2014 configures UserService\u2019s read replica; the historical name is retained because three deployment scripts use it.\n\nNo configuration keys are recorded directly for **ApiGateway**.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  }
+ ],
+ "input_tokens": 6000,
+ "output_tokens": 209,
+ "cost_usd": null
+}

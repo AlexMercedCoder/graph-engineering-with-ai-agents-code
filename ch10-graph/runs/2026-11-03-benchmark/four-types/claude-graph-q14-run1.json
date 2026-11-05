@@ -1,0 +1,82 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 14,
+ "run": 1,
+ "answer": "Losing the notifications Redis instance (`NotificationsRedisInstance`) breaks message delivery for **BillingService** and **PaymentsService**. RenewalsWorker and ReportingService are also affected, but only indirectly through BillingService.\n\n**What the graph shows:**\n\n1. **NotificationsService** stores its data in **NotificationsRedisInstance**. This is its only recorded dependency, so if Redis is lost, NotificationsService can't hold or deliver messages.\n2. **BillingService** calls **NotificationsAPI** directly, so its notifications stop going out.\n3. **PaymentsService** calls **NotificationsAPI** directly, so its notifications stop as well.\n4. **RenewalsWorker** depends on BillingService, so notifications triggered by renewals through billing are lost.\n5. **ReportingService** depends on BillingService, so anything it sends through billing is lost too.\n\n**One gap to check:** the graph never directly links **NotificationsAPI** to **NotificationsService**. I'm assuming NotificationsService serves that API, based on the names. If that's right, the list above is complete. If the API is served by something else, Redis only affects NotificationsService, and the graph shows nothing that calls it.\n\n**Not affected:** ApiGateway, AuditService and OrderService have no path to NotificationsAPI or NotificationsRedisInstance. Their stores (UsersPostgresDatabase, AuditIcebergTable, BillingPostgresDatabase, OrdersPostgresDatabase) are separate. BillingService keeps working against BillingPostgresDatabase; only its notification calls fail.\n\n**Configuration:** the graph doesn't name a config key for the Redis instance, so I couldn't trace one.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "notifications-redis",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsRedis",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "ApiGateway",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsService",
+    "max_depth": 4
+   }
+  }
+ ],
+ "input_tokens": 32246,
+ "output_tokens": 1769
+}

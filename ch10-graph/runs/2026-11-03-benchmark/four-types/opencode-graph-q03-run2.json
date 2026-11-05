@@ -1,0 +1,25 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 3,
+ "run": 2,
+ "answer": "**OrderService uses OrdersPostgresDatabase**, connected directly by a `STORES` relationship.\n\nOrderService also calls **PaymentsAPI** and depends on **UserService**. **UsersPostgresDatabase** appears in its transitive dependencies, but is not a direct database dependency of OrderService.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 3887,
+ "output_tokens": 110
+}

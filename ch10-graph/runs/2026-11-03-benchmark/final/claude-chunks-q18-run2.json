@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 18,
+ "run": 2,
+ "answer": "Within two hops, ReportingService needs **5 services, 2 APIs and 2 databases**.\n\n**ReportingService (hop 0)**\n- **APIs it calls:** none are documented.\n- **Services it depends on:** 2. These are **BillingService** (for invoice totals) and **OrderService** (for order status).\n- **Databases it stores data in:** none. It builds every report on request from the services it depends on.\n- **Not a dependency:** **PaymentsService** decline rates show up on its dashboards, but finance copies them in by hand each week from the provider portal. ReportingService doesn't need PaymentsService to run.\n\n**Hop 1: BillingService**\n- **APIs it calls:** 1. It calls the **NotificationsAPI**, which **NotificationsService** provides, to send receipts.\n- **Services it depends on:** 1, **OrderService**, for line items. That's the same service ReportingService already depends on, so it isn't counted again.\n- **Databases it stores data in:** 1, the **billing Postgres database** (invoices).\n\n**Hop 1: OrderService**\n- **APIs it calls:** 1. It calls the **PaymentsAPI**, which **PaymentsService** provides, to authorize and capture payments.\n- **Services it depends on:** 1, **UserService**, to identify the customer who placed the order.\n- **Databases it stores data in:** 1, the **orders Postgres database** (orders and line items).\n\n**Combined list (two hops)**\n\n| Kind | Count | Items |\n|---|---|---|\n| Services | 5 | BillingService, OrderService, NotificationsService, PaymentsService, UserService |\n| APIs | 2 | NotificationsAPI (NotificationsService), PaymentsAPI (PaymentsService) |\n| Databases | 2 | billing Postgres, orders Postgres |\n\nNo configuration keys fall within two hops. The nearest ones are on PaymentsService: **PAYMENT_API_KEY** and **CAPTURE_TIMEOUT** (in seconds, default 30). The **payments Postgres database** is also at that level. Both would only count at hop 3.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "ReportingService dependencies APIs databases",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingService integrations depends calls API data stores",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService integrations depends calls API data stores",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "ReportingService calls API endpoint",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "exposes the PaymentsAPI",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 22521,
+ "output_tokens": 1400,
+ "cost_usd": 0.079436
+}

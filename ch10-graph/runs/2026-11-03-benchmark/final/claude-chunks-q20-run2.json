@@ -1,0 +1,55 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 20,
+ "run": 2,
+ "answer": "Within two hops, BillingService needs 3 services, 2 APIs and 3 data stores, plus one more service that sits behind an API.\n\n**Hop 1: what BillingService uses directly**\n- **Service it depends on:** OrderService, which supplies invoice line items.\n- **API it calls:** NotificationsAPI, which sends receipts after a capture succeeds. NotificationsService runs this API.\n- **Database:** the billing Postgres database, which holds invoices.\n\n**Hop 2: what each of those uses**\n- **OrderService**\n  - API it calls: PaymentsAPI, to authorize and capture payments. PaymentsService runs this API.\n  - Service it depends on: UserService, which identifies the ordering customer.\n  - Database: the orders Postgres database, which holds orders and their line items.\n- **NotificationsService** (behind NotificationsAPI)\n  - APIs and services: none are documented.\n  - Data store: the notifications Redis instance, which holds queued messages. This is Redis rather than Postgres.\n\n**Totals**\n- **Services:** OrderService, NotificationsService, UserService and PaymentsService. PaymentsService is only reached through the PaymentsAPI.\n- **APIs:** NotificationsAPI and PaymentsAPI.\n- **Data stores:** billing Postgres, orders Postgres and notifications Redis.\n\n**Things I left out or couldn't confirm**\n- **Capture path:** BillingService \"captures payment against the authorization taken at checkout,\" but its docs don't say it calls PaymentsAPI. Only OrderService is documented as calling it, so PaymentsService appears here at hop 2, not hop 1.\n- **Configuration keys:** none are documented for BillingService, OrderService or NotificationsService. The keys I found belong to services outside this scope: PaymentsService uses `PAYMENT_API_KEY` and `CAPTURE_TIMEOUT` (default 30 seconds), and UserService uses `ORDER_DB_URL`.\n- **Reverse dependencies:** RenewalsWorker and ReportingService depend on BillingService, not the other way round, so they aren't counted.\n- **Team ownership:** the docs say PaymentsService is maintained by the same team as BillingService. That's an ownership link, not something BillingService needs to run.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingService dependencies APIs databases",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI served by which service",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService integrations depends calls database",
+    "k": 6
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingService configuration capture payment PaymentsAPI",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsService integrations depends on",
+    "k": 4
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "exposes the PaymentsAPI",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 22591,
+ "output_tokens": 1622,
+ "cost_usd": 0.08568400000000001
+}

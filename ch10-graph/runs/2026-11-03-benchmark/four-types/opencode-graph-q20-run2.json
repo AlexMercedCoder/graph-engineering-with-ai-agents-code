@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 20,
+ "run": 2,
+ "answer": "Within **two dependency hops**, `BillingService` depends on these six entities:\n\n| Entity | Relationship |\n|---|---|\n| `BillingPostgresDatabase` | `STORES` |\n| `NotificationsAPI` | `CALLS` |\n| `OrderService` | `DEPENDS_ON` |\n| `OrdersPostgresDatabase` | `STORES` |\n| `PaymentsAPI` | `CALLS` |\n| `UserService` | `DEPENDS_ON` |\n\nThe dependency lookup returned these entities but did not distinguish direct dependencies from second-hop dependencies or provide their paths. No configuration keys were returned.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2549,
+ "output_tokens": 154
+}

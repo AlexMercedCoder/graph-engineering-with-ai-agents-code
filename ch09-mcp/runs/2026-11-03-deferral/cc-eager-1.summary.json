@@ -1,0 +1,29 @@
+{
+ "payloads": [
+  57898
+ ],
+ "requests": 1,
+ "input_total": 57898,
+ "first_request": 57898,
+ "tools": [],
+ "tool_result_chars": 0,
+ "results": [],
+ "final": "OK",
+ "init": {
+  "mcp_servers": [
+   {
+    "name": "project-knowledge",
+    "status": "connected",
+    "source": "dynamic"
+   }
+  ],
+  "mcp_tools": [
+   "mcp__project-knowledge__find_architecture_docs",
+   "mcp__project-knowledge__get_config_schema",
+   "mcp__project-knowledge__lookup_error_code"
+  ]
+ },
+ "diagnosis_correct": false,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

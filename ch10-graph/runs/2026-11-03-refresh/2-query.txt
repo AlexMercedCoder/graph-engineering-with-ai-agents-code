@@ -1,0 +1,4 @@
+3 affected within 1 hops:
+OrderService via OrderService -CALLS-> PaymentsAPI
+RenewalsWorker via RenewalsWorker -CALLS-> PaymentsAPI
+BillingService via BillingService -CALLS-> PaymentsAPI

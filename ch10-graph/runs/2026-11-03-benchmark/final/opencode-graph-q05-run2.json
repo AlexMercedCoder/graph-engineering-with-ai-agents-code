@@ -1,0 +1,25 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 5,
+ "run": 2,
+ "answer": "`CAPTURE_TIMEOUT` sets the capture timeout for `PaymentsService`.\n\nThe available configuration records do **not specify its default value**, so I can\u2019t determine the default from the tools provided.",
+ "tool_calls": [
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "CAPTURE_TIMEOUT"
+   }
+  }
+ ],
+ "input_tokens": 4101,
+ "output_tokens": 89,
+ "cost_usd": null
+}

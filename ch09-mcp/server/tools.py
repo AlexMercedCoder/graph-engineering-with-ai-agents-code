@@ -5,7 +5,7 @@ is the substitute the chapter describes for a harness without MCP. One
 implementation, two surfaces, so the two cannot drift apart.
 """
 from knowledge import (
-    ERROR_CODES, KNOWN_SERVICES, TOPICS,
+    ERROR_CODES, KNOWN_SERVICES, SCHEMAS, SECTIONS,
     current_identity, render_schema, search_sections, suggest_nearby,
     visible_classifications,
 )
@@ -32,7 +32,6 @@ def get_config_schema(service: str) -> str:
     defaults, and which keys are required. Use before generating or editing a
     service configuration file. Returns the schema only, never the values from
     any environment."""
-    from knowledge import SCHEMAS
     if service not in KNOWN_SERVICES:
         return f"Unknown service {service}. Known services: {', '.join(KNOWN_SERVICES)}."
     return render_schema(SCHEMAS[service])
@@ -43,11 +42,9 @@ def find_architecture_docs(topic: str, max_sections: int = 3) -> str:
     sections, up to max_sections. Use when a question concerns how services
     relate, why a design decision was made, or where a responsibility lives.
     Returns sections, not whole documents."""
-    identity = current_identity()
-    allowed = visible_classifications(identity)
-    hits = [h for h in search_sections(topic) if h["classification"] in allowed]
-    hits = hits[:max(1, min(max_sections, 5))]
+    allowed = visible_classifications(current_identity())
+    hits = search_sections(topic, allowed)[:max(1, min(max_sections, 5))]
     if not hits:
-        # Same answer shape for absent and forbidden, so the failure does not leak.
-        return f"No architecture sections match {topic!r}. Available topics: {', '.join(TOPICS[:4])}."
+        topics = [s["title"] for s in SECTIONS if s["classification"] in allowed]
+        return f"No architecture sections match {topic!r}. Available topics: {', '.join(topics)}."
     return "\n\n".join(f"## {h['title']}\n{h['body']}" for h in hits)

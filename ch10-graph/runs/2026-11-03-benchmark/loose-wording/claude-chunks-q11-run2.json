@@ -1,0 +1,33 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 11,
+ "run": 2,
+ "answer": "Two services are directly at risk: **BillingService** and **PaymentsService**. They are the only documented callers of the **NotificationsAPI**. One caveat: the docs say they call it, but not that they depend on the exact retry behaviour. \"Break\" here means they are affected, not that a failure is confirmed.\n\n**What the retry semantics are now** (NotificationsService, \"Delivery and retries\")\n- **NotificationsService** exposes the **NotificationsAPI**.\n- It tries each message 3 times with a 250ms backoff. The **`RETRY_ATTEMPTS`** setting controls the number of attempts.\n- A message that fails all 3 attempts goes to a dead-letter list, and the caller is not told. A caller that needs confirmation has to poll the message status.\n- Queued messages are stored in the **notifications Redis instance** and stay there until a provider accepts them or the retries run out. Changing retries therefore also changes how long messages sit in Redis.\n\n**Directly affected callers**\n1. **BillingService** calls the NotificationsAPI to send receipts after a payment capture succeeds. Fewer retries, or different failure reporting, would change whether customers get their receipts.\n2. **PaymentsService** calls the NotificationsAPI when an authorization is declined, so the customer hears about it even after checkout has returned. This is fire-and-forget, so if fewer messages get through, or failures are reported differently, decline notices could be lost without anyone noticing.\n\nThe same team maintains both services, so one team owns the impact.\n\n**Indirectly involved, but probably unaffected**\n- **OrderService** calls the **PaymentsAPI**, and BillingService depends on OrderService for line items. Neither relationship waits on a notification result, so a retry change shouldn't reach OrderService.\n- **ApiGateway**, **SearchService**, **ReportingService**, **AuditService** and **UserService** each have their own retry policy (or none), and none of them use the NotificationsAPI.\n\n**What to check before making the change**\n- Whether BillingService or PaymentsService poll message status or watch the dead-letter list. If they do, a change to statuses or to what happens on failure would break them more directly. The docs don't say either way.\n- Other callers: the overview says *any* service sending email, SMS or push messages goes through this API. There may be callers the docs don't list.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that call NotificationsAPI",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "poll message status notification confirmation dead-letter",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 15879,
+ "output_tokens": 1155
+}

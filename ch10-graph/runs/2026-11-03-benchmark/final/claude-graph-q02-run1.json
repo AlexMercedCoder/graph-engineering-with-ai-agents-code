@@ -1,0 +1,49 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 2,
+ "run": 1,
+ "answer": "**NotificationsAPI retries up to 3 times with a 250ms backoff. The number of attempts is set by the `RETRY_ATTEMPTS` configuration key.**\n\n**How I got there**\n- The graph doesn't store retry settings on **NotificationsAPI** itself. They're attached to the service behind it, **NotificationsService**, which the graph confirms exposes NotificationsAPI.\n- The configuration lookup for NotificationsService returns one key, `RETRY_ATTEMPTS`, with this source sentence: *\"Its retry semantics are three attempts with a 250ms backoff, configured by RETRY_ATTEMPTS.\"*\n- I'm reading \"its\" as the service and its API, since the graph treats them as one unit. That is a small inference.\n- The sentence doesn't say whether the 250ms backoff is fixed or grows with each retry, or whether it's set by its own key. I found no separate key for it.\n\n**Related parts of the system**\n- **Storage:** NotificationsService stores data in **NotificationsRedisInstance**.\n- **Direct callers of NotificationsAPI:** **BillingService** and **PaymentsService**.\n- **Indirect callers:**\n  - **RenewalsWorker** and **ReportingService**, which depend on BillingService.\n  - **OrderService**, which calls **PaymentsAPI** (exposed by PaymentsService).\n\n**If you change it:** editing `RETRY_ATTEMPTS` would affect all five of those services.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsService"
+   }
+  }
+ ],
+ "input_tokens": 20998,
+ "output_tokens": 1081,
+ "cost_usd": 0.05922620000000001
+}

@@ -1,0 +1,94 @@
+{
+ "payloads": [
+  33133,
+  34197,
+  34853,
+  35776
+ ],
+ "requests": 4,
+ "input_total": 137959,
+ "first_request": 33133,
+ "tools": [
+  [
+   "ToolSearch",
+   "{\"query\": \"select:mcp__project-knowledge__lookup_error_code,mcp__project-knowledge__get_config_schema,mcp__project-knowledge__find_architecture_docs\", \"max_results\": 3}"
+  ],
+  [
+   "Bash",
+   "{\"command\": \"git log --oneline -5; git ls-files | head -100\", \"description\": \"Show recent commits and tracked files\"}"
+  ],
+  [
+   "mcp__project-knowledge__lookup_error_code",
+   "{\"code\": \"E4021\"}"
+  ],
+  [
+   "Bash",
+   "{\"command\": \"cat config/staging/payments.conf; echo ----; cat config/production/payments.conf; echo ----; grep -rn \\\"E4021\\\\|4021\\\" src tests config scripts\", \"description\": \"Show payment configs and search for error code\"}"
+  ],
+  [
+   "Bash",
+   "{\"command\": \"cat src/services/payment-service.js; grep -rn \\\"AUTH_HOLD\\\\|CAPTURE_DELAY\\\\|RETRIES\\\" src tests\", \"description\": \"Read payment service and config key usage\"}"
+  ],
+  [
+   "mcp__project-knowledge__get_config_schema",
+   "{\"service\": \"payments\"}"
+  ]
+ ],
+ "tool_result_chars": 3073,
+ "results": [
+  {
+   "chars": 263,
+   "error": false,
+   "head": "[{\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__lookup_error_code\"}, {\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__get_config_schema\"}, {\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__find_architecture_docs\"}]",
+   "has_0.82": false
+  },
+  {
+   "chars": 496,
+   "error": false,
+   "head": "c33e024 base\n.mcp.json\nconfig/production/payments.conf\nconfig/staging/payments.conf\npackage.json\nscripts/check-routes.js\nscripts/lint.js\nsrc/api/routes.js\nsrc/db.js\nsrc/repositories/order-repository.js\nsrc/repositories/user-repository.js\nsrc/services/auth-service.js\nsrc/services/order-service.js\nsrc",
+   "has_0.82": false
+  },
+  {
+   "chars": 188,
+   "error": false,
+   "head": "{\"result\":\"E4021: Payment authorization expired\\nCause: The authorization hold lapsed before capture.\\nHandling: Re-authorize, then capture. Do not retry capture alone.\\nRetryable: False\"}",
+   "has_0.82": false
+  },
+  {
+   "chars": 518,
+   "error": false,
+   "head": "# Non-secret staging values. PAYMENT_API_KEY and WEBHOOK_SECRET come from the secrets manager.\nPAYMENT_BASE_URL=https://sandbox.payments.example.com\nPROVIDER_REGION=us\nCAPTURE_TIMEOUT=30\nCAPTURE_DELAY_MINUTES=15\nAUTH_HOLD_MINUTES=10\nMAX_CAPTURE_RETRIES=4\n----\n# Non-secret production values. PAYMENT_",
+   "has_0.82": false
+  },
+  {
+   "chars": 544,
+   "error": false,
+   "head": "import { query } from '../db.js';\n\n// Callback-style database access. Chapter 5 migrates this to a PaymentRepository\n// the reader adds, which is the part of the exercise with no worked answer.\nexport function findPaymentsForOrder(orderId, callback) {\n  query('payments', (p) => p.order_id === orderI",
+   "has_0.82": false
+  },
+  {
+   "chars": 1064,
+   "error": false,
+   "head": "{\"result\":\"KEY                    TYPE      REQUIRED  DEFAULT              NOTES\\nPAYMENT_API_KEY        string    True      (value not shown)    Provider API key for this environment.\\nPAYMENT_BASE_URL       string    True      None                 Provider endpoint. Sandbox and live endpoints diff",
+   "has_0.82": false
+  }
+ ],
+ "final": "Staging's payment config has the authorization hold expiring before the capture worker gets to it.\n\n**What E4021 means:** \"Payment authorization expired.\" The provider's hold on the card ran out before the payment was captured. It can't be retried as-is; the order has to be re-authorized and then captured.\n\n**The cause, in `config/staging/payments.conf`:**\n\n```\nCAPTURE_DELAY_MINUTES=15\nAUTH_HOLD_MINUTES=10\n```\n\nThe capture worker waits 15 minutes after authorization before capturing, but the hold only lasts 10 minutes. So every hold expires about 5 minutes before capture runs. The config schema says `AUTH_HOLD_MINUTES` \"must exceed CAPTURE_DELAY_MINUTES or holds lapse before capture.\"\n\nProduction is set up correctly: `AUTH_HOLD_MINUTES=60` against the same 15-minute delay, which is also the schema default. Staging differs from production only in this value and the sandbox URL, so 10 looks like a mistake or a test setting that got left in.\n\n**Expect:**\n- With this config, essentially every staging order that goes through the delayed capture path will fail, not just some. If only some are failing, those are probably the orders that reach that path.\n- `MAX_CAPTURE_RETRIES=4` won't help. E4021 isn't retryable, and retrying the capture alone keeps failing because the hold is already gone.\n\n**What I couldn't check:**\n- When it changed. The repo has a single `base` commit, so git history can't show whether the value changed this morning. It's also possible the deployed staging config differs from this file.\n- What the code does on E4021. There's no capture or re-authorization code in this repo; `payment-service.js` only has read queries. So I couldn't see whether failed orders get re-authorized.\n\n**Suggested fix (I didn't edit anything):** set staging `AUTH_HOLD_MINUTES` back to 60, or to any value above 15, and redeploy. Orders that already failed have no valid hold left, so they'll need a fresh authorization before capture.",
+ "init": {
+  "mcp_servers": [
+   {
+    "name": "project-knowledge",
+    "status": "connected",
+    "source": "dynamic"
+   }
+  ],
+  "mcp_tools": [
+   "mcp__project-knowledge__find_architecture_docs",
+   "mcp__project-knowledge__get_config_schema",
+   "mcp__project-knowledge__lookup_error_code"
+  ]
+ },
+ "diagnosis_correct": true,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

@@ -1,0 +1,40 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 11,
+ "run": 1,
+ "answer": "A retry-semantics change in **NotificationsAPI** has a potential blast radius of **7 services**. The dependency graph establishes exposure, but does not prove that each service will break.\n\n| Service | How it is affected |\n|---|---|\n| **BillingService** | Calls **NotificationsAPI** directly. |\n| **PaymentsService** | Calls **NotificationsAPI** directly. |\n| **RenewalsWorker** | Depends on **BillingService**. |\n| **ReportingService** | Depends on **BillingService**. |\n| **OrderService** | Calls **PaymentsAPI**, exposed by **PaymentsService**. |\n| **SearchService** | Depends on **OrderService**. |\n| **ApiGateway** | Calls **OrdersAPI**, exposed by **OrderService**. |\n\n**APIs involved:** NotificationsAPI, PaymentsAPI, OrdersAPI.\n\n**Databases and configuration keys:** None identified in the returned dependency paths.\n\nThe first services to check are **BillingService** and **PaymentsService**: they directly consume the changed retry behavior. Failures there could propagate to the other five services.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "OrdersAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "SearchService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "ApiGateway",
+    "max_depth": 4
+   }
+  }
+ ],
+ "input_tokens": 6125,
+ "output_tokens": 354
+}

@@ -1,0 +1,54 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 10,
+ "run": 1,
+ "answer": "I couldn't find a read replica configuration key for UserService in the architecture graph. I don't know which key it uses.\n\n**What I found:**\n- **UserService** has one dependency: it stores data in **UsersPostgresDatabase** (a STORES relationship).\n- **UsersPostgresDatabase** has no dependencies of its own. No other service depends on it within 2 hops either.\n- There's no read replica in the graph, and no configuration key is linked to UserService.\n\n**What I tried:** The graph tools can't list configuration keys or search for one by service. I can only look up a key if I already know its exact name. I tried four likely names: `USERS_DB_READ_REPLICA_URL`, `READ_REPLICA_URL`, `DATABASE_READ_REPLICA_URL` and `USER_DB_REPLICA_HOST`. None of them exist in the graph.\n\n**What this means:** The graph doesn't model a read replica for UserService. Either the replica isn't set up, or it is but its configuration was never added to the graph. To get the real key, check UserService's config files, environment variables or deployment manifests. If you know the key's name, I can check what else it affects.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "USERS_DB_READ_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UsersPostgresDatabase"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "READ_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "DATABASE_READ_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "USER_DB_REPLICA_HOST"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UsersPostgresDatabase"
+   }
+  }
+ ],
+ "input_tokens": 19025,
+ "output_tokens": 932
+}

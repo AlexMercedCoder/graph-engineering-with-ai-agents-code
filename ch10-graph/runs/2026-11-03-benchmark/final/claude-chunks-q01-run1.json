@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 1,
+ "run": 1,
+ "answer": "**NotificationsService** stores **queued messages** (emails, SMS and push messages) in the **notifications Redis instance**. Other services send these messages through the **NotificationsAPI** rather than calling providers directly.\n\n- **How long a message stays queued:** until a provider accepts it or its retries run out (notifications-service#Data).\n- **Retries:** three attempts with a 250ms backoff, set by the **`RETRY_ATTEMPTS`** configuration key. A message that fails all three attempts moves to a **dead-letter list**, and the caller isn't told. Callers who need confirmation have to poll the message status (notifications-service#Delivery and retries).\n- **During credential rotation:** provider credentials rotate monthly. While that happens, the queue keeps accepting messages and holds them until the new credentials load (notifications-service#Operations).\n\n**Other services involved:** **BillingService** is one caller. It uses the NotificationsAPI to send receipts once a capture succeeds.\n\nThe docs don't say whether the dead-letter list is in the same notifications Redis instance, though that seems likely.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsService storage database",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "notifications Redis configuration key retries",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 13350,
+ "output_tokens": 557,
+ "cost_usd": 0.0434962
+}

@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 12,
+ "run": 1,
+ "answer": "If BillingService goes down, two services stop working: **RenewalsWorker** and **ReportingService**. I searched up to 4 hops of callers and found nothing else.\n\n**What breaks directly**\n\n| Service | How it's connected | Likely effect |\n|---|---|---|\n| **RenewalsWorker** | DEPENDS_ON \u2192 BillingService | Renewals stop being processed. |\n| **ReportingService** | DEPENDS_ON \u2192 BillingService | Billing-related reports fail or go stale. |\n\nNo other services depend on these two, so the outage doesn't spread any further.\n\n**What doesn't break**\n\nBillingService relies on these, but they keep running while it's down:\n- **PaymentsAPI** and **NotificationsAPI**: BillingService calls them. They'll just stop getting calls from it, so billing-triggered payments and notifications won't happen.\n- **OrderService** and **UserService**: BillingService depends on them. They aren't affected.\n- **BillingPostgresDatabase** and **OrdersPostgresDatabase**: BillingService writes to both. The databases stay up, but no new billing data gets written, which is probably why ReportingService's data would go stale.\n\n**Limits of this answer**\n- The graph only records CALLS and DEPENDS_ON links between services. Anything that reads BillingPostgresDatabase directly, without going through BillingService, wouldn't appear here. It would only see stale data, not an outage.\n- No configuration keys came up, because this question is about service dependencies, not config settings.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService"
+   }
+  }
+ ],
+ "input_tokens": 9190,
+ "output_tokens": 809
+}

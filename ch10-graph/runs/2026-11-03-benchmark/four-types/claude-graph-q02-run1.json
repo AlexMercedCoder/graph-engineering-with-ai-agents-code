@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 2,
+ "run": 1,
+ "answer": "The graph has no retry semantics recorded for **NotificationsAPI**. The only retry setting it holds belongs to a separate entity, **NotificationsService**, and the graph doesn't link the two.\n\n**What the graph says about NotificationsAPI**\n- **No retry or configuration data.** No configuration key is linked to it.\n- **It depends on nothing** within 2 hops.\n- **Callers:** **BillingService** and **PaymentsService** call it directly. **RenewalsWorker** and **ReportingService** depend on it indirectly through BillingService.\n\n**The retry setting the graph does hold**\n- **NotificationsService** retries **3 times with a 250ms backoff**. The configuration key **`RETRY_ATTEMPTS`** controls this, and NotificationsService is the only service that key affects.\n- NotificationsService stores data in **NotificationsRedisInstance**.\n- Nothing in the graph depends on NotificationsService. In particular, there is no edge between it and NotificationsAPI.\n\n**Caveat:** NotificationsService might be the service behind NotificationsAPI, which would make \"3 attempts, 250ms backoff\" the answer. But the graph doesn't record that link, so I can't confirm it from here. Also, the graph doesn't say whether the backoff is fixed or exponential, or which failures trigger a retry. To settle this, check the code or config for both, or add the missing link between NotificationsAPI and NotificationsService to the graph.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "retry"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "RETRY_ATTEMPTS"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  }
+ ],
+ "input_tokens": 14759,
+ "output_tokens": 972
+}

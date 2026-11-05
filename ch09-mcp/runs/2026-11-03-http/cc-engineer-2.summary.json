@@ -1,0 +1,116 @@
+{
+ "payloads": [
+  33141,
+  33840,
+  34142,
+  35109,
+  36101,
+  36366
+ ],
+ "requests": 6,
+ "input_total": 208699,
+ "first_request": 33141,
+ "tools": [
+  [
+   "ToolSearch",
+   "{\"query\": \"select:mcp__project-knowledge__lookup_error_code,mcp__project-knowledge__get_config_schema,mcp__project-knowledge__find_architecture_docs\", \"max_results\": 3}"
+  ],
+  [
+   "mcp__project-knowledge__lookup_error_code",
+   "{\"code\": \"E4021\"}"
+  ],
+  [
+   "mcp__project-knowledge__get_config_schema",
+   "{\"service\": \"payments\"}"
+  ],
+  [
+   "Grep",
+   "{\"pattern\": \"(?i)E4021|authoriz|capture|payments\", \"output_mode\": \"files_with_matches\"}"
+  ],
+  [
+   "mcp__project-knowledge__find_architecture_docs",
+   "{\"topic\": \"payments authorization hold expiry and capture timing\"}"
+  ],
+  [
+   "Bash",
+   "{\"command\": \"cd config && diff production/payments.conf staging/payments.conf; echo ---; cat staging/payments.conf\", \"description\": \"Compare staging and production payments config\"}"
+  ],
+  [
+   "Grep",
+   "{\"pattern\": \"(?i)CAPTURE_DELAY|AUTH_HOLD|MAX_CAPTURE|E4021|E5011\", \"path\": \"src\", \"output_mode\": \"content\"}"
+  ],
+  [
+   "Grep",
+   "{\"pattern\": \"(?i)CAPTURE_DELAY|AUTH_HOLD|E4021\", \"path\": \"<run-dir>/src\", \"output_mode\": \"content\"}"
+  ]
+ ],
+ "tool_result_chars": 3269,
+ "results": [
+  {
+   "chars": 263,
+   "error": false,
+   "head": "[{\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__lookup_error_code\"}, {\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__get_config_schema\"}, {\"type\": \"tool_reference\", \"tool_name\": \"mcp__project-knowledge__find_architecture_docs\"}]",
+   "has_0.82": false
+  },
+  {
+   "chars": 188,
+   "error": false,
+   "head": "{\"result\":\"E4021: Payment authorization expired\\nCause: The authorization hold lapsed before capture.\\nHandling: Re-authorize, then capture. Do not retry capture alone.\\nRetryable: False\"}",
+   "has_0.82": false
+  },
+  {
+   "chars": 57,
+   "error": true,
+   "head": "Insufficient scope: required \"knowledge:read schema:read\"",
+   "has_0.82": false
+  },
+  {
+   "chars": 174,
+   "error": false,
+   "head": "Found 7 files\n.mcp.json\nconfig/production/payments.conf\nconfig/staging/payments.conf\ntests/payment-service.test.js\nsrc/api/routes.js\nsrc/services/payment-service.js\nsrc/db.js",
+   "has_0.82": false
+  },
+  {
+   "chars": 1683,
+   "error": false,
+   "head": "{\"result\":\"## Authorization and capture\\nPayments authorizes when the order moves to pending and captures later, from the\\ncapture worker, CAPTURE_DELAY_MINUTES after authorization. The delay exists so that\\nan order edited within a few minutes of checkout can be re-authorized without a\\nrefund. The",
+   "has_0.82": false
+  },
+  {
+   "chars": 629,
+   "error": false,
+   "head": "1,2c1,2\n< # Non-secret production values. PAYMENT_API_KEY and WEBHOOK_SECRET come from the secrets manager.\n< PAYMENT_BASE_URL=https://api.payments.example.com\n---\n> # Non-secret staging values. PAYMENT_API_KEY and WEBHOOK_SECRET come from the secrets manager.\n> PAYMENT_BASE_URL=https://sandbox.paym",
+   "has_0.82": false
+  },
+  {
+   "chars": 259,
+   "error": true,
+   "head": "Path does not exist: src. Note: your current working directory is <run-dir>/config.",
+   "has_0.82": false
+  },
+  {
+   "chars": 16,
+   "error": false,
+   "head": "No matches found",
+   "has_0.82": false
+  }
+ ],
+ "final": "The likely problem is in `config/staging/payments.conf`: the authorization hold runs out before the capture worker gets to it.\n\n**What E4021 means:** \"Payment authorization expired.\" The provider's hold on the payment lapsed before it was captured. It can't be retried as is: the fix is to re-authorize and then capture. Retrying the capture alone won't work.\n\n**How capture timing works (from the architecture docs):** Payments authorizes when an order moves to pending. The capture worker then captures `CAPTURE_DELAY_MINUTES` after that. The provider holds the authorization for `AUTH_HOLD_MINUTES`, so if the delay is longer than the hold, every capture fails with E4021.\n\n**Staging vs production:**\n\n| Key | staging | production |\n|---|---|---|\n| `CAPTURE_DELAY_MINUTES` | 15 | 15 |\n| `AUTH_HOLD_MINUTES` | **10** | 60 |\n\nIn staging the worker waits 15 minutes but the hold lasts only 10, so every capture in staging should fail with E4021, not just some. Apart from the sandbox URL, `AUTH_HOLD_MINUTES` is the only difference between the two files.\n\n**Likely fix:** set `AUTH_HOLD_MINUTES` comfortably above `CAPTURE_DELAY_MINUTES` (for example, 60 to match production). It's also worth checking how long the sandbox provider actually holds authorizations. If it really releases them after 10 minutes, the config value may be accurate, and then `CAPTURE_DELAY_MINUTES` has to come down below 10 instead. Bumping the config number alone wouldn't help in that case.\n\n**Caveats:**\n- The config schema tool refused my request for lack of the `knowledge:read schema:read` scope. I couldn't confirm the keys' types, defaults, or whether there are rules between them, so this is based on the architecture docs and the two config files.\n- No source file in `src/` mentions `CAPTURE_DELAY`, `AUTH_HOLD` or `E4021` by name, so I couldn't check how the code reads these values.\n- I didn't edit any files.",
+ "init": {
+  "mcp_servers": [
+   {
+    "name": "project-knowledge",
+    "status": "connected",
+    "source": "dynamic"
+   }
+  ],
+  "mcp_tools": [
+   "mcp__project-knowledge__find_architecture_docs",
+   "mcp__project-knowledge__get_config_schema",
+   "mcp__project-knowledge__lookup_error_code"
+  ]
+ },
+ "diagnosis_correct": true,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

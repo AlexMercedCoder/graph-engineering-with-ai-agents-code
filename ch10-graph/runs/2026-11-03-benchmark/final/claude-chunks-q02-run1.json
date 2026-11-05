@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 2,
+ "run": 1,
+ "answer": "The NotificationsAPI makes **three delivery attempts with a 250 ms backoff**. The number of attempts is set by the **`RETRY_ATTEMPTS`** configuration key. If all three attempts fail, the message is dropped quietly and the caller is never told.\n\n**Components involved:**\n- **NotificationsService** provides the **NotificationsAPI**. Any service that sends email, SMS or push messages hands them to this API rather than calling a provider directly.\n- **notifications Redis instance**: messages wait here until a provider accepts them or they run out of retries.\n- **Dead-letter list**: a message that fails all three attempts is moved here.\n- **`RETRY_ATTEMPTS`**: the configuration key for the attempt count (currently 3).\n\n**Behaviour:**\n1. A message is queued in the notifications Redis instance.\n2. Delivery is tried up to 3 times, with a 250 ms backoff between tries.\n3. If a provider accepts the message, it leaves the queue.\n4. If all 3 attempts fail, the message moves to the dead-letter list. **The caller is not notified.** Callers that need confirmation have to poll the message status themselves.\n\n**Related behaviour:**\n- **PaymentsService** calls the NotificationsAPI when an authorization is declined. Because failures are silent, a decline notice can end up in the dead-letter list without PaymentsService ever finding out, unless it polls the message status.\n- **ApiGateway** does not retry failed upstream requests. It passes 5xx responses to the client unchanged, and the client library decides whether to retry. The NotificationsService retries happen inside that service, not at the gateway.\n\n**Gaps in the docs:** they don't say whether the 250 ms backoff is fixed or grows with each attempt. They also don't say whether the backoff can be configured; only `RETRY_ATTEMPTS` is named as a setting.\n\n*Sources: notifications-service (Overview, Delivery and retries, Data), payments-service (Integrations), api-gateway (Operations).*",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 8489,
+ "output_tokens": 837,
+ "cost_usd": 0.0446844
+}

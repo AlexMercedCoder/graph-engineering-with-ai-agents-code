@@ -1,0 +1,72 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 5,
+ "run": 1,
+ "answer": "I couldn\u2019t verify the capture-timeout configuration key or its default for **PaymentsService** with the available tools. The configuration tool requires an exact key name, and the candidate names I checked weren\u2019t found.\n\nThe dependency lookup identified **NotificationsAPI** and **PaymentsPostgresDatabase**, but provided no timeout configuration details.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.capture.timeout"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "PAYMENTS_CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payment.capture.timeout"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.capture.timeout.ms"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "PAYMENTS_CAPTURE_TIMEOUT_MS"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.captureTimeoutMs"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "CAPTURE_TIMEOUT_MS"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.capture_timeout_ms"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "PaymentsService.captureTimeout"
+   }
+  }
+ ],
+ "input_tokens": 10028,
+ "output_tokens": 316
+}

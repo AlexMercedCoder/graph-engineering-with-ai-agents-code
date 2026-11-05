@@ -1,0 +1,49 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 10,
+ "run": 2,
+ "answer": "I couldn't find the answer: the architecture graph doesn't show UserService using any configuration key for a read replica.\n\nWhat the graph does show:\n- **UserService** has one dependency: **UsersPostgresDatabase**, linked by a STORES relationship. This is the same at depth 2 and depth 4.\n- **UsersPostgresDatabase** has nothing depending on it within 2 hops. No read replica or second database appears anywhere.\n- I tried three likely key names and none of them exist in the graph: `USERS_DB_READ_REPLICA_URL`, `READ_REPLICA_URL` and `DATABASE_READ_REPLICA_URL`.\n\nThere may still be a read-replica key under a name I didn't guess. The configuration lookup only works if you give it an exact key name, and the dependency lookup doesn't include configuration links, so I can't list every key that applies to UserService. Either the graph doesn't record this key, or UserService doesn't have a separate read replica. If you know or suspect the key's name, give it to me and I'll check what it affects.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "USERS_DB_READ_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "READ_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UsersPostgresDatabase"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "DATABASE_READ_REPLICA_URL"
+   }
+  }
+ ],
+ "input_tokens": 19063,
+ "output_tokens": 842
+}

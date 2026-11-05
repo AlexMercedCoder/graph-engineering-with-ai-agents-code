@@ -1,0 +1,41 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 12,
+ "run": 1,
+ "answer": "**Two services are affected within two dependency hops of BillingService: RenewalsWorker and ReportingService.** No second-hop dependents are documented.\n\n| Hop | Service | Dependency and impact |\n|---|---|---|\n| 1 | **RenewalsWorker** | Explicitly depends on **BillingService**. Its scheduled subscription re-billing cannot complete normally while BillingService is unavailable. |\n| 1 | **ReportingService** | Depends on **BillingService** for invoice totals. Reports are computed on request; failed report generation shows an error page and has no retries. |\n| 2 | **None documented** | The documentation identifies no services that depend on or call an API belonging to RenewalsWorker or ReportingService. |\n\nSources: `renewals-worker#Integrations`, `reporting-service#Integrations`, `reporting-service#Data`, and `reporting-service#Operations`.\n\nDependency direction matters: **OrderService** and **NotificationsAPI** are dependencies *of* BillingService, so they are not downstream outage dependents. **PaymentsAPI** is called by RenewalsWorker, but that does not make it dependent on RenewalsWorker. **PaymentsService** sharing a team with BillingService also does not establish a runtime dependency.\n\n**Count: 2 affected services, excluding BillingService itself.** No database or configuration key participates in the documented two-hop dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "BillingService dependents services call BillingService API dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"BillingAPI\" \"BillingService\" callers depends",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"RenewalsWorker\" \"ReportingService\" depends integrations",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "services depend on ReportingService RenewalsWorker ReportingAPI RenewalsAPI",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 7499,
+ "output_tokens": 429,
+ "cost_usd": null
+}

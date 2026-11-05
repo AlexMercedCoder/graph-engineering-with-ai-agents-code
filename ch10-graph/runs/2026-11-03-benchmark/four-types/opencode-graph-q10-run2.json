@@ -1,0 +1,56 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 10,
+ "run": 2,
+ "answer": "I couldn\u2019t verify the read-replica configuration key with the available tools. The graph confirms that **UserService** stores data in **UsersPostgresDatabase**, but it doesn\u2019t expose the configuration key for that database\u2019s read replica.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UsersPostgresDatabase",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "*"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "USER_DB_READ_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "USER_DB_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "USERS_DB_READ_REPLICA_URL"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "USER_SERVICE_READ_REPLICA_URL"
+   }
+  }
+ ],
+ "input_tokens": 8526,
+ "output_tokens": 244
+}

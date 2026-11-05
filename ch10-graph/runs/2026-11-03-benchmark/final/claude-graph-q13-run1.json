@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 13,
+ "run": 1,
+ "answer": "Within two hops, OrderService needs **8 things to run**: 2 services (plus the API it calls on one of them), 1 more API and service one hop further out, and 3 databases. I got this from one dependency query at depth 2. It returned 8 results, under the 25-result cap, so nothing was cut off.\n\n**Hop 1: what OrderService uses directly**\n- **PaymentsAPI**, which it calls. **PaymentsService** serves it, and the tool counts an API and the service behind it as the same hop.\n- **UserService**, which it depends on.\n- **OrdersPostgresDatabase**, where it stores data.\n\n**Hop 2: what those need**\n- **PaymentsService** (behind PaymentsAPI):\n  - calls **NotificationsAPI**, which **NotificationsService** serves\n  - stores data in **PaymentsPostgresDatabase**\n- **UserService**:\n  - stores data in **UsersPostgresDatabase**\n  - doesn't call any APIs or depend on other services within this range\n- **OrdersPostgresDatabase**: has no further dependencies.\n\n**Totals by type**\n- **APIs (2):** PaymentsAPI, NotificationsAPI\n- **Services (3):** PaymentsService, UserService, NotificationsService\n- **Databases (3):** OrdersPostgresDatabase, PaymentsPostgresDatabase, UsersPostgresDatabase\n\n**Not covered:** I didn't look up configuration keys. The dependency query doesn't follow configuration links, and the question only asked about APIs, services and databases. I also didn't look beyond two hops, so I don't know what NotificationsService itself needs.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9527,
+ "output_tokens": 764,
+ "cost_usd": 0.043322799999999995
+}

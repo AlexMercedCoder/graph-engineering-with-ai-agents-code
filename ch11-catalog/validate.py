@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
-"""Lineage validation for Chapter 11: the four checks, and a useful rejection.
+"""The Chapter 11 semantic layer: navigation, resolution, compilation, and the
+four lineage checks, with rejections that name the nearest valid alternative.
 
-Every helper the chapter's listings call is real here: catalog.search,
-catalog.resolve, compile_to_sql, and format_rejection.
+Every helper the chapter's listings call is defined here: Catalog.search,
+Catalog.resolve, Catalog.validate, compile_to_sql, and format_rejection.
 
     python3 validate.py --list
-    python3 validate.py --metric net_written_premium --dimensions region --range 2026-Q1
-    python3 validate.py --metric net_written_premium --dimensions claim_severity --range 2026-Q1
+    python3 validate.py --metric net_written_premium --dimensions region --range 2026-Q3
+    python3 validate.py --metric net_written_premium --dimensions claim_severity
     python3 validate.py --sql "SELECT region FROM analytics.fct_premiums"
+    python3 validate.py --sql-file query.sql
 
-Requires PyYAML (pip install pyyaml). Everything else is standard library.
+Set CATALOG_IDENTITY (analyst, emea-analyst, finance) to see the catalog as that
+identity sees it. Requires PyYAML; everything else is standard library.
 """
 import argparse
 import difflib
+import os
 import re
 import sys
 from pathlib import Path
@@ -23,133 +27,216 @@ except ImportError:
     sys.exit("This script needs PyYAML:  pip install pyyaml")
 
 HERE = Path(__file__).resolve().parent
-REVISION = "2026-08-12"
+IDENTITIES = {"analyst", "emea-analyst", "finance"}
+SQL_WORDS = {"where", "on", "join", "left", "right", "inner", "outer", "cross", "group",
+             "order", "limit", "using", "natural", "full", "union", "having", "as", "select"}
+
+
+def current_identity():
+    return os.environ.get("CATALOG_IDENTITY", "analyst")
 
 
 class Catalog:
-    def __init__(self, path=HERE / "catalog.yaml"):
-        self.doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-        self.revision = REVISION
-        self.datasets = {d["name"]: d for d in self.doc["datasets"]}
-        self.metrics = {m["name"]: m for m in self.doc["metrics"]}
-        self.rels = self.doc["relationships"]
+    """The catalog as one identity sees it. Unknown identities see nothing."""
+
+    def __init__(self, path=HERE / "catalog.yaml", identity=None):
+        self.doc = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        self.identity = identity or current_identity()
+        self.revision = str(self.doc["revision"])
+        known = self.identity in IDENTITIES
+        visible = lambda obj: known and (not obj.get("access") or self.identity in obj["access"])
+        self.datasets = {d["name"]: d for d in self.doc["datasets"] if visible(d)}
+        self.metrics = {m["name"]: m for m in self.doc["metrics"] if visible(m)}
+        self.dims = {d["name"]: d for d in self.doc["dimensions"] if d["dataset"] in self.datasets}
+        self.rels = [r for r in self.doc["relationships"]
+                     if r["from"] in self.datasets and r["to"] in self.datasets]
+        self.not_modelled = self.doc.get("not_modelled", [])
 
     # --- navigation -------------------------------------------------------
-    def groups(self):
-        return sorted({m["owner"] for m in self.metrics.values()})
-
     def search(self, concept="", entity=""):
-        term = (concept or entity or "").lower()
+        """Metrics whose name, label, description, or synonyms match the concept."""
+        term = (concept or entity or "").lower().strip()
         syn = self.doc.get("ai_context", {}).get("synonyms", {})
         hits = []
         for name, m in self.metrics.items():
-            haystack = " ".join([name, m["label"], m["description"],
-                                 *syn.get(name, [])]).lower()
-            if not term or term in haystack:
+            phrases = [name.replace("_", " "), m["label"].lower(),
+                       *[s.lower() for s in syn.get(name, [])]]
+            if (not term or any(p in term for p in phrases)
+                    or term in " ".join(phrases + [m["description"].lower()])):
                 hits.append(m)
         return hits
 
-    def dimensions_for(self, metric):
-        return self.metrics[metric]["dimensions"]
-
     def columns(self, table):
-        return {f["name"] for f in self.datasets[table]["fields"]} if table in self.datasets else set()
+        ds = self.datasets.get(table)
+        return {f["name"] for f in ds["fields"]} if ds else set()
 
-    def dimension_source(self, dim):
-        """Which dataset carries a dimension, and how it is reached."""
-        for name, ds in self.datasets.items():
-            if dim in self.columns(name):
-                if name == "fct_policy_premium":
-                    return name, None
-                rel = next((r for r in self.rels if r["to"] == name), None)
-                return name, rel
-        return None, None
-
-    # --- resolution -------------------------------------------------------
+    # --- resolution: a structured request becomes a plan or a rejection ----
     def resolve(self, metric, dimensions, time_range, filters=None):
         errors = []
         if metric not in self.metrics:
-            near = difflib.get_close_matches(metric, self.metrics, n=2)
+            near = difflib.get_close_matches(metric, list(self.metrics), n=2, cutoff=0.4)
             errors.append(("metric", metric, near or sorted(self.metrics)))
-            return Plan(None, [], time_range, errors, self)
-        valid = self.dimensions_for(metric)
-        for d in dimensions:
-            if d not in valid:
-                near = difflib.get_close_matches(d, valid, n=2)
-                errors.append(("dimension", d, near or valid))
-        return Plan(self.metrics[metric], dimensions, time_range, errors, self)
+            return Plan(None, [], None, {}, errors, self)
+        m = self.metrics[metric]
+        for d in list(dimensions) + list((filters or {}).keys()):
+            if d not in m["dimensions"]:
+                near = difflib.get_close_matches(d, m["dimensions"], n=2, cutoff=0.4)
+                errors.append(("dimension", d, near or m["dimensions"], f"valid for {metric}"))
+        span = parse_time_range(time_range)
+        if span is None:
+            errors.append(("time range", time_range,
+                           ["2026-Q3", "2026", "2026-03", "2026-01..2026-06"],
+                           f"{metric} has {m['grain']} grain, so give whole months"))
+        return Plan(m, list(dimensions), span, dict(filters or {}), errors, self)
 
-    # --- the four checks over raw SQL ------------------------------------
+    # --- the four checks over SQL ----------------------------------------
     def validate(self, sql):
+        """Table resolution, column resolution, join validity, metric lineage and grain."""
         problems = []
-        tables = set(re.findall(r"(?:FROM|JOIN)\s+([\w.]+)", sql, re.I))
-        known = set(self.datasets)
-        for t in tables:
-            bare = t.split(".")[-1]
-            if bare not in known:
-                near = difflib.get_close_matches(bare, known, n=1)
-                problems.append(f"Table `{t}` does not exist."
+        body = re.sub(r"--[^\n]*", "", re.sub(r"'[^']*'", "''", sql))
+        body = re.sub(r'["`\[\]]', "", body)   # "quoted", `quoted`, and [quoted] identifiers
+        # 1. table resolution, over FROM lists (including comma joins) and JOINs
+        refs = re.findall(r"\bJOIN\s+([\w.]+)(?:\s+(?:AS\s+)?(\w+))?", body, re.I)
+        for clause in re.findall(r"\bFROM\s+(.+?)(?=\b(?:WHERE|GROUP|ORDER|LIMIT|HAVING|UNION|"
+                                 r"JOIN|LEFT|RIGHT|INNER|FULL|CROSS|NATURAL)\b|\)|;|$)", body, re.I | re.S):
+            for item in clause.split(","):
+                m = re.match(r"\s*([\w.]+)(?:\s+(?:AS\s+)?(\w+))?", item, re.I)
+                if m and not item.strip().startswith("("):
+                    refs.append((m[1], m[2] or ""))
+        aliases = {}
+        for table, alias in refs:
+            bare = table.split(".")[-1]
+            aliases[bare] = bare
+            if alias and alias.lower() not in SQL_WORDS:
+                aliases[alias] = bare
+            if bare not in self.datasets:
+                near = difflib.get_close_matches(bare, list(self.datasets), n=1, cutoff=0.5)
+                problems.append(f"Table `{table}` does not exist in the catalog."
                                 + (f"\n   Nearest match: `analytics.{near[0]}`." if near else ""))
-        for qualified in re.findall(r"\b(\w+)\.(\w+)\b", sql):
-            tbl, col = qualified
-            if tbl in known and col not in self.columns(tbl):
-                owner, rel = self.dimension_source(col)
-                extra = ""
+        # 2. column resolution, for every qualified reference
+        for ref, col in sorted(set(re.findall(r"\b(\w+)\.(\w+)\b", body))):
+            table = aliases.get(ref)
+            if table in self.datasets and col not in self.columns(table):
+                owner = next((d for d in self.dims.values() if d.get("column") == col), None)
+                hint = ""
                 if owner:
-                    extra = (f"\n   It is a dimension reachable through `{owner}`"
-                             + (f", joined on `{rel['on']}`." if rel else "."))
-                problems.append(f"Column `{col}` is not on `{tbl}`.{extra}")
-        for a, ca, b, cb in re.findall(r"(\w+)\.(\w+)\s*=\s*(\w+)\.(\w+)", sql):
-            if a in known and b in known:
-                ok = any({r["from"], r["to"]} == {a, b} and r["on"] in (ca, cb) for r in self.rels)
-                if not ok:
-                    declared = [f"{r['to']} ({r['on']})" for r in self.rels if r["from"] == a]
-                    problems.append(f"Join `{a}.{ca} = {b}.{cb}` is not a declared relationship."
-                                    f"\n   Declared joins from {a}: {', '.join(declared) or 'none'}.")
+                    via = next((r for r in self.rels if r["name"] == owner.get("via")), None)
+                    hint = (f"\n   It is a dimension on `{owner['dataset']}`"
+                            + (f", joined on `{via['on']}`." if via else "."))
+                problems.append(f"Column `{col}` is not on `{table}`.{hint}")
+        # 3. join validity
+        for a, ca, b, cb in re.findall(r"\b(\w+)\.(\w+)\s*=\s*(\w+)\.(\w+)", body):
+            ta, tb = aliases.get(a), aliases.get(b)
+            if ta in self.datasets and tb in self.datasets:
+                if not any({r["from"], r["to"]} == {ta, tb} and ca == cb == r["on"] for r in self.rels):
+                    declared = [f"{r['to']} ({r['on']})" for r in self.rels if r["from"] == ta]
+                    problems.append(f"Join `{ta}.{ca} = {tb}.{cb}` is not a declared relationship."
+                                    f"\n   Declared joins from {ta}: {', '.join(declared) or 'none'}.")
+        # 4. metric lineage and grain, for any output column named after a metric
+        norm = re.sub(r"\s+", " ", re.sub(r"--[^\n]*", "", sql)).lower()
+        for expr, name in re.findall(r"(?:SELECT|,)\s*([^,]+?)\s+AS\s+(\w+)", body, re.I | re.S):
+            m = self.metrics.get(name)
+            if not m:
+                continue
+            allowed = {c.split(".")[1] for c in m["lineage"]}
+            used = set(re.findall(r"\b(\w+)\b", expr)) & self.columns(m["bindings"]["table"])
+            for c in sorted(used - allowed):
+                problems.append(f"`{name}` is computed from `{c}`, which is not in its lineage."
+                                f"\n   Declared lineage: {', '.join(m['lineage'])}.")
+            for f in m["bindings"]["filters"]:
+                col, rest = f.split(" ", 1)
+                if not re.search(rf"\b{col}\s*{re.escape(rest.lower())}", norm):
+                    problems.append(f"`{name}` requires the filter `{f}`, and this query does not apply it.")
+            group = re.search(r"GROUP BY (.+?)(?:ORDER BY|LIMIT|$)", body, re.I | re.S)
+            if group and re.search(rf"(?:^|[\s,.]){m['time']}\b(?!\s*\))", group.group(1)):
+                problems.append(f"`{name}` has {m['grain']} grain, and this query groups by "
+                                f"`{m['time']}`, a day.\n   Group by the month instead: "
+                                f"strftime('%Y-%m', {m['time']}).")
         return Result(problems)
 
 
 class Result:
     def __init__(self, problems):
         self.problems = problems
+
     @property
     def ok(self):
         return not self.problems
 
 
 class Plan:
-    def __init__(self, metric, dimensions, time_range, errors, catalog):
-        self.metric, self.dimensions, self.time_range = metric, dimensions, time_range
+    def __init__(self, metric, dimensions, span, filters, errors, catalog):
+        self.metric, self.dimensions, self.span, self.filters = metric, dimensions, span, filters
         self.errors, self.catalog = errors, catalog
+
+
+def parse_time_range(text):
+    """Whole months only: 2026, 2026-Q3, 2026-03, or 2026-01..2026-06."""
+    t = (text or "").strip()
+    if m := re.fullmatch(r"(\d{4})", t):
+        return f"{m[1]}-01-01", f"{int(m[1]) + 1}-01-01"
+    if m := re.fullmatch(r"(\d{4})-Q([1-4])", t, re.I):
+        y, q = int(m[1]), int(m[2])
+        return _month(y, 3 * q - 2), _month(y, 3 * q + 1)
+    if m := re.fullmatch(r"(\d{4})-(\d{2})", t):
+        return _month(int(m[1]), int(m[2])), _month(int(m[1]), int(m[2]) + 1)
+    if m := re.fullmatch(r"(\d{4})-(\d{2})\.\.(\d{4})-(\d{2})", t):
+        return _month(int(m[1]), int(m[2])), _month(int(m[3]), int(m[4]) + 1)
+    return None
+
+
+def _month(y, mo):
+    y, mo = y + (mo - 1) // 12, (mo - 1) % 12 + 1
+    return f"{y}-{mo:02d}-01"
 
 
 def format_rejection(errors):
     lines = [f"Rejected: {len(errors)} problem{'s' if len(errors) != 1 else ''}.", ""]
-    for i, (kind, value, near) in enumerate(errors, 1):
-        lines.append(f"{i}. Unknown {kind} `{value}`.")
+    for i, (kind, value, near, *why) in enumerate(errors, 1):
+        if kind == "metric":
+            lines.append(f"{i}. Unknown metric `{value}`.")
+        elif kind == "dimension":
+            lines.append(f"{i}. `{value}` is not a dimension {why[0]}.")
+        else:
+            lines.append(f"{i}. `{value}` is not a valid {kind}: {why[0]}.")
         lines.append(f"   Valid {kind}s: {', '.join(near)}.")
     return "\n".join(lines)
 
 
 def compile_to_sql(plan):
+    """Deterministic SQL from a resolved plan. The agent never writes any of this."""
     m, cat = plan.metric, plan.catalog
     base = m["bindings"]["table"]
-    selects, joins = [], []
+    alias = {base: "f"}
+    selects, joins, group, where = [], [], [], []
+
+    def ref(dim):
+        d = cat.dims[dim]
+        if d["dataset"] not in alias:
+            rel = next(r for r in cat.rels if r["name"] == d["via"])
+            alias[d["dataset"]] = d["dataset"].split("_", 1)[1][0]
+            joins.append(f"JOIN analytics.{d['dataset']} AS {alias[d['dataset']]} "
+                         f"ON f.{rel['on']} = {alias[d['dataset']]}.{rel['on']}")
+        if "expression" in d:
+            return re.sub(r"\b(\w+_dt)\b", r"f.\1", d["expression"])
+        return f"{alias[d['dataset']]}.{d['column']}"
+
     for d in plan.dimensions:
-        owner, rel = cat.dimension_source(d)
-        if owner and owner != base:
-            joins.append(f"JOIN analytics.{owner} ON analytics.{base}.{rel['on']} = analytics.{owner}.{rel['on']}")
-            selects.append(f"analytics.{owner}.{d}")
-        else:
-            selects.append(f"analytics.{base}.{d}")
-    where = list(m["bindings"].get("filters", []))
-    where.append(f"eff_dt IN ({plan.time_range})")
-    sql = (f"SELECT {', '.join(selects + [m['expression'] + ' AS ' + m['name']])}\n"
-           f"FROM analytics.{base}\n"
-           + ("".join(f"{j}\n" for j in dict.fromkeys(joins)))
-           + f"WHERE {' AND '.join(where)}\n"
-           + (f"GROUP BY {', '.join(selects)}" if selects else ""))
-    return sql.strip()
+        selects.append(f"{ref(d)} AS {d}")
+        group.append(ref(d))
+    measure = m["expression"]
+    if "SUM(" in measure:
+        measure = f"ROUND({measure}, 2)"
+    selects.append(f"{measure} AS {m['name']}")
+    where += [f"f.{f}" for f in m["bindings"]["filters"]]
+    where.append(f"f.{m['time']} >= '{plan.span[0]}' AND f.{m['time']} < '{plan.span[1]}'")
+    for dim, value in plan.filters.items():
+        where.append(f"{ref(dim)} = '{str(value).replace(chr(39), chr(39) * 2)}'")
+    return (f"SELECT {(','+chr(10)+'       ').join(selects)}\n"
+            f"FROM analytics.{base} AS f\n"
+            + "".join(f"{j}\n" for j in joins)
+            + f"WHERE {' AND '.join(where)}"
+            + (f"\nGROUP BY {', '.join(group)}\nORDER BY {', '.join(group)}" if group else ""))
 
 
 def main():
@@ -157,8 +244,9 @@ def main():
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--metric")
     ap.add_argument("--dimensions", default="")
-    ap.add_argument("--range", dest="rng", default="2026-Q1")
+    ap.add_argument("--range", dest="rng", default="2026-Q3")
     ap.add_argument("--sql")
+    ap.add_argument("--sql-file")
     a = ap.parse_args()
     cat = Catalog()
 
@@ -168,17 +256,17 @@ def main():
             print(f"  {m['description']}")
             print(f"  dimensions: {', '.join(m['dimensions'])}\n")
         print("Not modelled, and therefore refused rather than guessed:")
-        print("  reinsurance recoveries, loss ratio, claim severity")
+        print(f"  {', '.join(cat.not_modelled)}")
         return 0
 
-    if a.sql:
-        res = cat.validate(a.sql)
+    if a.sql or a.sql_file:
+        sql = a.sql or Path(a.sql_file).read_text(encoding="utf-8")
+        res = cat.validate(sql)
         if res.ok:
             print(f"Valid against catalog revision {cat.revision}.")
             return 0
         print(f"Rejected: {len(res.problems)} problem{'s' if len(res.problems) != 1 else ''}.\n")
-        for i, p in enumerate(res.problems, 1):
-            print(f"{i}. {p}")
+        print("\n\n".join(f"{i}. {p}" for i, p in enumerate(res.problems, 1)))
         return 1
 
     if not a.metric:

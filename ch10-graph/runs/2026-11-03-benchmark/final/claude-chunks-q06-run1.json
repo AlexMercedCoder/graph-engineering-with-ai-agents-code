@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 6,
+ "run": 1,
+ "answer": "AuditService depends on **UserService** for identity resolution. Each audit record stores the resolved user, not the raw session token (`audit-service#Integrations`).\n\n**What's involved:**\n\n- **AuditService** records every governed data access: the caller, the dataset, the columns returned and the policy decision. It writes these records to the **audit Iceberg table**, which is append-only and kept for seven years.\n- **UserService** owns user records and checks the session tokens that **ApiGateway** passes on. It exposes the **UsersAPI**. The docs don't say whether AuditService calls the UsersAPI or connects some other way. They only say it depends on UserService.\n- **users Postgres database** is where UserService stores users. Deleting a user keeps their row and adds a deletion timestamp, so older audit records can still be traced to a user.\n- **`ORDER_DB_URL`** is the setting UserService uses to reach its read replica. Despite the name, it doesn't point to an orders database. The name is left over from the past and was kept because three deployment scripts read it.\n\n**Things to watch for:**\n\n- **Revoked tokens:** UserService caches token-check results for 60 seconds. If a token is revoked within that window, it's still accepted until the cache entry expires, so an audit record could still name that user (`user-service#Operations`).\n- **Shared dependency:** ApiGateway also relies on UserService to check tokens. If UserService goes down, it affects both the gateway and audit logging.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "AuditService identity resolution dependency",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UsersAPI session token validation gateway UserService database",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 13257,
+ "output_tokens": 755,
+ "cost_usd": 0.046985200000000005
+}

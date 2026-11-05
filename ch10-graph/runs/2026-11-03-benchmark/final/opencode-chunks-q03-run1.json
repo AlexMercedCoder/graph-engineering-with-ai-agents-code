@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 3,
+ "run": 1,
+ "answer": "**OrderService uses the `orders` PostgreSQL database** to store orders and their line items.\n\nSource: `order-service#Data`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService database",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2310,
+ "output_tokens": 57,
+ "cost_usd": null
+}

@@ -1,0 +1,34 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 15,
+ "run": 2,
+ "answer": "**Six distinct services are affected within two hops of UserService**, following dependencies and API calls from the failed service to its consumers.\n\n### Hop 1: Direct consumers of UserService\n\n| Service | Dependency path |\n|---|---|\n| **OrderService** | Depends on **UserService** to resolve the ordering customer. |\n| **AuditService** | Depends on **UserService** for identity resolution. |\n| **ApiGateway** | Calls **UsersAPI**, exposed by **UserService**, and depends on UserService for token validation. |\n\nSources: `order-service#Integrations`, `audit-service#Integrations`, `api-gateway#Integrations`, `user-service#Overview`.\n\n### Hop 2: Consumers of those services\n\n| Service | Dependency path |\n|---|---|\n| **BillingService** | Depends on **OrderService** for line items \u2192 UserService. |\n| **SearchService** | Depends on **OrderService** and reads order changes every minute \u2192 UserService. |\n| **ReportingService** | Depends on **OrderService** for order status \u2192 UserService. |\n\n**ApiGateway** also calls **OrdersAPI**, exposed by **OrderService**, giving it a two-hop path to UserService. It is already counted at hop 1.\n\nSources: `billing-service#Integrations`, `search-service#Integrations`, `reporting-service#Integrations`, `api-gateway#Integrations`, `order-service#Overview`.\n\n**Total: 3 direct + 3 additional indirect = 6 affected services**, excluding UserService itself. These are documented dependency exposure paths; the extent of disruption depends on which operations need the unavailable service. No database or configuration key is involved in determining these paths.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService dependent services calls API dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "services integrations depends on OrderService AuditService ApiGateway UsersAPI OrdersAPI calls",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "AuditService ApiGateway exposes API dependent calls AuditAPI GatewayAPI UsersAPI integrations services",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 6772,
+ "output_tokens": 460,
+ "cost_usd": null
+}

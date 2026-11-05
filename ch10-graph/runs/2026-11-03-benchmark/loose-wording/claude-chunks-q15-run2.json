@@ -1,0 +1,40 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 15,
+ "run": 2,
+ "answer": "Changing token validation in UserService reaches one service directly: ApiGateway. At the second hop it reaches every public client and endpoint, because all outside traffic goes through the gateway. The docs don't name any internal service that depends on ApiGateway itself.\n\n**What changes.** UserService (`user-service#Overview`) exposes the **UsersAPI** and validates the session tokens that the gateway forwards. Validation results are cached for **60 seconds**, so a revoked token keeps working until its cache entry expires (`user-service#Operations`). That cache is part of what you'd be changing, and a change to its time-to-live or how it's cleared affects everything below. UserService stores users in the **users Postgres database**, and its read replica is configured through **`ORDER_DB_URL`** (the old name stays because three deployment scripts read it). Token validation probably doesn't touch either one, but they are the service's data and config.\n\n**Hop 1: ApiGateway** (`api-gateway#Integrations`)\n- It calls the **UsersAPI** and relies on UserService to validate tokens, rejecting expired tokens at the edge before any service sees the request.\n- It also calls the **OrdersAPI**, which is how a validation change reaches order traffic.\n- It doesn't retry failed upstream requests. If validation starts returning 5xx errors, they go straight to clients, and the client library decides whether to retry.\n- **`GATEWAY_RATE_LIMITS`** is read at startup. Token validation doesn't use it, but any gateway change made alongside it needs a rolling restart.\n\n**Hop 2: through ApiGateway**\n- **Every public endpoint and client.** Clients never call a service directly (`api-gateway#Overview`), so a validation bug or rejection change hits all outside traffic, including requests going to **OrderService** through the OrdersAPI.\n- **SearchService** has no code dependency here. It shares ApiGateway's on-call rotation, though, so the same people handle incidents for both.\n\n**Nearby, but not on the token path.** Two services depend on UserService for *identity resolution* rather than token validation. They're affected only if your change also alters how users are resolved:\n- **AuditService** stores the resolved user, not the raw token, in the append-only **audit Iceberg table**.\n- **OrderService** resolves the ordering customer through UserService. If you treat that as hop 1, hop 2 adds **SearchService** (reads order changes every minute), **BillingService** (line items) and **ReportingService** (order status).\n\nOverall, the hard blast radius is ApiGateway and all public traffic behind it, with the 60-second cache as the main thing to watch. AuditService, OrderService and the services behind OrderService are only at risk if identity resolution changes as well.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService token validation",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that depend on UserService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on ApiGateway, calls through the gateway",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on AuditService",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 15989,
+ "output_tokens": 1526
+}

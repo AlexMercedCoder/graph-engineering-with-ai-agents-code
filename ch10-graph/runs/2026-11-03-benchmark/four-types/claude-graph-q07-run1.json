@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 7,
+ "run": 1,
+ "answer": "SearchService keeps its index in **SearchOpensearchCluster**. In the dependency graph, that's the only thing SearchService connects to directly with a STORES relationship.\n\nWhat the graph shows:\n\n- **Direct dependencies (depth 1):**\n  - **SearchOpensearchCluster** (STORES): where the index is kept.\n  - **OrderService** (DEPENDS_ON): a service SearchService relies on, probably for the order data it indexes. It isn't storage.\n- **Indirect dependencies (depth 2),** which only appear when the search goes one level further:\n  - **OrdersPostgresDatabase** (STORES)\n  - **PaymentsAPI** (CALLS)\n  - **UserService** (DEPENDS_ON)\n\nThe graph doesn't say which service each indirect link starts from. Most likely OrderService is the one that stores data in OrdersPostgresDatabase, not SearchService, so that database isn't where the index lives.\n\nThe graph also can't show which index names or settings SearchService uses. No configuration keys came up, because I would need a specific key name to look one up.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "SearchService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "SearchService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 13699,
+ "output_tokens": 602
+}

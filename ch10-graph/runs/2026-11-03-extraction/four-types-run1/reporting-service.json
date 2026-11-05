@@ -1,0 +1,41 @@
+{
+ "doc": "reporting-service.md",
+ "sha256": "1f8f8c3ff27c35b345067e635f867ed53fa8f15f16117ff23b6ccc8d67f818cf",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:11:49+00:00",
+ "usage": {
+  "input_tokens": 3398,
+  "output_tokens": 210,
+  "cost_usd": 0.0131569
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "ReportingService",
+    "type": "Service"
+   },
+   {
+    "name": "BillingService",
+    "type": "Service"
+   },
+   {
+    "name": "OrderService",
+    "type": "Service"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "ReportingService",
+    "type": "DEPENDS_ON",
+    "target": "BillingService",
+    "sentence": "It depends on BillingService for invoice totals and on OrderService for order status."
+   },
+   {
+    "source": "ReportingService",
+    "type": "DEPENDS_ON",
+    "target": "OrderService",
+    "sentence": "It depends on BillingService for invoice totals and on OrderService for order status."
+   }
+  ]
+ }
+}

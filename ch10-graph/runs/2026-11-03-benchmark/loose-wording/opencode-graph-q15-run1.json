@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 15,
+ "run": 1,
+ "answer": "Changing **UserService token validation** has a potential blast radius of **8 entities within two hops**, according to the dependency graph.\n\n| Distance | Affected entity | Connection to UserService |\n|---|---|---|\n| 1 hop | **ApiGateway** | Depends directly on UserService |\n| 1 hop | **AuditService** | Depends directly on UserService |\n| 1 hop | **OrderService** | Depends directly on UserService |\n| 1 hop | **UsersAPI** | Exposed by UserService |\n| 2 hops | **BillingService** | Depends on OrderService, which depends on UserService |\n| 2 hops | **ReportingService** | Depends on OrderService, which depends on UserService |\n| 2 hops | **SearchService** | Depends on OrderService, which depends on UserService |\n| 2 hops | **OrdersAPI** | Exposed by OrderService, which depends on UserService |\n\n**Summary:** The change originates in **UserService**, potentially affects **ApiGateway, AuditService, and OrderService** directly, and reaches **BillingService, ReportingService, and SearchService** through OrderService. The API surfaces involved are **UsersAPI** and **OrdersAPI**.\n\nNo databases or configuration keys were identified in this two-hop blast-radius result. These are potential impacts based on architectural relationships; the graph does not establish which dependents specifically exercise token validation.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2725,
+ "output_tokens": 321
+}

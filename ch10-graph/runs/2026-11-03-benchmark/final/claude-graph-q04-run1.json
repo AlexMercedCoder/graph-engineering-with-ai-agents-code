@@ -1,0 +1,26 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 4,
+ "run": 1,
+ "answer": "**AuditService stores its records in `AuditIcebergTable`.** The graph has a direct `AuditService -STORES-> AuditIcebergTable` relationship.\n\nOther things the lookup turned up:\n- **UserService:** AuditService also has a `DEPENDS_ON` relationship with UserService. That's a runtime dependency, not a place where records are stored.\n- **Configuration keys:** The graph has no configuration keys linked to AuditService through a `CONFIGURES` relationship. So nothing recorded there sets the table's name or location.\n\nEntities involved: **AuditService** (service), **AuditIcebergTable** (storage) and **UserService** (dependency, not storage).",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  }
+ ],
+ "input_tokens": 9250,
+ "output_tokens": 397,
+ "cost_usd": 0.0341334
+}

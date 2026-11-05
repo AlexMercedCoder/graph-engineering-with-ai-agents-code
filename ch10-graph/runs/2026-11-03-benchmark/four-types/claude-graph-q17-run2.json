@@ -1,0 +1,31 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 17,
+ "run": 2,
+ "answer": "Four services would be affected: three depend on OrderService directly, and one more is affected through BillingService. I searched the dependency graph up to 4 hops back from OrderService.\n\n**Direct dependents** (each has a `DEPENDS_ON` link to OrderService):\n1. **BillingService**: BillingService \u2192 OrderService\n2. **ReportingService**: ReportingService \u2192 OrderService\n3. **SearchService**: SearchService \u2192 OrderService\n\n**Indirect dependent** (through BillingService):\n4. **RenewalsWorker**: RenewalsWorker \u2192 BillingService \u2192 OrderService\n\nNothing else depends on ReportingService or SearchService, so the impact ends there. RenewalsWorker is the only service affected at the second level.\n\n**What to watch:**\n- **RenewalsWorker** is affected only if BillingService passes the new line-item format on to it, for example in invoice or renewal data. If BillingService fully converts the new format before passing data on, RenewalsWorker may be fine. Check that boundary in particular.\n- **The graph doesn't record which services actually read line items.** It only shows that these services depend on OrderService. BillingService (invoicing) and ReportingService (aggregates) very likely read them. SearchService probably does too if it indexes order contents. Check how each one uses the data.\n\n**Not affected**, but useful context: OrderService itself calls PaymentsAPI, depends on UserService, and stores data in OrdersPostgresDatabase and UsersPostgresDatabase. These are things OrderService relies on, so they aren't affected. The exception is the **OrdersPostgresDatabase** schema: if line items are stored there and the stored format changes too, you'll need a migration. Any service that reads that database directly would also be affected, and the graph didn't show any.\n\n**Configuration:** I found no configuration key for the line-item format; there's no key named `line_item_format`. So no config-driven services are involved, as far as the graph shows.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "line_item_format"
+   }
+  }
+ ],
+ "input_tokens": 14237,
+ "output_tokens": 912
+}

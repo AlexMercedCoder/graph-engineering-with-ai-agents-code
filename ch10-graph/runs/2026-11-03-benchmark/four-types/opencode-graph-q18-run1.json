@@ -1,0 +1,47 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 18,
+ "run": 1,
+ "answer": "**ReportingService directly depends on BillingService and OrderService.** Its full dependency tree, down to the databases, is:\n\n```text\nReportingService\n\u251c\u2500\u2500 DEPENDS_ON \u2192 BillingService\n\u2502   \u251c\u2500\u2500 STORES \u2192 BillingPostgresDatabase\n\u2502   \u251c\u2500\u2500 CALLS \u2192 NotificationsAPI\n\u2502   \u2514\u2500\u2500 DEPENDS_ON \u2192 OrderService\n\u2502       \u251c\u2500\u2500 STORES \u2192 OrdersPostgresDatabase\n\u2502       \u251c\u2500\u2500 CALLS \u2192 PaymentsAPI\n\u2502       \u2514\u2500\u2500 DEPENDS_ON \u2192 UserService\n\u2502           \u2514\u2500\u2500 STORES \u2192 UsersPostgresDatabase\n\u2514\u2500\u2500 DEPENDS_ON \u2192 OrderService\n    \u251c\u2500\u2500 STORES \u2192 OrdersPostgresDatabase\n    \u251c\u2500\u2500 CALLS \u2192 PaymentsAPI\n    \u2514\u2500\u2500 DEPENDS_ON \u2192 UserService\n        \u2514\u2500\u2500 STORES \u2192 UsersPostgresDatabase\n```\n\nAcross those paths, ReportingService depends on **three services**, **two APIs**, and **three databases**:\n\n| Type | Dependencies |\n|---|---|\n| Services | BillingService, OrderService, UserService |\n| APIs | NotificationsAPI, PaymentsAPI |\n| Databases | BillingPostgresDatabase, OrdersPostgresDatabase, UsersPostgresDatabase |\n\nNo configuration keys were returned by the dependency traversal.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "ReportingService",
+    "max_depth": 10
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "ReportingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 4138,
+ "output_tokens": 399
+}

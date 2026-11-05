@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 7,
+ "run": 2,
+ "answer": "**SearchService** keeps its index in the **search OpenSearch cluster** (from the SearchService Data section of the docs).\n\n- **What's in the index:** orders. It lets storefront customers search their own order history by product, date or status.\n- **Where the data comes from:** **OrderService**, which keeps orders in the **orders Postgres database**. SearchService pulls order changes from OrderService every minute.\n- **Durability:** the index is never backed up. It can be rebuilt from OrderService at any time.\n\n**Components involved:**\n- SearchService (service)\n- The search OpenSearch cluster (where the index lives)\n- OrderService (service, and the source for rebuilds)\n- The orders Postgres database (OrderService's data store)\n\nThe docs don't name any configuration keys for SearchService or its OpenSearch connection, such as an endpoint or index-name setting.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "SearchService index storage",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "SearchService configuration OpenSearch cluster endpoint key",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 13096,
+ "output_tokens": 490,
+ "cost_usd": 0.0407404
+}

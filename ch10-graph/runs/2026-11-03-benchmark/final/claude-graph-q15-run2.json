@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 15,
+ "run": 2,
+ "answer": "If UserService goes down, **6 services** are affected within two hops.\n\n**Hop 1: depend directly on UserService (3)**\n- **ApiGateway**: ApiGateway DEPENDS_ON UserService\n- **AuditService**: AuditService DEPENDS_ON UserService\n- **OrderService**: OrderService DEPENDS_ON UserService\n\n**Hop 2: depend on a hop-1 service (3)**\nAll three come through OrderService:\n- **BillingService**: BillingService DEPENDS_ON OrderService, which DEPENDS_ON UserService\n- **ReportingService**: ReportingService DEPENDS_ON OrderService, which DEPENDS_ON UserService\n- **SearchService**: SearchService DEPENDS_ON OrderService, which DEPENDS_ON UserService\n\n**Notes**\n- The lookup followed both DEPENDS_ON and CALLS links, and it treats a service and the API it exposes as the same thing. So any service calling UserService's API, or the API of a hop-1 service, would have shown up here. None appeared, which means every link in this answer is a direct DEPENDS_ON.\n- Nothing depends on ApiGateway or AuditService within this range, so OrderService is the only route to the second hop. OrderService matters most here: it's the single link between UserService and BillingService, ReportingService and SearchService.\n- No databases or configuration keys came up in the results.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9351,
+ "output_tokens": 683,
+ "cost_usd": 0.0403728
+}

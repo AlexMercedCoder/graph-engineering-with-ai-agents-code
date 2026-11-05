@@ -1,0 +1,33 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 11,
+ "run": 2,
+ "answer": "**BillingService and PaymentsService are the documented downstream services at risk if NotificationsAPI\u2019s retry semantics change.** The docs establish these dependencies, but whether they actually break depends on the specific change.\n\n| Service | Dependency on NotificationsAPI | Potential impact |\n|---|---|---|\n| **BillingService** | Sends receipts after a successful capture. | Receipt delivery timing or reliability could change. |\n| **PaymentsService** | Sends notifications for declined authorizations, including after checkout has returned. | Decline notifications could arrive later or fail under different retry behavior. |\n\nSources: `billing-service#Integrations`, `payments-service#Integrations`.\n\nThe relevant retry contract and infrastructure are:\n\n- **NotificationsService** exposes **NotificationsAPI** and owns delivery retries.\n- **`RETRY_ATTEMPTS`** configures the documented policy: **three attempts with a 250 ms backoff**.\n- Exhausted messages move to a **dead-letter list**, and **the caller is not told**. Callers needing confirmation must poll message status.\n- The **notifications Redis instance** stores queued messages until a provider accepts them or retries run out.\n\nSources: `notifications-service#Overview`, `notifications-service#Delivery and retries`, `notifications-service#Data`.\n\nThe documentation does not identify which callers poll status or prove that either caller requires the exact current retry policy. Thus, these are **confirmed affected dependencies, not confirmed service-wide failures**.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics dependent services retries",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"NotificationsAPI\" callers status poll retry",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "services dependencies notification delivery NotificationsAPI message status confirmation",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 6782,
+ "output_tokens": 386
+}

@@ -1,0 +1,55 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 13,
+ "run": 1,
+ "answer": "Within two hops, OrderService needs **3 services, 2 APIs and 3 databases**, plus itself and its own orders database.\n\n**Hop 1: what OrderService uses directly**\n\n| Kind | Name | Notes |\n|---|---|---|\n| API it calls | **PaymentsAPI** | Used to authorize and capture payments. **PaymentsService** provides this API. |\n| Service it depends on | **UserService** | Looks up who placed the order. |\n| Database | **orders** (Postgres) | Holds orders. Line items are stored with the order and can't be changed once it's placed. |\n\n(OrderService provides the **OrdersAPI** to other services, but it doesn't need that API to run.)\n\n**Hop 2: what those services use**\n\n- **PaymentsService** (behind PaymentsAPI)\n  - Calls **NotificationsAPI**, provided by **NotificationsService**, when a payment authorization is declined.\n  - Stores authorizations in the **payments** Postgres database.\n  - Config keys: **PAYMENT_API_KEY** and **CAPTURE_TIMEOUT** (in seconds, default 30).\n- **UserService**\n  - Stores users in the **users** Postgres database.\n  - Config key: **ORDER_DB_URL**. Despite its name, this points to UserService's own read replica, not OrderService's database. The name is kept because three deployment scripts read it.\n  - The docs list no APIs it calls and no services it depends on. It provides the **UsersAPI** to others.\n\n**Totals**\n- **Services:** PaymentsService, UserService, NotificationsService\n- **APIs:** PaymentsAPI, NotificationsAPI\n- **Databases:** orders, payments, users\n- **Config keys:** PAYMENT_API_KEY, CAPTURE_TIMEOUT, ORDER_DB_URL. The docs don't list any config keys for OrderService itself.\n\n**What I left out**\n- BillingService, SearchService, ApiGateway and RenewalsWorker all depend on OrderService or PaymentsAPI. OrderService doesn't need any of them to run, so they aren't in the counts.\n- RenewalsWorker calls PaymentsAPI directly, without going through OrderService.\n- Within these two hops, NotificationsService is only reached through PaymentsService, when an authorization is declined.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService dependencies APIs calls database",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "exposes the PaymentsAPI",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService integrations depends on calls",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService calls API depends on service",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "exposes the NotificationsAPI",
+    "k": 3
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService configuration environment variables",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 28391,
+ "output_tokens": 1478,
+ "cost_usd": 0.0826768
+}

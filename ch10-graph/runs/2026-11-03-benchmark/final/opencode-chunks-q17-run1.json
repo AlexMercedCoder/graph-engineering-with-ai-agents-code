@@ -1,0 +1,41 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 17,
+ "run": 1,
+ "answer": "**Five distinct services are within two downstream hops of OrderService**, excluding OrderService itself.\n\nHere, an arrow means \u201chas a dependent or API caller.\u201d\n\n| Hop | Affected service | Dependency path and evidence |\n|---|---|---|\n| 1 | **BillingService** | `OrderService \u2192 BillingService`: depends on OrderService for **line items**. |\n| 1 | **SearchService** | `OrderService \u2192 SearchService`: depends on OrderService and reads its order changes every minute. |\n| 1 | **ReportingService** | `OrderService \u2192 ReportingService`: depends on OrderService for order status. |\n| 1 | **ApiGateway** | `OrderService \u2192 OrdersAPI \u2192 ApiGateway`: calls **OrdersAPI**, the API exposed by OrderService. This is one service hop. |\n| 2 | **RenewalsWorker** | `OrderService \u2192 BillingService \u2192 RenewalsWorker`: depends on BillingService. |\n\n**ReportingService also has a two-hop path** through BillingService, because it depends on BillingService for invoice totals. It is counted only once.\n\nSources: `order-service#Overview`, `billing-service#Integrations`, `search-service#Integrations`, `reporting-service#Integrations`, `api-gateway#Integrations`, and `renewals-worker#Integrations`.\n\nThis is the dependency-based impact set you requested; it does not establish that every listed service consumes the changed line-item fields. **OrdersAPI** is the API involved in these paths; no database or configuration key is needed to establish this two-hop set.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService line-item format dependent services calls OrderService API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrdersAPI callers depends on OrderService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "depends on BillingService SearchService ReportingService ApiGateway calls OrdersAPI",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "services depend on SearchService ReportingService ApiGateway BillingService downstream consumers integrations",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 7676,
+ "output_tokens": 475,
+ "cost_usd": null
+}

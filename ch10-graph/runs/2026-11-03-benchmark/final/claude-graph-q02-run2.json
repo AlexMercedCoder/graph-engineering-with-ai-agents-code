@@ -1,0 +1,43 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 2,
+ "run": 2,
+ "answer": "NotificationsAPI retries **3 times with a 250 ms backoff**, and the configuration key **`RETRY_ATTEMPTS`** sets this.\n\n**Where this comes from:**\n- The graph has no configuration node for \"NotificationsAPI\" itself. The retry setting is stored on **NotificationsService**, through a `CONFIGURES` link from `RETRY_ATTEMPTS`. The source sentence reads: *\"Its retry semantics are three attempts with a 250ms backoff, configured by RETRY_ATTEMPTS.\"*\n- I'm treating this as NotificationsAPI's behaviour because NotificationsService appears to be the service behind that API. The graph doesn't directly link the two, though. Also, the source sentence only says \"Its\", so linking it to NotificationsService was the extractor's reading, not something the sentence states. Check the original doc if this matters.\n\n**What's involved:**\n- **NotificationsService** (likely serves NotificationsAPI) stores data in **NotificationsRedisInstance**.\n- Callers that would see this retry behaviour:\n  - **BillingService** and **PaymentsService** call NotificationsAPI directly.\n  - **RenewalsWorker** and **ReportingService** depend on BillingService, so they reach it indirectly.\n  - **OrderService** calls **PaymentsAPI** (served by PaymentsService), so it also reaches it indirectly.\n\nIf you change `RETRY_ATTEMPTS`, it changes how notification delivery behaves for all of those callers. The graph only names the key and doesn't separate the attempt count from the 250 ms backoff. Check whether the backoff is a separate setting before you change either one.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  }
+ ],
+ "input_tokens": 15050,
+ "output_tokens": 1022,
+ "cost_usd": 0.0529256
+}

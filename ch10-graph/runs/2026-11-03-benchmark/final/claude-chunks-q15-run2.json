@@ -1,0 +1,55 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 15,
+ "run": 2,
+ "answer": "Six services are affected within two hops: three directly and three at the second hop.\n\n**Hop 1: services that depend on UserService or call its UsersAPI**\n1. **OrderService**: depends on UserService to look up the customer placing an order.\n2. **ApiGateway**: calls the **UsersAPI** and depends on UserService to validate session tokens. Every public request goes through the gateway, so a UserService outage affects the whole public edge, not just user-related endpoints.\n3. **AuditService**: depends on UserService for identity resolution, because each audit record stores the resolved user.\n\n**Hop 2: services that depend on those three or call their APIs**\n4. **BillingService**: depends on OrderService for line items.\n5. **SearchService**: depends on OrderService and reads order changes from it every minute.\n6. **ReportingService**: depends on OrderService for order status. It also depends on BillingService, but that link would make it a third hop, so it counts here only through OrderService.\n\nApiGateway also calls the **OrdersAPI**, but it's already counted in hop 1. The docs list no service that depends on AuditService or on ApiGateway, so neither adds anything at hop 2.\n\n**Not counted**\n- **RenewalsWorker**: it depends on BillingService, so it's three hops away.\n- **PaymentsService** (**PaymentsAPI**): OrderService calls it, so it sits downstream of the chain and doesn't depend on UserService.\n- **NotificationsAPI**: BillingService calls it, so it's also downstream.\n\n**Database and configuration notes**\n- UserService stores data in the **users Postgres database**.\n- UserService's read replica is set by **ORDER_DB_URL**. Despite the name, this is UserService's own setting, not the orders database. The name was kept because three deployment scripts read it, so it doesn't create a link to OrderService.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService dependencies callers",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls UserService API depends on user service",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls the OrdersAPI depends on OrderService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on AuditService or calls audit API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on ApiGateway routed through the gateway",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls the UsersAPI",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 17874,
+ "output_tokens": 1428,
+ "cost_usd": 0.08927700000000001
+}

@@ -1,0 +1,51 @@
+{
+ "payloads": [
+  12239,
+  12749,
+  12792,
+  12857
+ ],
+ "requests": 4,
+ "input_total": 50637,
+ "first_request": 12239,
+ "tools": [
+  [
+   "project-knowledge_find_architecture_docs",
+   "{\"topic\": \"fraud scoring thresholds order hold manual review exact score thresholds\", \"max_sections\": 5}"
+  ],
+  [
+   "grep",
+   "{\"pattern\": \"fraud|manual.review|risk.score\", \"include\": \"*\"}"
+  ],
+  [
+   "list_mcp_resources",
+   "{}"
+  ]
+ ],
+ "tool_result_chars": 2257,
+ "results": [
+  {
+   "chars": 2222,
+   "error": false,
+   "head": "## Authorization and capture\nPayments authorizes when the order moves to pending and captures later, from the\ncapture worker, CAPTURE_DELAY_MINUTES after authorization. The delay exists so that\nan order edited within a few minutes of checkout can be re-authorized without a\nrefund. The provider holds",
+   "has_0.82": false
+  },
+  {
+   "chars": 14,
+   "error": false,
+   "head": "No files found",
+   "has_0.82": false
+  },
+  {
+   "chars": 21,
+   "error": false,
+   "head": "{\n  \"resources\": []\n}",
+   "has_0.82": false
+  }
+ ],
+ "final": "I can\u2019t verify the exact fraud-score thresholds from the available sources. The project documentation describes order authorization and capture, but gives **no fraud-score cutoff or manual-review hold rule**, and the workspace search found no matching definitions.\n\nPlease share the fraud-rule configuration or scoring code for the relevant environment. I can then identify the exact cutoff values and whether the comparisons are inclusive (`>=`) or exclusive (`>`).",
+ "init": {},
+ "diagnosis_correct": false,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

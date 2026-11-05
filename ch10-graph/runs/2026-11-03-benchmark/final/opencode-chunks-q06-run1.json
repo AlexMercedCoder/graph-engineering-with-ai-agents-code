@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 6,
+ "run": 1,
+ "answer": "AuditService depends on the **user service** for identity resolution. Each audit record carries the **resolved user**, rather than the raw token.\n\nSource: `audit-service#Integrations`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "AuditService identity resolution depends",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2322,
+ "output_tokens": 68,
+ "cost_usd": null
+}

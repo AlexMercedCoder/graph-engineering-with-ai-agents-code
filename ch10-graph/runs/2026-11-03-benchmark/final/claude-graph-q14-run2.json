@@ -1,0 +1,45 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 14,
+ "run": 2,
+ "answer": "Two services call the NotificationsAPI directly, and both would stop getting their messages delivered: **BillingService** and **PaymentsService**.\n\nThe dependency chain in the graph:\n\n- **NotificationsService** exposes the **NotificationsAPI**.\n- NotificationsService stores its data in the **NotificationsRedisInstance**. This is its only recorded dependency.\n- **BillingService** calls the NotificationsAPI directly.\n- **PaymentsService** calls the NotificationsAPI directly.\n\nIf the NotificationsRedisInstance is lost, NotificationsService has no backing store. Calls to the NotificationsAPI from BillingService and PaymentsService can't result in delivered messages.\n\n**Configuration key involved:** **RETRY_ATTEMPTS** configures NotificationsService to retry three times with a 250ms backoff. That only covers short glitches. Losing the Redis instance outright would use up the retries quickly, and the calls would still fail.\n\n**What the graph doesn't show:** I only looked one hop back, at direct callers, as you asked. Services that reach notifications through BillingService or PaymentsService could also be affected but aren't listed here. The graph also records no fallback store or queue for NotificationsService. So by this data, nothing would deliver messages in Redis's place.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 19917,
+ "output_tokens": 907,
+ "cost_usd": 0.051434999999999995
+}

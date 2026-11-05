@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 11,
+ "run": 2,
+ "answer": "A change to **NotificationsAPI** retry semantics affects **5 services within two hops**:\n\n| Hop | Affected service | Connection |\n|---|---|---|\n| 1 | **BillingService** | Calls **NotificationsAPI** directly. |\n| 1 | **PaymentsService** | Calls **NotificationsAPI** directly. |\n| 2 | **RenewalsWorker** | Depends on **BillingService**, which calls **NotificationsAPI**. |\n| 2 | **ReportingService** | Depends on **BillingService**, which calls **NotificationsAPI**. |\n| 2 | **OrderService** | Calls **PaymentsAPI**, exposed by **PaymentsService**, which calls **NotificationsAPI**. |\n\nThe returned dependency paths involve **NotificationsAPI**, **PaymentsAPI**, and the five services above. No databases or configuration keys appear in these paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2787,
+ "output_tokens": 204,
+ "cost_usd": null
+}

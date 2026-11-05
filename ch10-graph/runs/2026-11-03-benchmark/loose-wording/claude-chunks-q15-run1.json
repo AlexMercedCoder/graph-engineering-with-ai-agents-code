@@ -1,0 +1,47 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 15,
+ "run": 1,
+ "answer": "**Short answer:** Only one service depends directly on token validation: **ApiGateway**. No documented service depends on ApiGateway, so the strict two-hop radius ends there. But every public request goes through the gateway, so a mistake here affects every client of the storefront.\n\n### Hop 0: the thing being changed\n- **UserService** checks the session tokens that the gateway forwards, and it serves the **UsersAPI**.\n- Its data is in the **users Postgres database**. Its read replica is set by the config key **`ORDER_DB_URL`**. The name is historical; three deployment scripts read it.\n- **Caching:** validation results are cached for 60 seconds, so a revoked token keeps working until its cache entry expires. If the validation logic changes, results cached under the old logic can still be served for up to 60 seconds after deploy.\n\n### Hop 1: depends on token validation\n- **ApiGateway** depends on UserService to validate tokens, and it rejects expired tokens at the edge before any service sees the request. It also calls the **UsersAPI** and **OrdersAPI**.\n  - It doesn't retry failed upstream calls. A 5xx error from UserService validation goes straight to the client unchanged.\n  - Its config key **`GATEWAY_RATE_LIMITS`** isn't touched by this change, but any gateway redeploy needs a rolling restart.\n\n### Hop 2: depends on ApiGateway\n- **No internal service is documented as depending on ApiGateway.** What sits behind it is external clients: every public endpoint, since clients never call services directly. So the practical effect is the whole storefront, even though the dependency graph stops here.\n- On-call: ApiGateway shares a rotation with **SearchService**. That's a people link, not a dependency, but it's the team that would get paged.\n\n### Nearby risk: if the change also touches identity resolution\nTwo more services depend on UserService, for **identity resolution** rather than token validation. If your change alters how a token resolves to a user, these come into scope too:\n\n| Hop 1 | Why | Hop 2 (its dependents) |\n|---|---|---|\n| **AuditService** | Each record stores the resolved user, not the raw token. Records go to the **audit Iceberg table**, append-only, kept 7 years. | None documented |\n| **OrderService** | Resolves the ordering customer (and calls the **PaymentsAPI**) | **SearchService** (reads order changes every minute), **BillingService** (line items), **ReportingService** (order status) |\n\nThe AuditService case deserves the most care. If users resolve wrongly, the bad identities are written permanently into the seven-year audit table.\n\n**Note:** this comes from the architecture docs, which may not list every caller. Something that never mentions UserService in its docs, like an undocumented internal client, wouldn't appear here.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService token validation",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that depend on UserService",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on ApiGateway",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on AuditService audit records",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls the UsersAPI",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 17040,
+ "output_tokens": 1848
+}

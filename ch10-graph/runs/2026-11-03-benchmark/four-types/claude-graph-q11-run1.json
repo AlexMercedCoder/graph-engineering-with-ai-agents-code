@@ -1,0 +1,37 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 11,
+ "run": 1,
+ "answer": "Four services are affected: two call NotificationsAPI directly and two depend on it through BillingService.\n\n**Direct callers (these break first):**\n- **BillingService**: BillingService CALLS NotificationsAPI\n- **PaymentsService**: PaymentsService CALLS NotificationsAPI\n\n**Indirect, through BillingService:**\n- **RenewalsWorker**: RenewalsWorker DEPENDS_ON BillingService, which CALLS NotificationsAPI\n- **ReportingService**: ReportingService DEPENDS_ON BillingService, which CALLS NotificationsAPI\n\nI searched up to 4 hops. Nothing else depends on NotificationsAPI, and NotificationsAPI itself depends on nothing within 2 hops.\n\n**Where the retry behaviour is set:**\n- The graph says the retry semantics are **three attempts with a 250ms backoff**, set by the configuration key **`RETRY_ATTEMPTS`**.\n- That key is attached to a node called **NotificationsService**, not NotificationsAPI. Searching for both `retry` and `RETRY_ATTEMPTS` returned only NotificationsService.\n- The graph has no link between NotificationsService and NotificationsAPI. They're probably the same component under two names, or the service that sits behind the API, but the graph doesn't confirm either. If they are linked, changing `RETRY_ATTEMPTS` is how the retry change would happen, and it would reach the four services above. Check how the two are related before the change goes out.\n\n**Caveat:** the graph shows *that* these services depend on NotificationsAPI, not *how* each one relies on its retries. Whether a given service actually breaks depends on things the graph doesn't record. Examples are whether it assumes exactly three attempts, sets its own timeouts around the 250ms backoff, or has idempotency issues if the retry count goes up. Look at BillingService first, because three of the four services are affected through it.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "retry"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "RETRY_ATTEMPTS"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  }
+ ],
+ "input_tokens": 14432,
+ "output_tokens": 1013
+}

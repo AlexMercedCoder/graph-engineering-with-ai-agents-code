@@ -1,0 +1,2 @@
+BillingService -CALLS-> PaymentsAPI
+  billing-service.md: It calls the PaymentsAPI to refund a capture that the customer disputes.

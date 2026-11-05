@@ -1,0 +1,62 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 18,
+ "run": 2,
+ "answer": "**ReportingService has two direct runtime dependencies: `BillingService` and `OrderService`.** It stores no data itself.\n\nCounting each API call together with the service implementing that API as one dependency hop, its dependencies within two hops are:\n\n| Hop | From | Dependency | Purpose |\n|---|---|---|---|\n| 1 | `ReportingService` | `BillingService` | Supplies invoice totals. |\n| 1 | `ReportingService` | `OrderService` | Supplies order status. |\n| 2 | `BillingService` | `OrderService` | Supplies invoice line items. |\n| 2 | `BillingService` | `NotificationsAPI` \u2192 `NotificationsService` | Sends receipts after a successful capture. |\n| 2 | `BillingService` | **billing Postgres database** | Stores invoices. |\n| 2 | `OrderService` | `PaymentsAPI` \u2192 `PaymentsService` | Authorizes and captures payments. |\n| 2 | `OrderService` | `UserService` | Resolves the ordering customer. |\n| 2 | `OrderService` | **orders Postgres database** | Stores orders and their line items. |\n\n### Counts within two hops\nExcluding `ReportingService` itself and counting distinct entities:\n\n- **5 services:** `BillingService`, `OrderService`, `NotificationsService`, `PaymentsService`, `UserService`.\n- **2 explicitly called APIs:** `NotificationsAPI`, `PaymentsAPI`.\n- **2 databases:** billing Postgres and orders Postgres.\n- **No configuration-key dependency is documented on these first- and second-hop relationships.**\n\n`OrderService` also exposes `OrdersAPI`, but the documentation describes ReportingService\u2019s relationship to it as a service dependency; it does not explicitly name an `OrdersAPI` call.\n\n**The PaymentsService decline-rate figures on the dashboards do not add a direct runtime dependency:** finance manually copies them from the provider portal weekly. `PaymentsService` is nevertheless in scope through `OrderService` \u2192 `PaymentsAPI`.\n\nSources: `reporting-service` \u2014 Integrations, Data; `billing-service` \u2014 Integrations, Data; `order-service` \u2014 Integrations, Data, Overview; `payments-service` and `notifications-service` \u2014 Overview.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "ReportingService dependencies APIs calls databases configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "ReportingService Integrations depends calls API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "BillingService Data Configuration API exposes",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "ReportingService Configuration API calls",
+    "k": 4
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService Data Configuration OrdersAPI PaymentsAPI NotificationsAPI provided exposed",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService stores orders database Data",
+    "k": 2
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "+billing-service +order-service Configuration configured",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 13095,
+ "output_tokens": 679,
+ "cost_usd": null
+}

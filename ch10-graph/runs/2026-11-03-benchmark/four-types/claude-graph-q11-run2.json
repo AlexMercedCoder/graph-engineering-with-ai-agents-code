@@ -1,0 +1,37 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 11,
+ "run": 2,
+ "answer": "The dependency graph shows **four services** affected by a change to **NotificationsAPI**: two call it directly and two depend on it through another service.\n\n**Direct callers (most likely to break):**\n1. **BillingService**: `BillingService -CALLS-> NotificationsAPI`\n2. **PaymentsService**: `PaymentsService -CALLS-> NotificationsAPI`\n\n**Indirect dependents (through BillingService):**\n3. **RenewalsWorker**: `RenewalsWorker -DEPENDS_ON-> BillingService -CALLS-> NotificationsAPI`\n4. **ReportingService**: `ReportingService -DEPENDS_ON-> BillingService -CALLS-> NotificationsAPI`\n\nI searched four hops back and found nothing further. NotificationsAPI itself has no dependencies within two hops, so the change only affects the services above it.\n\n**Limits of this answer:**\n- The graph shows which services call or depend on NotificationsAPI, not how they use its retries. Whether BillingService and PaymentsService actually rely on the current retry behaviour isn't recorded. For example, they might rely on how often it retries, its backoff, or calls being safe to repeat (idempotency). You'd need to check their code to confirm. RenewalsWorker and ReportingService would only break if BillingService's behaviour changes as a result.\n- I couldn't find a configuration key for the retry settings. I tried two guessed names, `NOTIFICATIONS_RETRY_POLICY` and `retry_policy`, and neither exists in the graph. If the retry settings live under another key, tell me its name and I'll check which services it affects.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "NOTIFICATIONS_RETRY_POLICY"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "retry_policy"
+   }
+  }
+ ],
+ "input_tokens": 14389,
+ "output_tokens": 901
+}

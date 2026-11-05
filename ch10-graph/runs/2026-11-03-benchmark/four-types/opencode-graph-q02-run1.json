@@ -1,0 +1,32 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 2,
+ "run": 1,
+ "answer": "**The available architecture graph does not document NotificationsAPI\u2019s retry semantics.** I can\u2019t establish whether retries occur, which errors trigger them, the attempt limit, backoff timing, or duplicate-delivery behavior.\n\nThe graph identifies these relationships:\n- **BillingService** calls **NotificationsAPI**.\n- **PaymentsService** calls **NotificationsAPI**.\n- **RenewalsWorker** and **ReportingService** depend on **BillingService**, making them indirect dependents of **NotificationsAPI**.\n\nNo dependencies were returned for **NotificationsAPI** within two hops. The configuration lookup also returned no recorded configuration relationships under `NotificationsAPI`; it did not identify a retry configuration key or database.\n\nTo answer definitively, we would need the **NotificationsAPI** contract or implementation and the calling/retry configuration in **BillingService** and **PaymentsService**.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "NotificationsAPI"
+   }
+  }
+ ],
+ "input_tokens": 5418,
+ "output_tokens": 249
+}

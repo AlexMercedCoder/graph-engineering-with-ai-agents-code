@@ -1,0 +1,62 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 13,
+ "run": 2,
+ "answer": "Within two hops, OrderService needs 3 services (UserService, PaymentsService, NotificationsService), 2 APIs (PaymentsAPI, NotificationsAPI) and 3 databases (orders, payments, users).\n\n## Hop 1: what OrderService uses directly\n| Kind | Item | Source |\n|---|---|---|\n| API it calls | **PaymentsAPI**, to authorize and capture payments. **PaymentsService** is the service behind it. | order-service#Integrations, payments-service#Overview |\n| Service it depends on | **UserService**, to look up the customer placing the order | order-service#Integrations |\n| Database | **orders** (Postgres). Line items are stored with the order. | order-service#Data |\n\nTotal: 1 API (with 1 service behind it), 1 service it depends on, 1 database.\n\n## Hop 2: what those use\n**PaymentsService** (behind PaymentsAPI)\n- API it calls: **NotificationsAPI**, when a payment authorization is declined. **NotificationsService** is the service behind it.\n- Services it depends on: none documented.\n- Database: **payments** (Postgres), which stores authorizations.\n- Configuration: `PAYMENT_API_KEY`, and `CAPTURE_TIMEOUT` (in seconds, default 30).\n\n**UserService**\n- APIs it calls / services it depends on: none documented. It provides the UsersAPI but doesn't call other services.\n- Database: **users** (Postgres).\n- Configuration: `ORDER_DB_URL`, which points to UserService's **read replica**. Despite the name, it is not OrderService's orders database. The old name was kept because three deployment scripts read it. I didn't count it as a link to the orders database.\n\n**orders database**: no further links.\n\n## Totals\n- **APIs:** 2, PaymentsAPI (hop 1) and NotificationsAPI (hop 2).\n- **Services:** 3. PaymentsService is behind PaymentsAPI, UserService is a direct dependency, and NotificationsService is behind NotificationsAPI.\n- **Databases:** 3, orders, payments and users.\n- **Configuration keys:** `PAYMENT_API_KEY`, `CAPTURE_TIMEOUT` and `ORDER_DB_URL`. The docs don't list any configuration keys for OrderService itself.\n\nThese items don't count as things OrderService needs, because they use it rather than the other way round:\n- SearchService and BillingService depend on OrderService.\n- ApiGateway calls OrderService's OrdersAPI.\n- RenewalsWorker calls PaymentsAPI directly, without going through OrderService.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService dependencies APIs calls database",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "exposes the PaymentsAPI",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService integrations depends on calls",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "orders Postgres database configuration",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "exposes the NotificationsAPI",
+    "k": 4
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService configuration environment variables",
+    "k": 4
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService calls API depends on service",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 22676,
+ "output_tokens": 1846,
+ "cost_usd": 0.09401860000000001
+}

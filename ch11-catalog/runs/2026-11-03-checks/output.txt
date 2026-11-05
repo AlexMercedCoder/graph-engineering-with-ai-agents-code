@@ -1,0 +1,86 @@
+
+== 1. A valid request compiles to SQL
+SELECT g.region AS region,
+       ROUND(SUM(premium_amt) - SUM(cancellation_amt), 2) AS net_written_premium
+FROM analytics.fct_policy_premium AS f
+JOIN analytics.dim_geography AS g ON f.geo_id = g.geo_id
+WHERE f.status != 'quote' AND f.eff_dt >= '2026-07-01' AND f.eff_dt < '2026-10-01'
+GROUP BY g.region
+ORDER BY g.region
+
+-- Validated against catalog revision 2026-11-03
+
+== 2. An invalid dimension and a day-level range are refused
+Rejected: 2 problems.
+
+1. `claim_severity` is not a dimension valid for net_written_premium.
+   Valid dimensions: product_line, region, distribution_channel, policy_effective_month.
+2. `2026-03-15` is not a valid time range: net_written_premium has month grain, so give whole months.
+   Valid time ranges: 2026-Q3, 2026, 2026-03, 2026-01..2026-06.
+
+== 3. Hand-written SQL through the four checks
+Rejected: 6 problems.
+
+1. Table `analytics.fct_premiums` does not exist in the catalog.
+   Nearest match: `analytics.fct_policy_premium`.
+
+2. Column `product_line` is not on `dim_geography`.
+   It is a dimension on `dim_product`, joined on `product_id`.
+
+3. Join `fct_policy_premium.agent_id = dim_geography.geo_id` is not a declared relationship.
+   Declared joins from fct_policy_premium: dim_geography (geo_id), dim_product (product_id), dim_agent (agent_id).
+
+4. `net_written_premium` is computed from `premium_amt_gross`, which is not in its lineage.
+   Declared lineage: fct_policy_premium.premium_amt, fct_policy_premium.cancellation_amt, fct_policy_premium.status.
+
+5. `net_written_premium` requires the filter `status != 'quote'`, and this query does not apply it.
+
+6. `net_written_premium` has month grain, and this query groups by `eff_dt`, a day.
+   Group by the month instead: strftime('%Y-%m', eff_dt).
+-- a comma join and a quoted name:
+Rejected: 1 problem.
+
+1. Table `analytics.dim_policyholder` does not exist in the catalog.
+Rejected: 1 problem.
+
+1. Table `fct_premiums_v1` does not exist in the catalog.
+   Nearest match: `analytics.fct_policy_premium`.
+
+== 4. Compiled SQL agrees with hand-written SQL on the four answerable questions
+q1 compiled matches hand-written SQL
+q2 compiled matches hand-written SQL
+q3 compiled matches hand-written SQL
+q4 compiled matches hand-written SQL
+
+== 5. Navigation is filtered by identity
+-- analyst:
+No metric matches 'commission'.
+The catalog does not model: loss ratio, reinsurance recoveries, claim frequency.
+Metrics you can query: claims_paid, gross_written_premium, net_written_premium, policies_written.
+-- finance:
+commission_paid (Commission Paid)
+  definition: Commission paid to agents, recognized in the month paid.
+  computed as: SUM(commission_amt)
+
+== 6. The platform applies row policies: emea-analyst runs the same request
+region | net_written_premium
+EMEA | 343269.84
+(1 row)
+
+== 7. The executor refuses SQL that didn't come from the generator
+Rejected: this SQL did not come from generate_governed_sql, or it was edited after generation. Call generate_governed_sql and pass its output unchanged.
+edited after generation: Rejected: this SQL did not come from generate_governed_sql, or it was edited after generation. Call generate_governed_sql and pass its output unchanged.
+catalog changed since:   Rejected: the catalog changed from revision 2026-11-03 to 2026-11-04 since this SQL was generated. Generate it again.
+
+== 8. Scopes decide which tools the server registers
+scopes 'catalog:read': navigate_catalog, generate_governed_sql
+scopes 'catalog:read data:read': navigate_catalog, generate_governed_sql, execute_query
+
+== 9. Row cap
+policy_effective_month | net_written_premium
+2025-01 | 412296.14
+2025-02 | 445425.11
+2025-03 | 461378.48
+2025-04 | 440204.65
+2025-05 | 490276.72
+(5 rows, truncated at the row cap)

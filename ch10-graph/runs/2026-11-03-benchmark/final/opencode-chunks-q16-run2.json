@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 16,
+ "run": 2,
+ "answer": "Two services call **PaymentsAPI** directly:\n\n- **OrderService** \u2014 calls it to authorize and capture payments. [order-service#Integrations]\n- **RenewalsWorker** \u2014 calls it directly for renewals, without going through OrderService, because a renewal has no cart. [renewals-worker#Integrations]\n\n**PaymentsService** exposes PaymentsAPI. [payments-service#Overview]",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "PaymentsAPI direct callers services",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 2516,
+ "output_tokens": 110,
+ "cost_usd": null
+}

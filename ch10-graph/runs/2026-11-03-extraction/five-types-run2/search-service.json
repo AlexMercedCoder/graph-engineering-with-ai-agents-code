@@ -1,0 +1,41 @@
+{
+ "doc": "search-service.md",
+ "sha256": "b2bd33f8a412c43e63390f195ee87566b6251c08b26c88a8498ccf9eb292cbbe",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:30:38+00:00",
+ "usage": {
+  "input_tokens": 3392,
+  "output_tokens": 341,
+  "cost_usd": 0.0144429
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "SearchService",
+    "type": "Service"
+   },
+   {
+    "name": "OrderService",
+    "type": "Service"
+   },
+   {
+    "name": "search OpenSearch cluster",
+    "type": "Database"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "SearchService",
+    "type": "DEPENDS_ON",
+    "target": "OrderService",
+    "sentence": "It depends on OrderService and reads order changes from it every minute."
+   },
+   {
+    "source": "SearchService",
+    "type": "STORES",
+    "target": "search OpenSearch cluster",
+    "sentence": "It stores its index in the search OpenSearch cluster."
+   }
+  ]
+ }
+}

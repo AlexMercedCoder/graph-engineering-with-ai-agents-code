@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 7,
+ "run": 2,
+ "answer": "SearchService keeps its index in **SearchOpensearchCluster**. That's the only store the graph links directly to it: `SearchService -STORES-> SearchOpensearchCluster`.\n\n- **What the graph doesn't say:** it records that SearchService stores data there, but not that the data is \"the index.\" I'm inferring that from the cluster's name, since it's an OpenSearch cluster.\n- **Another database nearby, but not the index:** SearchService depends on **OrderService**, which stores its own data in **OrdersPostgresDatabase**. That database belongs to OrderService, so it isn't where SearchService keeps its index. It's probably where the indexed data comes from, but the graph doesn't confirm that.\n- **Other indirect dependencies (not storage):** OrderService also calls **PaymentsAPI**, which **PaymentsService** exposes, and depends on **UserService**.\n- **Configuration keys:** no configuration keys are linked to SearchService, so no key that sets its index location or connection is documented in the graph.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "SearchService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "SearchService"
+   }
+  }
+ ],
+ "input_tokens": 9452,
+ "output_tokens": 517,
+ "cost_usd": 0.038133799999999995
+}

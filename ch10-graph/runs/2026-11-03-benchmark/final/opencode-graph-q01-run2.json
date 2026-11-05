@@ -1,0 +1,27 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 1,
+ "run": 2,
+ "answer": "**NotificationsService stores data in `NotificationsRedisInstance`**, a Redis instance.\n\nThe architecture graph records `NotificationsService \u2014STORES\u2192 NotificationsRedisInstance`, but does not specify what data it stores.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 4075,
+ "output_tokens": 96,
+ "cost_usd": null
+}

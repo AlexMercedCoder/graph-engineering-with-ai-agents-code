@@ -1,0 +1,19 @@
+{
+ "payloads": [
+  33005
+ ],
+ "requests": 1,
+ "input_total": 33005,
+ "first_request": 33005,
+ "tools": [],
+ "tool_result_chars": 0,
+ "results": [],
+ "final": "OK",
+ "init": {
+  "mcp_servers": [],
+  "mcp_tools": []
+ },
+ "diagnosis_correct": false,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

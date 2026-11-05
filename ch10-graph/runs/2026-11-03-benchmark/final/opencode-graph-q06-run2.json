@@ -1,0 +1,32 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 6,
+ "run": 2,
+ "answer": "AuditService depends on **UserService** for identity resolution. UserService in turn depends on **UsersPostgresDatabase**, and its read replica is configured by **`ORDER_DB_URL`**\u2014a historical name retained because three deployment scripts read it.\n\nThe dependency chain is:\n\n`AuditService \u2192 UserService \u2192 UsersPostgresDatabase`\n\nThe graph also records **AuditIcebergTable** as AuditService\u2019s storage destination, but does not identify it as part of identity resolution. No named API or direct configuration key for AuditService is recorded.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  }
+ ],
+ "input_tokens": 4181,
+ "output_tokens": 193,
+ "cost_usd": null
+}

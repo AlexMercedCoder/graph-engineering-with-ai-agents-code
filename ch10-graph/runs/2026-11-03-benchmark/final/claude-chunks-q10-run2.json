@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 10,
+ "run": 2,
+ "answer": "UserService uses **`ORDER_DB_URL`** for its read replica.\n\nThe name looks like it belongs to an order service, but the docs say it's an old name that was kept because three deployment scripts still read it (source: `user-service#Configuration`).\n\nRelated parts of the system:\n- **Service:** UserService\n- **Configuration key:** `ORDER_DB_URL`, which points to the read replica\n- **Database:** the `users` Postgres database, where UserService stores users, including soft-deleted rows that have a deletion timestamp (`user-service#Data`). The docs don't say directly that the replica is a copy of this database, but that's the likely reading.\n- **API:** UsersAPI, which UserService exposes. The service also validates session tokens forwarded by the gateway (`user-service#Overview`).",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService read replica configuration key",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 8412,
+ "output_tokens": 348,
+ "cost_usd": 0.034265000000000004
+}

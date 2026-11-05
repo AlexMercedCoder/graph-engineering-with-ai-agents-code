@@ -1,0 +1,40 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 20,
+ "run": 1,
+ "answer": "BillingService depends on six entities within two hops. Three are direct and three come through OrderService.\n\n**Direct dependencies (1 hop)**\n| Entity | Type | Relationship |\n|---|---|---|\n| BillingPostgresDatabase | Database | BillingService **STORES** to it |\n| NotificationsAPI | API | BillingService **CALLS** it |\n| OrderService | Service | BillingService **DEPENDS_ON** it |\n\n**Through OrderService (2 hops)**\n| Entity | Type | Relationship |\n|---|---|---|\n| OrdersPostgresDatabase | Database | OrderService **STORES** to it |\n| PaymentsAPI | API | OrderService **CALLS** it |\n| UserService | Service | OrderService **DEPENDS_ON** it |\n\nNotificationsAPI doesn't depend on anything, so it adds nothing at the second hop. BillingPostgresDatabase is a store, not something that's followed further.\n\n**What this means:** BillingService needs both Postgres databases, both APIs and the other two services to run. OrderService is the one path that brings in everything at the second hop. If OrderService fails, BillingService loses its link to OrdersPostgresDatabase, PaymentsAPI and UserService.\n\nNo configuration keys came up. The search only follows CALLS, DEPENDS_ON and STORES links, and config keys connect through CONFIGURES links. To check a particular key, I can trace it separately.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 18953,
+ "output_tokens": 957
+}

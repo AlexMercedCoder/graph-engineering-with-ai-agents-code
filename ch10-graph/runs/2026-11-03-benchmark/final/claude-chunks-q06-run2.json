@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 6,
+ "run": 2,
+ "answer": "AuditService relies on **UserService** to resolve identities. The docs (`audit-service#Integrations`) say \"it depends on the user service for identity resolution: a record carries the resolved user, not the raw token.\"\n\nHere is everything the answer touches:\n\n- **AuditService** records every governed data access. Each record holds the caller, the dataset, the columns returned and the policy decision. The caller is stored as the resolved user that UserService returns, not the raw session token.\n- **UserService** is the dependency. It owns users, including soft deletes, and validates the session tokens that the **gateway** forwards. That token validation is the step that turns a raw token into a user.\n- **UsersAPI** is the API UserService exposes. The docs don't say outright that AuditService calls it, but it is the only interface UserService documents.\n- **`ORDER_DB_URL`** is the configuration key UserService uses for its read replica. It's a historical name kept because three deployment scripts read it, so despite the \"ORDER\" in the name, it points at the user data.\n- **Audit Iceberg table** is AuditService's own storage. It doesn't take part in identity resolution, but it's where the resolved user ends up. Records are append-only and kept for seven years.\n\nSo the path is: the gateway forwards a session token, UserService (through UsersAPI) validates it and resolves the user from the read replica at `ORDER_DB_URL`, and AuditService writes that resolved user into the audit Iceberg table.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "AuditService identity resolution dependency",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 8363,
+ "output_tokens": 647,
+ "cost_usd": 0.0398764
+}

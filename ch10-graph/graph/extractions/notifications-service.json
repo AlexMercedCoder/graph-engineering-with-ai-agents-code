@@ -1,0 +1,51 @@
+{
+ "doc": "notifications-service.md",
+ "sha256": "50ba4c650c63d6db15b3a5d01b80c1c144782aae5c5205664807d462c3d50c7a",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:30:00+00:00",
+ "usage": {
+  "input_tokens": 3479,
+  "output_tokens": 328,
+  "cost_usd": 0.0146609
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "NotificationsService",
+    "type": "Service"
+   },
+   {
+    "name": "NotificationsAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "notifications Redis instance",
+    "type": "Database"
+   },
+   {
+    "name": "RETRY_ATTEMPTS",
+    "type": "Configuration"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "NotificationsService",
+    "type": "EXPOSES",
+    "target": "NotificationsAPI",
+    "sentence": "NotificationsService exposes the NotificationsAPI."
+   },
+   {
+    "source": "NotificationsService",
+    "type": "STORES",
+    "target": "notifications Redis instance",
+    "sentence": "It stores queued messages in the notifications Redis instance."
+   },
+   {
+    "source": "RETRY_ATTEMPTS",
+    "type": "CONFIGURES",
+    "target": "NotificationsService",
+    "sentence": "Its retry semantics are three attempts with a 250ms backoff, configured by RETRY_ATTEMPTS."
+   }
+  ]
+ }
+}

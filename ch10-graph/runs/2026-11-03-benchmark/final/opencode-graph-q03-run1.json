@@ -1,0 +1,19 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 3,
+ "run": 1,
+ "answer": "**OrderService uses OrdersPostgresDatabase**, as shown by the direct storage relationship:\n\n`OrderService \u2014STORES\u2192 OrdersPostgresDatabase`",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService"
+   }
+  }
+ ],
+ "input_tokens": 2792,
+ "output_tokens": 53,
+ "cost_usd": null
+}

@@ -1,0 +1,48 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 12,
+ "run": 2,
+ "answer": "If BillingService goes down, two services stop working, both one hop away. Nothing depends on either of them, so the second hop adds no services.\n\n**Hop 1: services that depend on BillingService**\n1. **ReportingService** depends on BillingService for invoice totals. It stores nothing and computes every report on request, with no retries. So with BillingService down, the revenue reports show an error page.\n2. **RenewalsWorker** depends on BillingService to re-bill subscriptions each month. The docs say that after a third failed authorization, it emails the customer \"through the normal billing receipt flow,\" so those emails stop too.\n\n**Hop 2: services that depend on those two**\n- None. I found no service that depends on ReportingService or RenewalsWorker or calls an API they expose. The only consumers of ReportingService are people: finance reads the reports daily and uses them for the monthly close.\n\n**Not counted:**\n- **The \"call its API\" part of your question:** the docs don't describe any BillingService API. The only APIs mentioned are the PaymentsAPI (exposed by PaymentsService), the NotificationsAPI, the OrdersAPI and the UsersAPI. So no service reaches BillingService through an API.\n- **Services BillingService itself calls:** OrderService (line items) and NotificationsService through the NotificationsAPI (receipts). An outage doesn't flow that way. The only effect is that receipts stop being sent.\n- **PaymentsService:** it's run by the same team as BillingService, but it doesn't depend on it.\n- **The other API callers:** RenewalsWorker calls the PaymentsAPI directly. ReportingService and RenewalsWorker also depend on OrderService and PaymentsService. None of those links involve BillingService.\n\n**Data and configuration:** BillingService stores invoices in the **billing Postgres database**. No configuration key comes into play here; the ones documented, such as PAYMENT_API_KEY, CAPTURE_TIMEOUT and GATEWAY_RATE_LIMITS, belong to other services. Invoice runs happen every 15 minutes, and failed orders stay in the pending queue. So once BillingService is back, the backlog is processed and no invoices are lost.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingService dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls Billing API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "BillingAPI exposes",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on ReportingService or RenewalsWorker",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "ReportsAPI reporting dashboards consumers",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 24627,
+ "output_tokens": 1354,
+ "cost_usd": 0.0849354
+}

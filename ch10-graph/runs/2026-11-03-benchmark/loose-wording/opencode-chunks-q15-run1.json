@@ -1,0 +1,61 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 15,
+ "run": 1,
+ "answer": "**The two-hop service blast radius is UserService \u2192 ApiGateway, OrderService, AuditService \u2192 SearchService and PaymentsService.** The gateway dependency makes this especially broad: token-validation changes can affect admission to every public endpoint.\n\nHere, a hop means a documented service dependency or call; databases and configuration keys are listed alongside their owning service.\n\n| Distance | Service / API | Potential impact |\n|---|---|---|\n| **0 \u2014 changed component** | **UserService / UsersAPI** | Changes session-token acceptance. Validation results are cached for **60 seconds**, so revoked tokens can remain accepted until their cache entry expires. |\n| **1 \u2014 direct** | **ApiGateway**, calling **UsersAPI** | Depends on UserService for token validation and rejects expired tokens at the edge. Since all public requests enter through ApiGateway, a validation regression could reject valid traffic or admit invalid traffic across public endpoints. Upstream 5xx responses pass to clients unchanged; the gateway does not retry. |\n| **1 \u2014 direct** | **OrderService / OrdersAPI** | Depends on UserService to resolve the ordering customer. Identity-resolution changes could disrupt order operations. ApiGateway also calls OrdersAPI. |\n| **1 \u2014 direct** | **AuditService** | Depends on UserService for identity resolution. Audit records contain the resolved user rather than the raw token, so identity-resolution failures or changes can affect recorded caller identity. |\n| **2 \u2014 through OrderService** | **SearchService** | Depends on OrderService and reads order changes every minute. Disrupted orders can propagate into storefront order-history search. |\n| **2 \u2014 through OrderService** | **PaymentsService / PaymentsAPI** | OrderService calls PaymentsAPI to authorize and capture. If validation or customer resolution prevents checkout from progressing, payment operations may never be invoked. This is an indirect workflow effect, not a documented direct token-validation dependency. |\n\n### Databases and configuration involved\n\nThese are associated resources, **not evidence that their schemas or settings must change**:\n\n| Owner | Database / storage | Configuration keys |\n|---|---|---|\n| **UserService** | **`users` Postgres database**; user rows are soft-deleted so orders and audit records can still resolve them | **`ORDER_DB_URL`** configures UserService\u2019s read replica despite its historical name; three deployment scripts read it |\n| **ApiGateway** | \u2014 | **`GATEWAY_RATE_LIMITS`**, loaded at startup; changes require a rolling restart |\n| **OrderService** | **`orders` Postgres database** | None identified in the retrieved documentation |\n| **AuditService** | **`audit` Iceberg table**, append-only with seven-year retention | None identified in the retrieved documentation |\n| **SearchService** | **`search` OpenSearch cluster**, rebuildable from OrderService | None identified in the retrieved documentation |\n| **PaymentsService** | **`payments` Postgres database** | **`PAYMENT_API_KEY`**, **`CAPTURE_TIMEOUT`**; the latter defaults to 30 seconds |\n\n**Boundary:** PaymentsService calls **NotificationsAPI**, but that is **three hops** from UserService through OrderService and PaymentsService. Shared on-call ownership between ApiGateway and SearchService, and shared team ownership between PaymentsService and **BillingService**, do not establish runtime propagation paths.\n\nSources: `user-service` Overview, Operations, Data, Configuration; `api-gateway` Overview, Integrations, Operations, Configuration; `order-service` Overview, Integrations, Data; `audit-service` Overview, Integrations, Data; `search-service` Overview, Integrations, Data; `payments-service` Overview, Integrations, Data, Configuration.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService token validation dependencies downstream upstream auth token validation",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService UsersAPI integrations database token configuration",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "ApiGateway Overview Configuration integrations",
+    "k": 4
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService Overview Integrations Configuration database OrdersAPI",
+    "k": 5
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "AuditService Overview Integrations Configuration database API",
+    "k": 5
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "PaymentsService Overview PaymentsAPI AuditService Configuration",
+    "k": 3
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "OrderService Configuration SearchService Configuration Data",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 7953,
+ "output_tokens": 989
+}

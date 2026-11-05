@@ -1,0 +1,51 @@
+{
+ "doc": "billing-service.md",
+ "sha256": "c2e995814e79a1a05183c381eb58b7b2f720855d23e824cefb70f93be509d367",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:29:58+00:00",
+ "usage": {
+  "input_tokens": 3464,
+  "output_tokens": 279,
+  "cost_usd": 0.0141109
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "BillingService",
+    "type": "Service"
+   },
+   {
+    "name": "billing Postgres database",
+    "type": "Database"
+   },
+   {
+    "name": "OrderService",
+    "type": "Service"
+   },
+   {
+    "name": "NotificationsAPI",
+    "type": "APIEndpoint"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "BillingService",
+    "type": "STORES",
+    "target": "billing Postgres database",
+    "sentence": "BillingService stores invoices in the billing Postgres database."
+   },
+   {
+    "source": "BillingService",
+    "type": "DEPENDS_ON",
+    "target": "OrderService",
+    "sentence": "It depends on OrderService for line items."
+   },
+   {
+    "source": "BillingService",
+    "type": "CALLS",
+    "target": "NotificationsAPI",
+    "sentence": "It calls the NotificationsAPI to send receipts once a capture succeeds."
+   }
+  ]
+ }
+}

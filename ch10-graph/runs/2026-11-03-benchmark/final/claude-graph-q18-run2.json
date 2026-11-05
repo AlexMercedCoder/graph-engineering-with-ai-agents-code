@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 18,
+ "run": 2,
+ "answer": "ReportingService needs **9 things to run within two hops**: 2 services at hop 1 and 7 entities at hop 2. One query covered all of it. It came back with 9 results, well under the 25-result cap, so nothing was cut off.\n\n**Hop 1: ReportingService directly**\n- **APIs called:** none\n- **Services depended on (DEPENDS_ON):** BillingService, OrderService\n- **Databases stored in:** none\n\n**Hop 2: from BillingService**\n- **APIs called:** NotificationsAPI, which NotificationsService serves\n- **Services depended on:** none\n- **Databases stored in:** BillingPostgresDatabase\n\n**Hop 2: from OrderService**\n- **APIs called:** PaymentsAPI, which PaymentsService serves\n- **Services depended on:** UserService\n- **Databases stored in:** OrdersPostgresDatabase\n\n**Totals**\n- **Services (5):** BillingService, OrderService, NotificationsService, PaymentsService, UserService\n- **APIs (2):** NotificationsAPI, PaymentsAPI\n- **Databases (2):** BillingPostgresDatabase, OrdersPostgresDatabase\n\nReportingService relies on other services for everything it needs. It doesn't call any API or store data in any database itself. No configuration keys are involved, because the search follows only CALLS, DEPENDS_ON and STORES relationships, and I didn't look up configuration separately.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "ReportingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 9640,
+ "output_tokens": 674,
+ "cost_usd": 0.042419
+}

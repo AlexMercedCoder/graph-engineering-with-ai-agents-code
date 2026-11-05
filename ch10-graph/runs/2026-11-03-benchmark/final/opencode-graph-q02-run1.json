@@ -1,0 +1,46 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 2,
+ "run": 1,
+ "answer": "**NotificationsAPI retries use three attempts with a 250 ms backoff**, configured by `RETRY_ATTEMPTS` on `NotificationsService`.\n\nThe architecture entities involved are:\n- **API:** `NotificationsAPI`\n- **Service:** `NotificationsService`\n- **Configuration key:** `RETRY_ATTEMPTS`\n- **Datastore:** `NotificationsRedisInstance`, used by `NotificationsService`\n- **Direct callers:** `BillingService` and `PaymentsService`\n- **Indirect dependents:** `RenewalsWorker`, `ReportingService`, and `OrderService` (through `PaymentsAPI`, exposed by `PaymentsService`)\n\nThe available metadata does not specify which failures trigger retries, whether \u201cthree attempts\u201d includes the initial request, or whether the backoff is fixed or exponential.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 4392,
+ "output_tokens": 303,
+ "cost_usd": null
+}

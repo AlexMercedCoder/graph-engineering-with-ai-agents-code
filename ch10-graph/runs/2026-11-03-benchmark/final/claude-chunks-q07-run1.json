@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 7,
+ "run": 1,
+ "answer": "SearchService keeps its index in the **search OpenSearch cluster** (source: `search-service#Data`).\n\n- **Not backed up:** the index is never backed up. If it's lost, it gets rebuilt from **OrderService**.\n- **Where the data comes from:** SearchService reads order changes from OrderService every minute (`search-service#Integrations`). OrderService's own source of truth is the **orders Postgres database** (`order-service#Data`).\n- **What the index is for:** it lets storefront customers search their own order history by product, date or status.\n\n**Named in the answer:**\n- Services: SearchService, OrderService\n- Databases/stores: the search OpenSearch cluster, the orders Postgres database\n- APIs: none. The docs say SearchService reads from OrderService but don't name the API it uses.\n- Configuration keys: none. The docs don't list any config key for the OpenSearch cluster, such as an endpoint or index name.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "SearchService index storage",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "SearchService configuration OpenSearch cluster endpoint",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 13090,
+ "output_tokens": 516,
+ "cost_usd": 0.0412436
+}

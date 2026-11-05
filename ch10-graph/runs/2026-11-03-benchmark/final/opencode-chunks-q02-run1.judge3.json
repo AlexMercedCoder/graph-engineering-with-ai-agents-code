@@ -1,0 +1,1 @@
+{"included": [true, true], "extra": ["messages move to the dead-letter list after all attempts fail", "caller is not notified of final failure; must poll message status", "attempt count configured by RETRY_ATTEMPTS"]}

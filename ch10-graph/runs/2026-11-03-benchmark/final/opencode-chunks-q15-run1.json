@@ -1,0 +1,48 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 15,
+ "run": 1,
+ "answer": "**Six services are affected within two hops of UserService**, excluding UserService itself: **OrderService, ApiGateway, AuditService, BillingService, SearchService, and ReportingService**.\n\nArrows below show impact flowing from a service to its dependents.\n\n| Hop | Affected service | Dependency path and reason |\n|---|---|---|\n| 1 | **OrderService** | UserService \u2192 OrderService: depends on UserService to resolve the ordering customer. |\n| 1 | **ApiGateway** | UserService \u2192 ApiGateway: calls **UsersAPI** and depends on UserService for token validation. |\n| 1 | **AuditService** | UserService \u2192 AuditService: depends on UserService for identity resolution. |\n| 2 | **BillingService** | UserService \u2192 OrderService \u2192 BillingService: depends on OrderService for line items. |\n| 2 | **SearchService** | UserService \u2192 OrderService \u2192 SearchService: depends on OrderService and reads order changes from it every minute. |\n| 2 | **ReportingService** | UserService \u2192 OrderService \u2192 ReportingService: depends on OrderService for order status. |\n\nApiGateway also calls OrderService\u2019s **OrdersAPI**, so it has a second-hop path through OrderService, but is counted only once.\n\n**Counting rule:** Follow reverse dependency/API-call relationships, not shared ownership or on-call relationships. **RenewalsWorker** is three hops away through BillingService, so it falls outside the requested scope. No database or configuration key participates in these two-hop dependency paths.\n\nSources: `user-service#Overview`, `order-service#Overview`, and the `#Integrations` sections for `order-service`, `api-gateway`, `audit-service`, `billing-service`, `search-service`, `reporting-service`, and `renewals-worker`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService dependents calls UserService API service dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"UsersAPI\" callers integrations",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"OrderService\" \"AuditService\" \"ApiGateway\" depends calls APIs",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"UserService\" \"user service\" depends integrations",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "services depend on AuditService AuditAPI ApiGateway gateway API integrations",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 8269,
+ "output_tokens": 548,
+ "cost_usd": null
+}

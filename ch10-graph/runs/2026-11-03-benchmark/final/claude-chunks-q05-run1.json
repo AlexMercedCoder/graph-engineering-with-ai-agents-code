@@ -1,0 +1,20 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 5,
+ "run": 1,
+ "answer": "**`CAPTURE_TIMEOUT`** sets the PaymentsService capture timeout. It is measured in seconds and **defaults to 30**.\n\nWhere this comes from:\n- **PaymentsService**: the Configuration section of its docs says it's configured by `PAYMENT_API_KEY` and `CAPTURE_TIMEOUT`. Only `CAPTURE_TIMEOUT` controls the timeout.\n- **PaymentsAPI**: OrderService calls this API to authorize and capture payments, so the timeout applies to those capture calls.\n\nA setting that's easy to mix up with this one is `AUTH_HOLD_MINUTES` on **RenewalsWorker**. It sets how long a renewal authorization is held before capture, not the capture timeout.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "PaymentsService capture timeout configuration key default",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 8458,
+ "output_tokens": 352,
+ "cost_usd": 0.034666199999999994
+}

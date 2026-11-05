@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 20,
+ "run": 1,
+ "answer": "Within **two hops**, **BillingService** needs these **9 entities**:\n\n| Reach | Entity | Type | Relationship |\n|---|---|---|---|\n| Direct | **BillingPostgresDatabase** | Database | BillingService stores data in it. |\n| Direct | **NotificationsAPI** | API | BillingService calls it. |\n| Direct API provider | **NotificationsService** | Service | Serves NotificationsAPI. |\n| Direct | **OrderService** | Service | BillingService depends on it. |\n| Second hop | **NotificationsRedisInstance** | Database/store | NotificationsService stores data in it. |\n| Second hop | **OrdersPostgresDatabase** | Database | OrderService stores data in it. |\n| Second hop | **PaymentsAPI** | API | OrderService calls it. |\n| Second-hop API provider | **PaymentsService** | Service | Serves PaymentsAPI. |\n| Second hop | **UserService** | Service | OrderService depends on it. |\n\n**Total:** 4 services, 2 APIs, and 3 databases/stores, excluding BillingService itself. No configuration keys appear in this dependency traversal.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2886,
+ "output_tokens": 262,
+ "cost_usd": null
+}

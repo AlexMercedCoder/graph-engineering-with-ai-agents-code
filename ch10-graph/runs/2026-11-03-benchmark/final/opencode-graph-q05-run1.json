@@ -1,0 +1,25 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 5,
+ "run": 1,
+ "answer": "The configuration key is **`CAPTURE_TIMEOUT`**, which configures **`PaymentsService`**.\n\nThe available architecture data does **not specify its default value**, so I can\u2019t determine the default from these tools.",
+ "tool_calls": [
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "CAPTURE_TIMEOUT"
+   }
+  }
+ ],
+ "input_tokens": 4106,
+ "output_tokens": 95,
+ "cost_usd": null
+}

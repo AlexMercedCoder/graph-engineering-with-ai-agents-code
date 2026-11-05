@@ -1,0 +1,69 @@
+{
+ "doc": "payments-service.md",
+ "sha256": "f704b62942c4fd7df3d8a89b087a04e41b0b8a77c3231eb1e0e31cc53abad5ba",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:11:37+00:00",
+ "usage": {
+  "input_tokens": 3477,
+  "output_tokens": 1027,
+  "cost_usd": 0.0216429
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "PaymentsService",
+    "type": "Service"
+   },
+   {
+    "name": "BillingService",
+    "type": "Service"
+   },
+   {
+    "name": "PaymentsAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "NotificationsAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "payments",
+    "type": "Database"
+   },
+   {
+    "name": "PAYMENT_API_KEY",
+    "type": "Configuration"
+   },
+   {
+    "name": "CAPTURE_TIMEOUT",
+    "type": "Configuration"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "PaymentsService",
+    "type": "CALLS",
+    "target": "NotificationsAPI",
+    "sentence": "It calls the NotificationsAPI on a declined authorization, so the customer hears about a decline even when checkout has already returned."
+   },
+   {
+    "source": "PaymentsService",
+    "type": "STORES",
+    "target": "payments",
+    "sentence": "It stores authorizations in the payments Postgres database, with the provider's reference for each one."
+   },
+   {
+    "source": "PAYMENT_API_KEY",
+    "type": "CONFIGURES",
+    "target": "PaymentsService",
+    "sentence": "It is configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT."
+   },
+   {
+    "source": "CAPTURE_TIMEOUT",
+    "type": "CONFIGURES",
+    "target": "PaymentsService",
+    "sentence": "It is configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT."
+   }
+  ]
+ }
+}

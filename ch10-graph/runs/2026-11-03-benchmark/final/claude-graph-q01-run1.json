@@ -1,0 +1,26 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 1,
+ "run": 1,
+ "answer": "**Where:** NotificationsService stores its data in **NotificationsRedisInstance**. The graph has one relationship for this: `NotificationsService -STORES-> NotificationsRedisInstance`.\n\n**What:** The graph doesn't say. It records that the service stores data in that Redis instance, but not what the data is, such as notification records, delivery state or queues. To find out, you'd need to check the service's code or documentation.\n\n**Other things I found:**\n- That Redis instance is the only thing NotificationsService needs to run. The graph shows no other services, APIs or databases it calls or depends on.\n- One configuration key applies to the service: **RETRY_ATTEMPTS**. It sets the retry behaviour to three attempts with a 250ms backoff. The graph doesn't say whether these retries cover its writes to Redis or something else.\n\n**Answer:** NotificationsService, NotificationsRedisInstance, RETRY_ATTEMPTS.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  }
+ ],
+ "input_tokens": 9284,
+ "output_tokens": 524,
+ "cost_usd": 0.049815399999999996
+}

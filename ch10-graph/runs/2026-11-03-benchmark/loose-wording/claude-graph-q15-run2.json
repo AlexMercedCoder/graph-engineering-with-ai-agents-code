@@ -1,0 +1,32 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 15,
+ "run": 2,
+ "answer": "Changing UserService token validation could affect **8 entities within two hops**: 6 services and 2 APIs.\n\n**One hop: depends on UserService directly**\n- **ApiGateway**: depends on UserService, and also calls **UsersAPI**.\n- **AuditService**: depends on UserService.\n- **OrderService**: depends on UserService.\n- **UsersAPI**: the API that UserService exposes. Its only caller in the graph is ApiGateway.\n\n**Two hops: reached through OrderService**\n- **BillingService**: depends on OrderService.\n- **ReportingService**: depends on OrderService.\n- **SearchService**: depends on OrderService.\n- **OrdersAPI**: exposed by OrderService, so its callers could be hit too.\n\n**Notes**\n- **OrderService is the main risk point.** Most of the second-hop impact goes through it. If its calls to UserService start failing token validation, BillingService, ReportingService, SearchService and OrdersAPI all feel it.\n- **ApiGateway is probably the most exposed directly.** It uses UserService through two routes: a direct dependency and its calls to UsersAPI. That fits it being the point where incoming tokens are checked.\n- **The graph doesn't model \"token validation\" on its own.** It only records whole-service relationships, so this is the blast radius of changing UserService in general. It doesn't show which of these services actually use token validation. I also found no configuration key for token validation, so no config settings are involved as far as the graph shows.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "token validation"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UsersAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 14643,
+ "output_tokens": 838
+}

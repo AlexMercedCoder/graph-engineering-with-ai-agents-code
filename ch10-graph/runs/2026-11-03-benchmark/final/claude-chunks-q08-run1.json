@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "chunks",
+ "id": 8,
+ "run": 1,
+ "answer": "ApiGateway sends token validation to **UserService**, and it reaches UserService through the **UsersAPI**.\n\n- **ApiGateway**: The gateway docs say it \"depends on the user service for token validation.\" Because of that, a request with an expired token is rejected at the gateway before any other service sees it (api-gateway#Integrations).\n- **UserService**: It owns users and \"validates the session tokens that the gateway forwards\" (user-service#Overview).\n- **UsersAPI**: UserService exposes this API, and the gateway docs list it as one of the gateway's upstream calls. The docs never say outright that validation calls go through the UsersAPI, so that link is my inference.\n\n**Caveat:** UserService caches validation results for 60 seconds. A token revoked within that window will still pass until its cache entry expires (user-service#Operations).\n\nThe docs don't name a database or configuration key for token validation. The only ApiGateway config key they mention is `GATEWAY_RATE_LIMITS`, which controls rate limiting, not tokens.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "ApiGateway token validation",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService overview UsersAPI token validation endpoint",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 13454,
+ "output_tokens": 552,
+ "cost_usd": 0.0437836
+}

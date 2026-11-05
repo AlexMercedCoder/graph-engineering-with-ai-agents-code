@@ -1,0 +1,60 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 5,
+ "run": 2,
+ "answer": "The key is **`CAPTURE_TIMEOUT`**. I couldn't find its default, because the graph doesn't store one.\n\n**What the graph shows:**\n- **`CAPTURE_TIMEOUT`** configures **PaymentsService**. The tool describes PaymentsService as \"configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT.\"\n- **`PAYMENT_API_KEY`** is the only other configuration key on PaymentsService. It isn't related to the timeout.\n- **PaymentsService** calls **NotificationsAPI** and stores data in **PaymentsPostgresDatabase**. Neither link has anything to do with the timeout setting.\n\n**About the default:** The configuration links in the graph only say which key configures which service. They don't include values, defaults or units, so the graph can't tell you the default for `CAPTURE_TIMEOUT`. To find it, check the PaymentsService code or config files (for example, where it reads `CAPTURE_TIMEOUT`), its deployment manifests or environment files, or its service documentation.\n\n**How I found the key:** Exact names like `payments.capture.timeout` and `PAYMENTS_CAPTURE_TIMEOUT` returned nothing. A lookup of `capture_timeout` returned the PaymentsService result, and so did `CAPTURE_TIMEOUT`, which confirmed the key name.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "payments.capture.timeout"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "PAYMENTS_CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "payments.capture_timeout"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "capture_timeout"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "payments.capture.timeout_ms"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "config_key": "PAYMENT_API_KEY"
+   }
+  }
+ ],
+ "input_tokens": 20186,
+ "output_tokens": 1190
+}

@@ -1,0 +1,61 @@
+{
+ "doc": "order-service.md",
+ "sha256": "c9f2e2ee64cc0181d6fc7f4c5e9b5ea62e1c2c27e95509c2e4aa107126d5202e",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-04T02:30:09+00:00",
+ "usage": {
+  "input_tokens": 3423,
+  "output_tokens": 371,
+  "cost_usd": 0.0148669
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "OrderService",
+    "type": "Service"
+   },
+   {
+    "name": "UserService",
+    "type": "Service"
+   },
+   {
+    "name": "OrdersAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "PaymentsAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "orders Postgres database",
+    "type": "Database"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "OrderService",
+    "type": "EXPOSES",
+    "target": "OrdersAPI",
+    "sentence": "It exposes the OrdersAPI for creating, reading, and cancelling orders."
+   },
+   {
+    "source": "OrderService",
+    "type": "STORES",
+    "target": "orders Postgres database",
+    "sentence": "OrderService stores orders in the orders Postgres database."
+   },
+   {
+    "source": "OrderService",
+    "type": "CALLS",
+    "target": "PaymentsAPI",
+    "sentence": "It calls the PaymentsAPI to authorize and capture."
+   },
+   {
+    "source": "OrderService",
+    "type": "DEPENDS_ON",
+    "target": "UserService",
+    "sentence": "It depends on UserService to resolve the ordering customer."
+   }
+  ]
+ }
+}

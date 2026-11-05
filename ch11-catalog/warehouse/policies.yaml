@@ -1,0 +1,17 @@
+# Access policies the data platform enforces, below the MCP server.
+# The server passes the caller's identity; it never decides what an identity sees.
+# On a real platform these are row access policies, column masks, and grants.
+# Here dataplatform.py builds each identity a private copy of the tables it may read.
+
+identities:
+  analyst:
+    deny_tables: [fct_commissions]
+    deny_columns: [dim_policyholder.holder_name, dim_policyholder.email]
+  emea-analyst:
+    deny_tables: [fct_commissions]
+    deny_columns: [dim_policyholder.holder_name, dim_policyholder.email]
+    row_filters:
+      fct_policy_premium: "geo_id IN (SELECT geo_id FROM dim_geography WHERE region = 'EMEA')"
+  finance: {}
+
+# Any identity not listed here gets no tables at all (fail closed).

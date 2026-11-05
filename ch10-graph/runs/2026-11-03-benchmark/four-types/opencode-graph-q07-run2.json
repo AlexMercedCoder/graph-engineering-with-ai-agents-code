@@ -1,0 +1,18 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 7,
+ "run": 2,
+ "answer": "SearchService keeps its search index in **SearchOpensearchCluster**, linked by a `STORES` relationship.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "SearchService"
+   }
+  }
+ ],
+ "input_tokens": 2531,
+ "output_tokens": 49
+}

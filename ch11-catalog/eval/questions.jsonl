@@ -1,0 +1,6 @@
+{"id": "q1", "question": "What was net written premium by region in Q3 2026?", "kind": "answer"}
+{"id": "q2", "question": "What was gross written premium by product line for the first half of 2026?", "kind": "answer"}
+{"id": "q3", "question": "How many policies did we write in March 2026?", "kind": "answer"}
+{"id": "q4", "question": "How much did we pay on closed claims in Q2 2026, by severity?", "kind": "answer"}
+{"id": "q5", "question": "What was our loss ratio by region in Q3 2026?", "kind": "not_modelled"}
+{"id": "q6", "question": "How much commission did we pay agents in Q3 2026?", "kind": "restricted"}

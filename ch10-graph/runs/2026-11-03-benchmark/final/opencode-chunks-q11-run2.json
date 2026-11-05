@@ -1,0 +1,41 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 11,
+ "run": 2,
+ "answer": "**Five distinct downstream services are affected within two hops of `NotificationsAPI`: `BillingService`, `PaymentsService`, `OrderService`, `RenewalsWorker`, and `ReportingService`.** `NotificationsService` hosts the changed API and is the starting point, not part of that downstream count.\n\n| Hop | Affected service | Dependency path toward the changed API |\n|---|---|---|\n| 1 | `BillingService` | Calls `NotificationsAPI` to send receipts after a successful capture. |\n| 1 | `PaymentsService` | Calls `NotificationsAPI` after a declined authorization. |\n| 2 | `OrderService` | Calls `PaymentsAPI`, exposed by `PaymentsService`. |\n| 2 | `RenewalsWorker` | Depends on `BillingService` and also calls `PaymentsAPI` directly. Counted once. |\n| 2 | `ReportingService` | Depends on `BillingService` for invoice totals. |\n\nSources: `notifications-service#Overview`, `billing-service#Integrations`, `payments-service#Overview`, `payments-service#Integrations`, `order-service#Integrations`, `renewals-worker#Integrations`, and `reporting-service#Integrations`.\n\n**Retry-related configuration and storage:** `NotificationsService` currently makes three attempts with a 250 ms backoff, configured by `RETRY_ATTEMPTS`. Queued messages are stored in the **notifications Redis instance**; exhausted messages move to a dead-letter list without notifying the caller. Callers needing confirmation poll message status. These are the semantics whose change could propagate along the paths above. Sources: `notifications-service#Delivery and retries` and `notifications-service#Data`.\n\n**Boundary:** `SearchService`, which depends on `OrderService`, is three hops away and is excluded. `BillingService`\u2019s dependency on `OrderService` points in the opposite direction from the requested impact traversal; `OrderService` qualifies through `PaymentsAPI`. `ReportingService`\u2019s manually copied payment-decline metrics do not create an additional API dependency.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI callers retry semantics service dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"NotificationsAPI\" services calls",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"BillingService\" depends calls API",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"PaymentsService\" depends calls API",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 5258,
+ "output_tokens": 544,
+ "cost_usd": null
+}

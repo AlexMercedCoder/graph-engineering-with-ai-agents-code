@@ -1,0 +1,27 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 14,
+ "run": 2,
+ "answer": "The direct callers affected are **BillingService** and **PaymentsService**:\n\n| Service | Messages that can no longer be delivered |\n|---|---|\n| **BillingService** | Receipts sent after a successful capture. |\n| **PaymentsService** | Customer notifications for declined authorizations. |\n\nBoth call **NotificationsAPI**, exposed by **NotificationsService**, which stores queued messages in the **notifications Redis instance** until a provider accepts them or retries run out. Losing that Redis instance breaks the delivery queue for both callers.\n\n**Dependency path:** `BillingService / PaymentsService \u2192 NotificationsAPI \u2192 NotificationsService \u2192 notifications Redis instance`\n\nSources: `billing-service#Integrations`, `payments-service#Integrations`, `notifications-service#Overview`, and `notifications-service#Data`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI notifications Redis message delivery services callers",
+    "k": 6
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"NotificationsAPI\" callers services integrations",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 4333,
+ "output_tokens": 218,
+ "cost_usd": null
+}

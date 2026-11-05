@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 10,
+ "run": 2,
+ "answer": "UserService uses **`ORDER_DB_URL`** for its read replica. The historical key name is retained because three deployment scripts read it.\n\nSource: `user-service#Configuration`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService read replica configuration key",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2322,
+ "output_tokens": 68,
+ "cost_usd": null
+}

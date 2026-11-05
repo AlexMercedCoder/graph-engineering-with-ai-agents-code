@@ -1,0 +1,92 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 5,
+ "run": 2,
+ "answer": "I couldn\u2019t verify the capture-timeout configuration key or its default for **PaymentsService** using the available tools. The dependency lookup returned **NotificationsAPI** and **PaymentsPostgresDatabase**, but no configuration information. The configuration tool requires an exact key name, and the candidate names I checked were not found.\n\nThe key and default therefore remain **unconfirmed**.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "PaymentsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "PAYMENTS_CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.capture.timeout"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "PAYMENTS_CAPTURE_TIMEOUT_MS"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "PAYMENT_CAPTURE_TIMEOUT_MS"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.captureTimeoutMs"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "CAPTURE_TIMEOUT_MS"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.capture.timeout_ms"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "PaymentsService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.capture.timeoutMs"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.capture_timeout_ms"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "PAYMENT_CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "config_key": "payments.captureTimeout"
+   }
+  }
+ ],
+ "input_tokens": 10441,
+ "output_tokens": 408
+}

@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 3,
+ "run": 2,
+ "answer": "OrderService uses **OrdersPostgresDatabase**. The graph records this as a direct link: `OrderService -STORES-> OrdersPostgresDatabase`.\n\nOrderService also reaches two other databases indirectly, through services it relies on. It doesn't use these itself:\n- **PaymentsPostgresDatabase**: OrderService calls **PaymentsAPI**, which **PaymentsService** exposes, and PaymentsService stores to PaymentsPostgresDatabase.\n- **UsersPostgresDatabase**: OrderService depends on **UserService**, which stores to UsersPostgresDatabase.\n\nNo configuration keys are recorded for OrderService, so the graph doesn't show which key, if any, sets its database connection.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "OrderService"
+   }
+  }
+ ],
+ "input_tokens": 14514,
+ "output_tokens": 446,
+ "cost_usd": 0.038716600000000004
+}

@@ -1,0 +1,33 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 13,
+ "run": 2,
+ "answer": "For **OrderService** to serve a request, these components must be running and reachable:\n\n| Component | Why it is required |\n|---|---|\n| **OrderService** | Handles the request. |\n| **OrdersPostgresDatabase** | OrderService\u2019s database (`STORES`). |\n| **PaymentsAPI** | API called by OrderService (`CALLS`). No further dependencies were found in the graph. |\n| **UserService** | Service required by OrderService (`DEPENDS_ON`). |\n| **UsersPostgresDatabase** | UserService\u2019s database (`STORES`), making it a transitive dependency of OrderService. |\n\nThe dependency chain is:\n\n```text\nOrderService\n\u251c\u2500\u2500 OrdersPostgresDatabase\n\u251c\u2500\u2500 PaymentsAPI\n\u2514\u2500\u2500 UserService\n    \u2514\u2500\u2500 UsersPostgresDatabase\n```\n\nNo configuration keys were returned by the dependency traversal.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 10
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 10
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "PaymentsAPI",
+    "max_depth": 10
+   }
+  }
+ ],
+ "input_tokens": 3991,
+ "output_tokens": 272
+}

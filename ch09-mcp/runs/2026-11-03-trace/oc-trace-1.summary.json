@@ -1,0 +1,50 @@
+{
+ "payloads": [
+  12263,
+  12576,
+  13000
+ ],
+ "requests": 3,
+ "input_total": 37839,
+ "first_request": 12263,
+ "tools": [
+  [
+   "project-knowledge_lookup_error_code",
+   "{\"code\": \"E4021\"}"
+  ],
+  [
+   "project-knowledge_get_config_schema",
+   "{\"service\": \"payments\"}"
+  ],
+  [
+   "project-knowledge_find_architecture_docs",
+   "{\"topic\": \"payments authorization hold capture worker timing CAPTURE_DELAY_MINUTES AUTH_HOLD_MINUTES staging\", \"max_sections\": 3}"
+  ]
+ ],
+ "tool_result_chars": 2860,
+ "results": [
+  {
+   "chars": 172,
+   "error": false,
+   "head": "E4021: Payment authorization expired\nCause: The authorization hold lapsed before capture.\nHandling: Re-authorize, then capture. Do not retry capture alone.\nRetryable: False",
+   "has_0.82": false
+  },
+  {
+   "chars": 1043,
+   "error": false,
+   "head": "KEY                    TYPE      REQUIRED  DEFAULT              NOTES\nPAYMENT_API_KEY        string    True      (value not shown)    Provider API key for this environment.\nPAYMENT_BASE_URL       string    True      None                 Provider endpoint. Sandbox and live endpoints differ.\nPROVIDER_",
+   "has_0.82": false
+  },
+  {
+   "chars": 1645,
+   "error": false,
+   "head": "## Authorization and capture\nPayments authorizes when the order moves to pending and captures later, from the\ncapture worker, CAPTURE_DELAY_MINUTES after authorization. The delay exists so that\nan order edited within a few minutes of checkout can be re-authorized without a\nrefund. The provider holds",
+   "has_0.82": false
+  }
+ ],
+ "final": "**E4021 means \u201cPayment authorization expired.\u201d** The provider\u2019s authorization hold expired before the payments capture worker attempted to capture it.\n\nThe configuration schema points to a likely timing mismatch:\n\n| Setting | Type | Default | Purpose |\n|---|---|---:|---|\n| `CAPTURE_DELAY_MINUTES` | integer | `15` | How long after authorization the worker waits before capture |\n| `AUTH_HOLD_MINUTES` | integer | `60` | How long the provider holds the authorization; must exceed the capture delay |\n| `CAPTURE_TIMEOUT` | integer | `30` | Seconds to wait for a capture call to finish |\n| `MAX_CAPTURE_RETRIES` | integer | `4` | Retries for retryable provider errors |\n\n**Most likely misconfiguration:** staging has `CAPTURE_DELAY_MINUTES` greater than or equal to `AUTH_HOLD_MINUTES`, or the configured hold duration is longer than the provider actually grants. The defaults\u201415-minute delay and 60-minute hold\u2014are compatible.\n\nCheck staging\u2019s effective values and the provider\u2019s actual authorization lifetime. The hold should exceed the capture delay with enough margin for worker scheduling delays. If those values are correct, check whether the capture worker is falling behind and attempting capture after the hold expires.\n\nFor affected payments, **re-authorize, then capture**. E4021 is non-retryable; retrying capture alone or increasing `MAX_CAPTURE_RETRIES` will not fix an expired authorization.\n\nI checked the error definition, configuration schema, and authorization/capture architecture. I haven\u2019t inspected staging\u2019s actual configuration values, so this is a likely diagnosis rather than a confirmed one. No files were edited.",
+ "init": {},
+ "diagnosis_correct": false,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

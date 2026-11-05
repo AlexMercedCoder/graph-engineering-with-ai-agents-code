@@ -1,0 +1,25 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 5,
+ "run": 2,
+ "answer": "The key is **`CAPTURE_TIMEOUT`**. I couldn't find its default, because the graph doesn't record one.\n\n**What the graph shows:**\n- **PaymentsService** is set by two configuration keys: **`CAPTURE_TIMEOUT`** and **`PAYMENT_API_KEY`**.\n- Looking up `CAPTURE_TIMEOUT` directly shows that **PaymentsService** is the only service it configures. So changing it only affects that one service.\n- `PAYMENT_API_KEY` is the other key for PaymentsService. Judging by its name, it's an API credential, not a timeout.\n\n**What's missing:** Both lookups returned only the sentence \"It is configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT.\" That sentence says which keys apply but gives no default value, units or range. I haven't guessed a number. To find the default, check the PaymentsService source code, its config files or deployment manifests, or its documentation.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "CAPTURE_TIMEOUT"
+   }
+  }
+ ],
+ "input_tokens": 13978,
+ "output_tokens": 516,
+ "cost_usd": 0.037809800000000005
+}

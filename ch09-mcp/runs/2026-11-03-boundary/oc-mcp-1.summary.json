@@ -1,0 +1,51 @@
+{
+ "payloads": [
+  12247,
+  12757,
+  12800,
+  12851
+ ],
+ "requests": 4,
+ "input_total": 50655,
+ "first_request": 12247,
+ "tools": [
+  [
+   "project-knowledge_find_architecture_docs",
+   "{\"topic\": \"fraud scoring thresholds order hold manual review exact score thresholds\", \"max_sections\": 5}"
+  ],
+  [
+   "grep",
+   "{\"pattern\": \"fraud|manual.review|risk.score\", \"include\": \"*\"}"
+  ],
+  [
+   "list_mcp_resources",
+   "{}"
+  ]
+ ],
+ "tool_result_chars": 2257,
+ "results": [
+  {
+   "chars": 2222,
+   "error": false,
+   "head": "## Authorization and capture\nPayments authorizes when the order moves to pending and captures later, from the\ncapture worker, CAPTURE_DELAY_MINUTES after authorization. The delay exists so that\nan order edited within a few minutes of checkout can be re-authorized without a\nrefund. The provider holds",
+   "has_0.82": false
+  },
+  {
+   "chars": 14,
+   "error": false,
+   "head": "No files found",
+   "has_0.82": false
+  },
+  {
+   "chars": 21,
+   "error": false,
+   "head": "{\n  \"resources\": []\n}",
+   "has_0.82": false
+  }
+ ],
+ "final": "I couldn\u2019t verify the exact fraud-score thresholds from the available project documentation or code. The payment documentation covers authorization and capture, but doesn\u2019t specify when an order is held for manual review.\n\nPlease share the fraud-rule configuration or scoring policy for the relevant environment. I\u2019ll extract the exact thresholds, including whether each boundary is inclusive (`>=`) or exclusive (`>`).",
+ "init": {},
+ "diagnosis_correct": false,
+ "leak_in_answer": false,
+ "leak_in_context": false
+}

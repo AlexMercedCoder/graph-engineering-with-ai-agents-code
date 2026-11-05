@@ -1,0 +1,20 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "chunks",
+ "id": 7,
+ "run": 2,
+ "answer": "**SearchService keeps its index in the search OpenSearch cluster.** The index can be rebuilt from **OrderService** at any time and is never backed up.\n\nSource: `search-service` \u2192 **Data**.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "SearchService index storage location database configuration",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2312,
+ "output_tokens": 77,
+ "cost_usd": null
+}

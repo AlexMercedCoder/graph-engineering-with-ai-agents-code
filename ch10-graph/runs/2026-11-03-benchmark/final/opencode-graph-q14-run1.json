@@ -1,0 +1,34 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "id": 14,
+ "run": 1,
+ "answer": "**BillingService and PaymentsService** are the direct callers whose messages can no longer be delivered if **NotificationsRedisInstance** is lost.\n\nThe relevant dependency paths are:\n\n- **BillingService** \u2192 calls **NotificationsAPI**\n- **PaymentsService** \u2192 calls **NotificationsAPI**\n- **NotificationsService**, which serves **NotificationsAPI**, \u2192 stores data in **NotificationsRedisInstance**\n\nThe affected database is **NotificationsRedisInstance**. No configuration keys are involved in these dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 4163,
+ "output_tokens": 189,
+ "cost_usd": null
+}

@@ -1,0 +1,26 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "id": 1,
+ "run": 1,
+ "answer": "NotificationsService stores its data in **NotificationsRedisInstance**. That's the only thing it depends on. The graph has a single STORES relationship from NotificationsService to NotificationsRedisInstance, and nothing else, even when I searched three levels deep. It has no CALLS or DEPENDS_ON links to other services, APIs or databases.\n\nThe graph doesn't say **what** data NotificationsService puts in that Redis instance, because the STORES relationship has no details. Since it's Redis, it's likely holding short-lived data like queued notifications or delivery status, but that's a guess. To confirm, you'd need to check NotificationsService's code or config.\n\nI didn't check configuration keys because the graph tool needs a specific key name to look up. If you know which key holds the Redis connection setting, I can look up what else uses it.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 3
+   }
+  }
+ ],
+ "input_tokens": 13555,
+ "output_tokens": 511
+}
