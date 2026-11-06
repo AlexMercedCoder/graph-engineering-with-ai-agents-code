@@ -1,0 +1,105 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "scenario": "staging-fix",
+ "run": 2,
+ "date": "2026-11-05",
+ "seconds": 83,
+ "requests": 13,
+ "input_tokens": 151852,
+ "largest_request": 14126,
+ "cost_usd": null,
+ "tool_calls": [
+  {
+   "tool": "skill",
+   "input": {
+    "name": "change-config"
+   }
+  },
+  {
+   "tool": "skill",
+   "input": {
+    "name": "retrieve-evidence"
+   }
+  },
+  {
+   "tool": "skill",
+   "input": {
+    "name": "act-on-evidence"
+   }
+  },
+  {
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "Diagnose staging payments capture error E4021, identify payments configuration schema and which services the implicated configuration key affects, to fix staging payments configuration."
+   }
+  },
+  {
+   "tool": "project-knowledge_lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "tool": "project-knowledge_get_config_schema",
+   "input": {
+    "service": "payments"
+   }
+  },
+  {
+   "tool": "change-gate_read_config",
+   "input": {
+    "environment": "staging",
+    "service": "payments"
+   }
+  },
+  {
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "Which services does the AUTH_HOLD_MINUTES configuration key configure?"
+   }
+  },
+  {
+   "tool": "project-knowledge_trace_configuration",
+   "input": {
+    "key_or_service": "AUTH_HOLD_MINUTES"
+   }
+  },
+  {
+   "tool": "project-knowledge_check_evidence",
+   "input": {
+    "documents": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means the authorization hold expired before capture; re-authorize then capture, and do not retry capture alone.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The payments AUTH_HOLD_MINUTES default is 60 and must exceed CAPTURE_DELAY_MINUTES to prevent authorizations lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Staging payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('staging', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:10Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"AUTH_HOLD_MINUTES configures RenewalsWorker and sets how long a renewal authorization is held before capture.\",\"source\":{\"path\":\"graph\",\"identifier\":\"trace_configuration('AUTH_HOLD_MINUTES')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":31,\"freshness\":\"2026-11-06T01:29Z\",\"caveats\":[]}]"
+   }
+  },
+  {
+   "tool": "change-gate_propose_change",
+   "input": {
+    "environment": "staging",
+    "service": "payments",
+    "key": "AUTH_HOLD_MINUTES",
+    "value": "60",
+    "reason": "Restore the documented 60-minute authorization hold so it exceeds the 15-minute capture delay and prevents E4021 expiration before capture.",
+    "evidence": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means the authorization hold expired before capture; re-authorize then capture, and do not retry capture alone.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The payments AUTH_HOLD_MINUTES default is 60 and must exceed CAPTURE_DELAY_MINUTES to prevent authorizations lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Staging payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('staging', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:10Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"AUTH_HOLD_MINUTES configures RenewalsWorker and sets how long a renewal authorization is held before capture.\",\"source\":{\"path\":\"graph\",\"identifier\":\"trace_configuration('AUTH_HOLD_MINUTES')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":31,\"freshness\":\"2026-11-06T01:29Z\",\"caveats\":[]}]"
+   }
+  },
+  {
+   "tool": "change-gate_read_config",
+   "input": {
+    "environment": "staging",
+    "service": "payments"
+   }
+  },
+  {
+   "tool": "project-knowledge_check_evidence",
+   "input": {
+    "documents": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Staging payments now has AUTH_HOLD_MINUTES=60 and CAPTURE_DELAY_MINUTES=15.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('staging', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:11Z\",\"caveats\":[]}]"
+   }
+  },
+  {
+   "tool": "apply_patch",
+   "input": {
+    "patchText": "*** Begin Patch\n*** Add File: report.md\n+# Staging payments configuration fix\n+\n+- Environment: staging; service: payments.\n+- Changed `AUTH_HOLD_MINUTES` from `10` to `60`, the documented default. The previous hold expired before the configured 15-minute capture delay. Sources: `read_config('staging', 'payments')` (03:10Z), `get_config_schema('payments')`.\n+- Gate outcome: applied to staging; no approval required. Request id: not returned. Reviewer reason: none.\n+- Verification: configuration read-back confirms `AUTH_HOLD_MINUTES=60` and `CAPTURE_DELAY_MINUTES=15`. Source: `read_config('staging', 'payments')` (03:11Z). Capture execution was not tested.\n+- Existing E4021 failures require re-authorization followed by capture; capture alone must not be retried. Source: `lookup_error_code('E4021')`.\n+- Configuration graph identifies RenewalsWorker as configured by this key. Source: `trace_configuration('AUTH_HOLD_MINUTES')`.\n+\n+## Evidence\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"E4021 means the authorization hold expired before capture; re-authorize then capture, and do not retry capture alone.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"lookup_error_code('E4021')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 43,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"The payments AUTH_HOLD_MINUTES default is 60 and must exceed CAPTURE_DELAY_MINUTES to prevent authorizations lapsing before capture.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"get_config_schema('payments')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 261,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"Staging payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"read_config('staging', 'payments')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 64,\n+    \"freshness\": \"2026-11-06T03:10Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"AUTH_HOLD_MINUTES configures RenewalsWorker and sets how long a renewal authorization is held before capture.\",\n+    \"source\": {\"path\": \"graph\", \"identifier\": \"trace_configuration('AUTH_HOLD_MINUTES')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 31,\n+    \"freshness\": \"2026-11-06T01:29Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"Staging payments now has AUTH_HOLD_MINUTES=60 and CAPTURE_DELAY_MINUTES=15.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"read_config('staging', 'payments')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 64,\n+    \"freshness\": \"2026-11-06T03:11Z\",\n+    \"caveats\": []\n+  }\n+]\n+```\n*** End Patch"
+   }
+  }
+ ]
+}

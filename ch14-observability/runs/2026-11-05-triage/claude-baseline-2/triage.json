@@ -1,0 +1,38 @@
+{
+ "run": "claude-baseline-2",
+ "harness": "claude",
+ "condition": "baseline",
+ "role": "sre",
+ "verdict": "pass",
+ "stop": "completed",
+ "answer_correct": true,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "Skill",
+   "ToolSearch",
+   "mcp__project-graph__find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": false
+ },
+ "answer": {
+  "named": 7,
+  "missing": [],
+  "extra": [],
+  "from": "Affected services line"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 460,
+  "cache_read": 125724,
+  "cache_write": 8713,
+  "output": 1073,
+  "requests": 5
+ }
+}

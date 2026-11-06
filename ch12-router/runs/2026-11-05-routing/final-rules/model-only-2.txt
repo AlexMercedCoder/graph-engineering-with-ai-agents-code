@@ -1,0 +1,6 @@
+routing accuracy: 41/42
+mis-routes that only cost more: 0
+mis-routes to a path that can't answer: 1
+model calls: 42, 197 s, $0.0107
+  wrong path  'Which configuration key does UserService use for its read replica?'
+              expected vector, got tool (model)

@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 9,
+ "run": 2,
+ "answer": "**RenewalsWorker re-bills every active subscription monthly**, running as a scheduled job on the **first of each month**.\n\nIf a renewal authorization fails, it retries on **days three and seven**. After the third failure, the subscription is suspended and the customer is emailed through the normal billing receipt flow.\n\nSource: `renewals-worker#Overview` and `renewals-worker#Operations`.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "RenewalsWorker re-bill subscriptions frequency schedule interval configuration",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 2884,
+ "output_tokens": 118,
+ "cost_usd": null
+}

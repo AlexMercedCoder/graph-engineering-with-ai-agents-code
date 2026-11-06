@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "vector",
+ "route": "vector",
+ "id": 22,
+ "run": 1,
+ "answer": "The docs name two services that call the **PaymentsAPI** directly: **OrderService** and **RenewalsWorker**. **PaymentsService** never retries a declined payment because retrying a decline can trigger the payment provider's fraud checks.\n\n## Who calls the PaymentsAPI directly\n\n**PaymentsService** exposes the **PaymentsAPI**. It wraps the external payment provider so that no other service holds the provider's credentials (`payments-service#Overview`).\n\n1. **OrderService** calls the PaymentsAPI to authorize and capture payments. It also depends on **UserService** to look up the customer placing the order (`order-service#Integrations`).\n2. **RenewalsWorker** calls the PaymentsAPI directly rather than going through OrderService, because a renewal has no cart. It also depends on **BillingService** (`renewals-worker#Integrations`).\n\nNo other service is documented as calling the PaymentsAPI. The docs say BillingService is maintained by the same team as PaymentsService, but they don't say it calls the PaymentsAPI.\n\n## Why PaymentsService never retries a decline\n\nPaymentsService retries calls to the provider only on network errors, never on a decline, because retrying a decline can trigger the provider's fraud checks (`payments-service#Operations`).\n\nWhat happens instead:\n- **What happens on a decline:** PaymentsService calls the **NotificationsAPI**, so the customer hears about the decline even if checkout has already returned (`payments-service#Integrations`).\n- **Timeouts are different:** OrderService retries a timed-out authorization once, after two seconds. If it times out a second time, the checkout is cancelled and the reserved stock is released (`order-service#Operations`). This retry is for timeouts only, not declines.\n\n## Related configuration and data\n\n- **`PAYMENT_API_KEY`**: the provider credential, which only PaymentsService holds.\n- **`CAPTURE_TIMEOUT`**: set in seconds, default 30 (`payments-service#Configuration`).\n- **payments Postgres database**: stores each authorization along with the provider's reference for it (`payments-service#Data`).",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that call PaymentsAPI directly",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "PaymentsService retry policy declined payment",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls PaymentsAPI authorize capture refund",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 13744,
+ "output_tokens": 1029,
+ "cost_usd": 0.0564548
+}

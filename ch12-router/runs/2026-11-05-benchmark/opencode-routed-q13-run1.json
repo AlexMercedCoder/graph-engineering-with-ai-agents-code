@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph",
+ "id": 13,
+ "run": 1,
+ "answer": "Within two hops, **OrderService** needs these services, APIs, and databases:\n\n| Hop | From | Relationship | Required entity |\n|---|---|---|---|\n| 1 | OrderService | Stores data in | **OrdersPostgresDatabase** |\n| 1 | OrderService | Calls | **PaymentsAPI**, served by **PaymentsService** |\n| 1 | OrderService | Depends on | **UserService** |\n| 2 | PaymentsService | Calls | **NotificationsAPI**, served by **NotificationsService** |\n| 2 | PaymentsService | Stores data in | **PaymentsPostgresDatabase** |\n| 2 | UserService | Stores data in | **UsersPostgresDatabase** |\n\n**Total: 8 dependencies** \u2014 3 services, 2 APIs, and 3 databases, excluding OrderService itself. No configuration keys were returned by this dependency traversal.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2763,
+ "output_tokens": 210,
+ "cost_usd": null
+}

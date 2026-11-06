@@ -1,0 +1,189 @@
+# The Chapter 5 execution graph (ch05-subagents/nodes/ and run-graph.sh), written
+# as an AGS 1.0 document for the run Chapter 5 shows: src/services/order-service.js.
+# See Appendix A.
+#
+# Validate it with the reference validator:
+#   python3 -m pip install agentic-graph-spec==1.0.4
+#   ags-validate --strict migrate-order-service.agraph.yaml
+#
+# migrate_module's criteria are the checks run-graph.sh runs after node 2, plus
+# one that run-graph.sh lacks: the module no longer mentions db.js, so an agent
+# that changes nothing cannot pass. verify checks npm test; run-graph.sh also
+# reruns the route check there. Here the harness runs the checks, not a shell
+# script.
+ags_version: "1.0"
+kind: AgenticGraph
+id: gewaa/migrate-order-service
+title: Migrate the order service to its repository class
+version: 1.0.0
+requires_conformance: 1
+
+objective: >
+  Move src/services/order-service.js off callback-style database access and onto
+  OrderRepository, keep every route responding, and confirm that no test that passed
+  before the migration fails after it.
+
+context:
+  conventions: >
+    ES modules, Node 20 or newer, tests under tests/ run with node --test. Repository
+    classes live in src/repositories/. Routes in src/api/routes.js call the services.
+
+constraints:
+  max_cost_usd: 5.0
+  max_parallel_nodes: 1
+
+entrypoints: [run_tests]
+
+nodes:
+  run_tests:
+    type: task
+    title: Record the failing tests
+    description: >
+      Run the project test suite from the project root and write the failing tests,
+      each with the assertion that failed and its source file and line, to
+      .agent-work/test-failures.md. If nothing fails, write "all passing". Fix nothing.
+    outputs:
+      failures:
+        type: file
+        description: The list of failing tests, or "all passing".
+        path_hint: .agent-work/test-failures.md
+    intelligence:
+      tier: minimal
+      hints: [tool_use_heavy, low_cost]
+    requirements:
+      tools: [shell_exec, file_read, file_write]
+      permissions:
+        - fs:read:**
+        - fs:write:.agent-work/**
+        - shell:exec:node*
+        - shell:exec:npm*
+      workspace: read_write
+    constraints:
+      max_agent_steps: 12
+    success:
+      summary: The failure report exists.
+      criteria:
+        - id: report_written
+          kind: file_exists
+          description: .agent-work/test-failures.md exists.
+          path: .agent-work/test-failures.md
+    estimate: { effort: xs }
+
+  migrate_module:
+    type: task
+    title: Migrate the order service
+    description: >
+      Migrate src/services/order-service.js from callback-style database access to
+      OrderRepository in src/repositories/order-repository.js. Convert its exported
+      functions to return promises, update tests/order-service.test.js to await them,
+      and update the callers in src/api/routes.js so every route still responds.
+      Change no other file.
+    instructions: Follow the migrate-module skill.
+    depends_on: [run_tests]
+    inputs:
+      failures:
+        type: file
+        description: Tests that were already failing before the migration started.
+        from: nodes.run_tests.outputs.failures
+    outputs:
+      changed_files:
+        type: file_set
+        description: The module, its test file, and src/api/routes.js.
+    intelligence:
+      tier: standard
+      hints: [code_generation]
+    requirements:
+      tools: [file_read, file_search, file_write, shell_exec]
+      permissions:
+        - fs:read:**
+        - fs:write:src/services/order-service.js
+        - fs:write:tests/order-service.test.js
+        - fs:write:src/api/routes.js
+        - shell:exec:node*
+        - shell:exec:grep*
+      skills: [migrate-module]
+      workspace: read_write
+    constraints:
+      max_agent_steps: 40
+    failure:
+      retry:
+        max_attempts: 2
+        retry_on: [criteria_failed]
+        feedback: failed_criteria
+      on_exhausted: fail
+    success:
+      summary: The module uses its repository, its tests pass, and every route responds.
+      criteria:
+        - id: no_db_import
+          kind: command
+          description: order-service.js no longer imports ../db.js.
+          run: grep -n db.js src/services/order-service.js
+          expect_exit_code: 1
+          timeout_seconds: 30
+        - id: module_tests_pass
+          kind: command
+          description: tests/order-service.test.js passes.
+          run: node --test tests/order-service.test.js
+          expect_exit_code: 0
+          timeout_seconds: 300
+        - id: routes_respond
+          kind: command
+          description: Every route in src/api/routes.js still responds.
+          run: node scripts/check-routes.js
+          expect_exit_code: 0
+          timeout_seconds: 120
+    estimate: { effort: m }
+
+  verify:
+    type: task
+    title: Check for regressions
+    description: >
+      Run the whole suite and the route check, compare the result with the failure report
+      from before the migration, and report any test that passed before and fails now.
+      Write a one-paragraph verdict. Change nothing.
+    depends_on: [migrate_module]
+    inputs:
+      failures:
+        type: file
+        description: The failure report from before the migration.
+        from: nodes.run_tests.outputs.failures
+      changed_files:
+        type: file_set
+        description: The files the migration changed; anything else changing is a regression.
+        from: nodes.migrate_module.outputs.changed_files
+    outputs:
+      verdict:
+        type: markdown
+        description: One paragraph naming any regression, or saying there is none.
+    intelligence:
+      tier: minimal
+      hints: [tool_use_heavy, low_cost]
+    requirements:
+      tools: [shell_exec, file_read]
+      permissions:
+        - fs:read:**
+        - shell:exec:node*
+        - shell:exec:npm*
+      workspace: read_only
+    constraints:
+      max_agent_steps: 12
+    success:
+      summary: The verdict exists and the suite still passes.
+      criteria:
+        - id: verdict_written
+          kind: artifact_present
+          description: The verdict was produced.
+          output: verdict
+        - id: suite_still_passes
+          kind: command
+          description: npm test exits zero.
+          run: npm test
+          expect_exit_code: 0
+          timeout_seconds: 300
+    estimate: { effort: xs }
+
+outputs:
+  verdict:
+    type: markdown
+    description: The regression verdict.
+    from: nodes.verify.outputs.verdict

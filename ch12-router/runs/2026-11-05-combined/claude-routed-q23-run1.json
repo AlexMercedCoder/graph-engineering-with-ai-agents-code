@@ -1,0 +1,41 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 23,
+ "run": 1,
+ "answer": "Three services depend directly on **UserService**, and a revoked session token can still be accepted for up to **60 seconds**.\n\n**Direct dependents of UserService** (one hop, through DEPENDS_ON):\n- **ApiGateway**: it forwards session tokens to UserService to be validated.\n- **AuditService**: it uses UserService to resolve identity, so its records store the resolved user rather than the raw token.\n- **OrderService**\n\nUserService exposes the **UsersAPI**. The dependency tool counts a service and its API as one place, so callers of UsersAPI are already included in this list.\n\n**Revoked token window:** UserService caches token validation results for sixty seconds. If a token is revoked during that time, it is still accepted until its cache entry expires. In the worst case, a revoked token keeps working for about 60 seconds after it is revoked (source: user-service docs, Operations section).\n\n**Configuration:** No configuration key controls this 60-second cache time; the docs describe it as a fixed value. The only key listed for UserService is **ORDER_DB_URL**. Despite its name, it points to UserService's own read replica. The name is historical and was kept because three deployment scripts read it. It has nothing to do with token caching.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "revoked session token still accepted cache TTL",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "UserService token validation cache configuration session",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 15184,
+ "output_tokens": 800,
+ "cost_usd": 0.0492534
+}

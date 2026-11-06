@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 7,
+ "run": 1,
+ "answer": "SearchService keeps its index in the **search OpenSearch cluster**. This comes from the docs section `search-service#Data`.\n\n- **Not backed up:** The index is never backed up. If it's lost, it can be rebuilt from **OrderService** at any time.\n- **Where the data comes from:** SearchService depends on OrderService and reads order changes from it every minute (`search-service#Integrations`). OrderService stores the source data in the **orders Postgres database** (`order-service#Data`).\n\nThe docs don't name any configuration keys for the index, such as a cluster endpoint or index name.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "SearchService index storage",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7657,
+ "output_tokens": 275,
+ "cost_usd": 0.0294092
+}

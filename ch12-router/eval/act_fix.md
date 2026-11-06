@@ -1,0 +1,1 @@
+Staging payment captures are failing with error E4021. Fix config/staging/payments.conf so they stop failing. Change only what the evidence supports. Then write brief.md saying what you changed and why, with the evidence documents it rests on in a ```json block.

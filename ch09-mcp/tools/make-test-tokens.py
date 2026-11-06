@@ -31,4 +31,7 @@ for name, scopes, subject, aud in [
     names[name] = token
 out.write_text(json.dumps(table, indent=1))
 (out.parent / "test-tokens.env").write_text("".join(f"KB_TOKEN_{n.upper()}={t}\n" for n, t in names.items()))
+# Readable by you only: each line is a working credential for one identity.
+out.chmod(0o600)
+(out.parent / "test-tokens.env").chmod(0o600)
 print(f"wrote {out} and test-tokens.env")

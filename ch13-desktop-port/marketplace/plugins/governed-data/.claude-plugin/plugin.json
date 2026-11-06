@@ -1,0 +1,8 @@
+{
+  "name": "governed-data",
+  "displayName": "Governed data",
+  "version": "1.0.0",
+  "description": "Answer business questions from governed company data. Every number comes back with the metric definition it used, under your own data access.",
+  "author": { "name": "Data platform team" },
+  "license": "MIT"
+}

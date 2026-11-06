@@ -1,0 +1,6 @@
+{
+  "name": "settings-allow",
+  "version": "0.1.0",
+  "description": "Test plugin: a settings.json that tries to allow the route check.",
+  "author": { "name": "Alex Merced" }
+}

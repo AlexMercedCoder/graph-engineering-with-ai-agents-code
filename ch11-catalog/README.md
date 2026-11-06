@@ -20,7 +20,9 @@ The seed is fixed, so every number in the chapter should match yours to the cent
 | Path | What it is |
 |---|---|
 | `catalog.yaml` | The semantic layer: six datasets, five relationships, seven dimensions, five metrics with bindings and lineage, an AI context block, and the `not_modelled` list |
-| `validate.py` | `Catalog` (search, resolve, the four lineage checks), `compile_to_sql`, `format_rejection`, and a command line |
+| `validate.py` | `Catalog` (search, resolve, the four lineage checks), `compile_to_sql`, `format_rejection`, and a command line; `--check-revision` fails when the catalog changed without a revision bump |
+| `catalog.lock` | The hash recorded for each catalog revision (`validate.py --record-revision`) |
+| `hooks/validate-sql.py`, `hooks/settings.example.json` | A Claude Code `PreToolUse` hook that checks SQL in `sqlite3` commands against the catalog before it runs |
 | `warehouse/seed.py` | Builds the ten-table warehouse; `--schema` prints the table definitions |
 | `warehouse/policies.yaml` | The access policies the data platform enforces per identity |
 | `warehouse/dataplatform.py` | Stand-in for the data platform: builds each identity a connection holding only what its policy grants, read-only, with a row cap and a timeout |
@@ -31,7 +33,10 @@ The seed is fixed, so every number in the chapter should match yours to the cent
 | `eval/questions.jsonl` | Six business questions: four answerable, one not modelled, one restricted |
 | `eval/truth.py` | Expected answers from hand-written SQL; `--check` compares them with compiled SQL |
 | `eval/grade.py` | Scores a Claude Code or OpenCode transcript against `truth.py` |
-| `eval/run-agents.sh` | Runs one harness in one setup (raw, catalog, tools, skill) in a fresh folder |
+| `eval/run-agents.sh` | Runs one harness in one setup (raw, rawhook, catalog, tools, skill) in a fresh folder |
+| `eval/replay_hook.py` | Replays the shell commands from recorded sessions through the SQL hook |
+| `eval/check_hook.py` | Commands the hook must block and must allow |
+| `eval/bad-query.sql` | The query with six mistakes the chapter validates |
 | `eval/checks.sh` | The deterministic checks: compile, refuse, the four checks, identity, signatures, scopes, row cap |
 | `runs/` | Published runs, sanitized |
 

@@ -1,0 +1,4 @@
+project-knowledge: connected, 3 tools (codemode, global)
+  python3 <home>/graph-engineering-with-ai-agents-code/ch09-mcp/server/server.py
+  tools: lookup_error_code, get_config_schema, find_architecture_docs
+  offers resources

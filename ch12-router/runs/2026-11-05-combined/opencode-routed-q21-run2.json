@@ -1,0 +1,41 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 21,
+ "run": 2,
+ "answer": "If **NotificationsRedisInstance** is lost, the direct callers of **NotificationsAPI** whose messages can no longer be delivered are:\n\n- **BillingService**\n- **PaymentsService**\n\n**NotificationsService**, which exposes **NotificationsAPI**, stores queued messages in **NotificationsRedisInstance**. Losing that Redis instance therefore disrupts delivery for both callers.\n\nFor normal delivery failures, **NotificationsService** makes **three attempts with a 250 ms backoff**, configured by **`RETRY_ATTEMPTS`**. A message that fails all three attempts moves to the **dead-letter list**. **The caller is not notified**; callers needing confirmation must poll the message status.\n\nSources: NotificationsService documentation, \u201cData,\u201d \u201cOverview,\u201d and \u201cDelivery and retries\u201d; direct-caller dependency results for NotificationsAPI.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "NotificationsAPI notifications Redis retries message delivery failure",
+    "k": 5
+   }
+  },
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "knowledge_find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "knowledge_trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  }
+ ],
+ "input_tokens": 4770,
+ "output_tokens": 285,
+ "cost_usd": null
+}

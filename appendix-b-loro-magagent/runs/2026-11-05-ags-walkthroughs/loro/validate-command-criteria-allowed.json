@@ -1,0 +1,7 @@
+{
+  "path": "<run-dir>/migrate-order-service.agraph.yaml",
+  "ok": true,
+  "findings": [],
+  "digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+  "policy_findings": []
+}

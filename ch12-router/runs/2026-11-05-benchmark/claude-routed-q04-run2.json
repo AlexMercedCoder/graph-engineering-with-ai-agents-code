@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 4,
+ "run": 2,
+ "answer": "AuditService keeps its records in the **audit Iceberg table**, according to the `audit-service#Data` section of the docs.\n\n**How the records are stored:**\n- **Append-only:** records are only ever added, never changed.\n- **Seven-year retention.**\n- **Contents** (from `audit-service#Overview`): each record holds the caller, the dataset, the columns returned, and the policy decision that allowed or denied the access.\n\n**How writes reach the table** (from `audit-service#Operations`):\n- Writes are held in a buffer for up to five seconds, then written in batches.\n- If a batch write fails, it is retried with exponential backoff until it succeeds.\n- After ten minutes of failed writes, AuditService stops accepting new events, so an outage is visible rather than silent.\n\n**Related services:**\n- **UserService:** AuditService uses it to look up identities, so each record holds the resolved user rather than the raw token (`audit-service#Integrations`).\n- **users Postgres database:** this is where UserService keeps users. Deleted users keep their row with a deletion timestamp, so audit records that point to them still resolve (`user-service#Data`).\n\nThe docs don't name any configuration keys for where AuditService stores records, such as the table name or catalog setting.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "AuditService storage records database",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7740,
+ "output_tokens": 494,
+ "cost_usd": 0.0344454
+}

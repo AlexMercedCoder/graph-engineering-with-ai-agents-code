@@ -1,0 +1,380 @@
+schema_version = "1.0"
+
+[model]
+provider = "mock"
+model = "mock"
+small_model = "mock-small"
+timeout_seconds = 120
+max_retries = 2
+backoff_seconds = 0.25
+verify_tls = true
+temperature = 0.2
+
+[permissions]
+version = "local-v1"
+default = "ask"
+shell = "allow"
+edit = "allow"
+artifact = "ask"
+shared_memory = "ask"
+governed_data = "allow"
+mcp = "ask"
+skills = "ask"
+session_message = "ask"
+web = "deny"
+plugins = "ask"
+workspace_roots = [
+    "<run-dir>/lproj2",
+]
+rules = []
+
+[sandbox]
+enabled = true
+shell_profile = "controlled-shell"
+git_profile = "git"
+governed_data_profile = "governed-data"
+mcp_stdio_profile = "mcp-stdio"
+skill_profile = "skill-script"
+test_profile = "test-runner"
+hook_profile = "hook"
+
+[sandbox.profiles.controlled-shell]
+backend = "process"
+require_os_enforcement = false
+network = "inherit"
+allowed_executables = [
+    "bash",
+    "git",
+    "node",
+    "npm",
+    "npx",
+    "python",
+    "python3",
+    "pytest",
+    "rg",
+    "ruff",
+    "sh",
+    "uv",
+]
+environment_allowlist = [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "TMPDIR",
+]
+writable_roots = []
+filesystem = "minimal"
+readonly_roots = [
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/etc",
+    "/opt",
+]
+masked_paths = [
+    "~/.ssh",
+    "~/.aws",
+    "~/.gnupg",
+    "~/.kube",
+    "~/.docker",
+    "~/.config/loro",
+]
+trusted_executable_prefixes = []
+max_seconds = 120
+max_output_bytes = 1000000
+
+[sandbox.profiles.controlled-shell.container]
+engine = "docker"
+runtime = "auto"
+memory_mb = 1024
+cpus = 1.0
+pids_limit = 256
+tmp_mb = 64
+writable_workspace = false
+
+[sandbox.profiles.git]
+backend = "process"
+require_os_enforcement = false
+network = "inherit"
+allowed_executables = [
+    "git",
+]
+environment_allowlist = [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "TMPDIR",
+]
+writable_roots = []
+filesystem = "minimal"
+readonly_roots = [
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/etc",
+    "/opt",
+]
+masked_paths = [
+    "~/.ssh",
+    "~/.aws",
+    "~/.gnupg",
+    "~/.kube",
+    "~/.docker",
+    "~/.config/loro",
+]
+trusted_executable_prefixes = []
+max_seconds = 120
+max_output_bytes = 1000000
+
+[sandbox.profiles.git.container]
+engine = "docker"
+runtime = "auto"
+memory_mb = 1024
+cpus = 1.0
+pids_limit = 256
+tmp_mb = 64
+writable_workspace = false
+
+[sandbox.profiles.governed-data]
+backend = "process"
+require_os_enforcement = false
+network = "inherit"
+allowed_executables = [
+    "polaris",
+]
+environment_allowlist = [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+]
+writable_roots = []
+filesystem = "minimal"
+readonly_roots = [
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/etc",
+    "/opt",
+]
+masked_paths = [
+    "~/.ssh",
+    "~/.aws",
+    "~/.gnupg",
+    "~/.kube",
+    "~/.docker",
+    "~/.config/loro",
+]
+trusted_executable_prefixes = []
+max_seconds = 120
+max_output_bytes = 1000000
+
+[sandbox.profiles.governed-data.container]
+engine = "docker"
+runtime = "auto"
+memory_mb = 1024
+cpus = 1.0
+pids_limit = 256
+tmp_mb = 64
+writable_workspace = false
+
+[sandbox.profiles.mcp-stdio]
+backend = "process"
+require_os_enforcement = false
+network = "inherit"
+allowed_executables = [
+    "node",
+    "npx",
+    "python",
+    "python3",
+    "uvx",
+]
+environment_allowlist = [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+]
+writable_roots = []
+filesystem = "minimal"
+readonly_roots = [
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/etc",
+    "/opt",
+]
+masked_paths = [
+    "~/.ssh",
+    "~/.aws",
+    "~/.gnupg",
+    "~/.kube",
+    "~/.docker",
+    "~/.config/loro",
+]
+trusted_executable_prefixes = []
+max_seconds = 120
+max_output_bytes = 1000000
+
+[sandbox.profiles.mcp-stdio.container]
+engine = "docker"
+runtime = "auto"
+memory_mb = 1024
+cpus = 1.0
+pids_limit = 256
+tmp_mb = 64
+writable_workspace = false
+
+[sandbox.profiles.skill-script]
+backend = "process"
+require_os_enforcement = false
+network = "inherit"
+allowed_executables = [
+    "python*",
+    "sh",
+]
+environment_allowlist = [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "TMPDIR",
+]
+writable_roots = []
+filesystem = "minimal"
+readonly_roots = [
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/etc",
+    "/opt",
+]
+masked_paths = [
+    "~/.ssh",
+    "~/.aws",
+    "~/.gnupg",
+    "~/.kube",
+    "~/.docker",
+    "~/.config/loro",
+]
+trusted_executable_prefixes = []
+max_seconds = 60
+max_output_bytes = 250000
+
+[sandbox.profiles.skill-script.container]
+engine = "docker"
+runtime = "auto"
+memory_mb = 1024
+cpus = 1.0
+pids_limit = 256
+tmp_mb = 64
+writable_workspace = false
+
+[sandbox.profiles.hook]
+backend = "process"
+require_os_enforcement = false
+network = "inherit"
+allowed_executables = [
+    "python*",
+    "sh",
+    "bash",
+    "node",
+]
+environment_allowlist = [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "LORO_HOOK_EVENT",
+]
+writable_roots = []
+filesystem = "minimal"
+readonly_roots = [
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/etc",
+    "/opt",
+]
+masked_paths = [
+    "~/.ssh",
+    "~/.aws",
+    "~/.gnupg",
+    "~/.kube",
+    "~/.docker",
+    "~/.config/loro",
+]
+trusted_executable_prefixes = []
+max_seconds = 30
+max_output_bytes = 100000
+
+[sandbox.profiles.hook.container]
+engine = "docker"
+runtime = "auto"
+memory_mb = 1024
+cpus = 1.0
+pids_limit = 256
+tmp_mb = 64
+writable_workspace = false
+
+[sandbox.profiles.test-runner]
+backend = "process"
+require_os_enforcement = false
+network = "inherit"
+allowed_executables = [
+    "python*",
+    "pytest",
+    "npm",
+    "npm-cli.js",
+    "node",
+    "cargo",
+    "rustc",
+]
+environment_allowlist = [
+    "PATH",
+    "LANG",
+    "LC_ALL",
+    "TMPDIR",
+]
+writable_roots = []
+filesystem = "minimal"
+readonly_roots = [
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/etc",
+    "/opt",
+]
+masked_paths = [
+    "~/.ssh",
+    "~/.aws",
+    "~/.gnupg",
+    "~/.kube",
+    "~/.docker",
+    "~/.config/loro",
+]
+trusted_executable_prefixes = []
+max_seconds = 900
+max_output_bytes = 2000000
+
+[sandbox.profiles.test-runner.container]
+engine = "docker"
+runtime = "auto"
+memory_mb = 1024
+cpus = 1.0
+pids_limit = 256
+tmp_mb = 64
+writable_workspace = false
+
+[agraph]
+allow_command_criteria = true

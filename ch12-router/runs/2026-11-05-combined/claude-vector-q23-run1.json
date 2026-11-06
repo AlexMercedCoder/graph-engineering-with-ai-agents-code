@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "vector",
+ "route": "vector",
+ "id": 23,
+ "run": 1,
+ "answer": "**Services that depend directly on UserService (three):**\n\n1. **ApiGateway** calls the **UsersAPI** (and the OrdersAPI) and relies on UserService to validate tokens. Requests with expired tokens are rejected at the gateway before they reach any service. (`api-gateway#Integrations`)\n2. **OrderService** relies on UserService to look up the customer who placed an order. It also calls the **PaymentsAPI**. (`order-service#Integrations`)\n3. **AuditService** relies on UserService to look up identities. Audit records store the resolved user, not the raw token. (`audit-service#Integrations`)\n\nSome services depend on UserService only through another service, so they don't count as direct. **SearchService** and **BillingService** depend on OrderService. **RenewalsWorker** depends on BillingService and the PaymentsAPI.\n\n**How long a revoked token is still accepted: up to 60 seconds.**\nUserService validates the session tokens the gateway forwards to it, and it caches each validation result for 60 seconds. If a token is revoked while its cached result is still valid, it keeps being accepted until that cache entry expires. (`user-service#Operations`) Because ApiGateway checks tokens through UserService, the gateway will also let a revoked token through for that period. The docs don't name a configuration key for this 60-second TTL.\n\n**Related details:**\n- UserService stores data in the **users** Postgres database. Deleted users are soft-deleted: the row stays, with a deletion timestamp.\n- UserService's read replica is configured by **`ORDER_DB_URL`**. The name is misleading but was kept because three deployment scripts read it.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that depend on UserService",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "session token revocation cache TTL",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls UsersAPI integrations depends on user service",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 13654,
+ "output_tokens": 867,
+ "cost_usd": 0.053157800000000005
+}

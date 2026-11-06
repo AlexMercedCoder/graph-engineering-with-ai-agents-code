@@ -1,0 +1,45 @@
+{
+ "run": "opencode-soft-body-1",
+ "harness": "opencode",
+ "condition": "soft-body",
+ "role": "sre",
+ "verdict": "incomplete",
+ "stop": "no final reply",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "skill",
+   "project-graph_find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": true
+ },
+ "answer": {
+  "named": 0,
+  "missing": [
+   "ApiGateway",
+   "AuditService",
+   "BillingService",
+   "OrderService",
+   "RenewalsWorker",
+   "ReportingService",
+   "SearchService"
+  ],
+  "extra": [],
+  "from": "mentions in prose"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 4856,
+  "cache_read": 7424,
+  "cache_write": 0,
+  "output": 305,
+  "requests": 4
+ }
+}

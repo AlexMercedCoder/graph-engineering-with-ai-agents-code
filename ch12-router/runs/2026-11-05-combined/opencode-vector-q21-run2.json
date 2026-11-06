@@ -1,0 +1,28 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "vector",
+ "route": "vector",
+ "id": 21,
+ "run": 2,
+ "answer": "The direct callers affected are **BillingService** and **PaymentsService**:\n\n| Service | Calls to **NotificationsAPI** that lose delivery |\n|---|---|\n| **BillingService** | Receipts sent after a successful capture. |\n| **PaymentsService** | Customer notifications about declined authorizations. |\n\n**NotificationsService** exposes **NotificationsAPI** and stores queued messages in the **notifications Redis instance**. Losing that Redis instance therefore prevents delivery through this queue for both callers.  \nSources: `notifications-service#Overview`, `notifications-service#Data`, `billing-service#Integrations`, `payments-service#Integrations`.\n\nFor a message that exhausts its retries, **NotificationsService** makes **three attempts with a 250 ms backoff**, configured by **`RETRY_ATTEMPTS`**, then moves the message to the **dead-letter list**. **The caller is not notified**; callers needing confirmation must poll the message status.  \nSource: `notifications-service#Delivery and retries`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI notifications Redis retries message delivery callers",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "\"NotificationsAPI\" services calls integrations",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 4368,
+ "output_tokens": 265,
+ "cost_usd": null
+}

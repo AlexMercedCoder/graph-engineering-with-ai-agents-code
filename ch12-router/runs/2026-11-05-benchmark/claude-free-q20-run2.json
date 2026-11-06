@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 20,
+ "run": 2,
+ "answer": "Within two hops, BillingService needs 9 things to run: 1 API, 5 services and 3 databases. I got this from the dependency graph, then checked NotificationsService and OrderService on their own, and the results matched. These are relationships recorded in the knowledge graph, not live runtime data.\n\n**Hop 1: what BillingService uses directly**\n- **NotificationsAPI**: BillingService calls it.\n  - **NotificationsService**: the service that provides NotificationsAPI. The graph treats an API and the service behind it as one step.\n- **OrderService**: BillingService depends on it.\n- **BillingPostgresDatabase**: BillingService stores data here.\n\n**Hop 2: what those need**\n- NotificationsService needs:\n  - **NotificationsRedisInstance**: it stores data here. It calls no APIs and depends on no other services.\n- OrderService needs:\n  - **PaymentsAPI**: it calls this, and **PaymentsService** provides it.\n  - **UserService**: it depends on this.\n  - **OrdersPostgresDatabase**: it stores data here.\n\n**Counts**\n\n| | Hop 1 | Hop 2 | Total |\n|---|---|---|---|\n| APIs called | 1 (NotificationsAPI) | 1 (PaymentsAPI) | 2 |\n| Services behind those APIs | 1 (NotificationsService) | 1 (PaymentsService) | 2 |\n| Services depended on | 1 (OrderService) | 1 (UserService) | 2 |\n| Databases | 1 (BillingPostgresDatabase) | 2 (NotificationsRedisInstance, OrdersPostgresDatabase) | 3 |\n\nThe table adds up to 9 entries across the 4 categories: 2 APIs, 4 services and 3 databases. With BillingService itself, that's 5 services in total.\n\nNo configuration keys came up, because this query only follows CALLS, DEPENDS_ON and STORES links.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 14737,
+ "output_tokens": 1034,
+ "cost_usd": 0.0516132
+}

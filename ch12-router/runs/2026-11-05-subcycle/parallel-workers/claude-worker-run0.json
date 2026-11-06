@@ -1,0 +1,233 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "setup": "worker",
+ "run": 0,
+ "seconds": 100,
+ "main_requests": 7,
+ "main_input_tokens": 122974,
+ "main_last_context": 27884,
+ "worker_requests": 26,
+ "worker_input_tokens": 123928,
+ "tool_calls": [
+  {
+   "by": "main",
+   "tool": "Skill",
+   "input": {
+    "skill": "act-on-evidence"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "description": "Lookup E4021 error code",
+    "subagent_type": "retrieval-router",
+    "prompt": "What does error code E4021 mean, and is it retryable? Return the full evidence documents (complete JSON, verbatim) for everything you find."
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "description": "PaymentsService direct callers",
+    "subagent_type": "retrieval-router",
+    "prompt": "Using the service graph: which services call the PaymentsService API directly (direct callers only, not transitive) and would no longer be able to take payments if PaymentsService is down? Return the full evidence documents (complete JSON, verbatim)."
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "description": "NotificationsAPI retry semantics",
+    "subagent_type": "retrieval-router",
+    "prompt": "What are the NotificationsAPI retry semantics (retry count, backoff, idempotency, which errors are retried, etc.)? Return the full evidence documents (complete JSON, verbatim)."
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "description": "Q3 2026 NWP by region",
+    "subagent_type": "retrieval-router",
+    "prompt": "From governed business data: what was net written premium by region in Q3 2026? Return the full evidence documents (complete JSON, verbatim)."
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "description": "Q3 2026 loss ratio by region",
+    "subagent_type": "retrieval-router",
+    "prompt": "From governed business data: what was the loss ratio by region in Q3 2026? Return the full evidence documents (complete JSON, verbatim)."
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What are the NotificationsAPI retry semantics (retry count, backoff, idempotency, which errors are retried)?"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "description": "Q3 2026 agent commission",
+    "subagent_type": "retrieval-router",
+    "prompt": "From governed business data: how much commission did we pay agents in Q3 2026? Return the full evidence documents (complete JSON, verbatim)."
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What does error code E4021 mean, and is it retryable?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What was net written premium by region in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What was the loss ratio by region in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics: retry count, backoff, idempotency, which errors are retried",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "Which services call the PaymentsService API directly and would no longer be able to take payments if PaymentsService is down?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "How much commission did we pay agents in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "loss ratio"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "net written premium",
+    "entity": "region"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "commission paid to agents"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__generate_governed_sql",
+   "input": {
+    "metric": "net_written_premium",
+    "dimensions": [
+     "region"
+    ],
+    "time_range": "2026-Q3"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "loss ratio by region definition claims paid earned premium Q3 2026"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "agent commission paid Q3 2026 governed metric",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__execute_query",
+   "input": {
+    "sql": "SELECT g.region AS region,\n       ROUND(SUM(premium_amt) - SUM(cancellation_amt), 2) AS net_written_premium\nFROM analytics.fct_policy_premium AS f\nJOIN analytics.dim_geography AS g ON f.geo_id = g.geo_id\nWHERE f.status != 'quote' AND f.eff_dt >= '2026-07-01' AND f.eff_dt < '2026-10-01'\nGROUP BY g.region\nORDER BY g.region\n-- governed: catalog 2026-11-03, identity analyst, signature 1012fdb0a2b720bc"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics: retry count, backoff, idempotency, which errors are retried",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "loss ratio"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "loss ratio"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Write",
+   "input": {
+    "file_path": "<run-dir>/brief.md",
+    "content": "# On-call brief (2026-11-05)\n\nStatus at a glance: questions 1, 2 and 4 have firm answers. Question 3 is partly answered, from similarity search. Questions 5 and 6 have **no answer**, because the governed catalog does not model those metrics and the fallback document search failed.\n\n## 1\n\n**E4021 means \"Payment authorization expired\". It is not retryable.**\n\n- Cause: the authorization hold lapsed before capture.\n- What to do: re-authorize, then capture. Do **not** retry the capture on its own.\n\nSource: `lookup_error_code('E4021')`. Confidence high, coverage complete.\n\n```json\n[\n  {\"schema_version\": 1, \"claim\": \"E4021 means Payment authorization expired.\", \"status\": \"found\", \"source\": {\"path\": \"tool\", \"identifier\": \"lookup_error_code('E4021')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 43, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": []},\n  {\"schema_version\": 1, \"claim\": \"Cause: The authorization hold lapsed before capture.\", \"status\": \"found\", \"source\": {\"path\": \"tool\", \"identifier\": \"lookup_error_code('E4021')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 43, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": []},\n  {\"schema_version\": 1, \"claim\": \"Handling: Re-authorize, then capture. Do not retry capture alone.\", \"status\": \"found\", \"source\": {\"path\": \"tool\", \"identifier\": \"lookup_error_code('E4021')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 43, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": []},\n  {\"schema_version\": 1, \"claim\": \"E4021 is not retryable (Retryable: False).\", \"status\": \"found\", \"source\": {\"path\": \"tool\", \"identifier\": \"lookup_error_code('E4021')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 43, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": []}\n]\n```\n\n## 2\n\n**Two services call PaymentsAPI directly. PaymentsAPI is exposed by PaymentsService. The two services are:**\n\n- **OrderService**\n- **RenewalsWorker**\n\nSource: `find_dependents('PaymentsService', max_depth=1)`. Confidence high, coverage complete.\n\nCaveat: the graph only shows direct (1-hop) CALLS edges. It does **not** show whether either service has a fallback that still takes payments when PaymentsService is down. Both lose their direct payment path. Whether they can take payments at all in an outage has not been confirmed.\n\n```json\n[\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"graph\", \"identifier\": \"find_dependents('PaymentsService', max_depth=1)\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 48, \"freshness\": \"2026-11-04T02:56Z\", \"caveats\": [\"Graph shows the 1-hop CALLS edges only. It does not establish whether these callers have a fallback path that still takes payments when PaymentsService is down.\"], \"claim\": \"2 services are affected within 1 hop of PaymentsService: OrderService and RenewalsWorker.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"graph\", \"identifier\": \"find_dependents('PaymentsService', max_depth=1)\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 48, \"freshness\": \"2026-11-04T02:56Z\", \"caveats\": [\"Graph shows the 1-hop CALLS edges only. It does not establish whether these callers have a fallback path that still takes payments when PaymentsService is down.\"], \"claim\": \"OrderService calls PaymentsAPI directly (OrderService -CALLS-> PaymentsAPI), and PaymentsAPI is exposed by PaymentsService.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"graph\", \"identifier\": \"find_dependents('PaymentsService', max_depth=1)\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 48, \"freshness\": \"2026-11-04T02:56Z\", \"caveats\": [\"Graph shows the 1-hop CALLS edges only. It does not establish whether these callers have a fallback path that still takes payments when PaymentsService is down.\"], \"claim\": \"RenewalsWorker calls PaymentsAPI directly (RenewalsWorker -CALLS-> PaymentsAPI), and PaymentsAPI is exposed by PaymentsService.\"}\n]\n```\n\n## 3\n\n**Partial answer, from the closest documents found by similarity search.** Coverage is unknown, so this may not be complete.\n\nFrom `notifications-service#Delivery and retries`:\n\n- Delivery is attempted **3 times in total**, with a **250 ms backoff**. The number of attempts is set by `RETRY_ATTEMPTS`.\n- A message that fails all three attempts goes to the **dead-letter list**. **The caller is not told.**\n- Callers that need confirmation of delivery must **poll the message status**.\n\nFrom `api-gateway#Operations`, which covers clients calling through the gateway:\n\n- The gateway does **not** retry failed upstream requests. A 5xx is passed to the client unchanged, and the client library decides whether to retry.\n\nNot answered by the evidence:\n\n- Idempotency behaviour.\n- Which error types are retried.\n- Whether the dead-letter list can be inspected or replayed.\n\nNote: the source calls it NotificationsService. It is assumed to be what serves NotificationsAPI.\n\n```json\n[\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('NotificationsAPI retry semantics: retry count, backoff, idempotency, which errors are retried', k=3) -> [notifications-service#Delivery and retries]\"}, \"confidence\": \"high\", \"coverage\": \"unknown\", \"cost_tokens\": 184, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": [\"The first search_docs call returned 'Connection closed'; the same query was retried once and returned this result.\", \"cost_tokens 184 is the cost of the single search_docs call shared by the first four documents; count it once in the total.\", \"The retrieved sections do not state idempotency behavior or which error types are retried. Those parts of the question are unanswered by this evidence.\", \"Similarity search cannot establish completeness; coverage is unknown.\"], \"claim\": \"NotificationsService retries message delivery three attempts in total with a 250ms backoff.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('NotificationsAPI retry semantics: retry count, backoff, idempotency, which errors are retried', k=3) -> [notifications-service#Delivery and retries]\"}, \"confidence\": \"high\", \"coverage\": \"unknown\", \"cost_tokens\": 184, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": [\"cost_tokens shared with the search_docs call that produced this document; count once.\"], \"claim\": \"The NotificationsService retry attempt count is configured by the RETRY_ATTEMPTS setting.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('NotificationsAPI retry semantics: retry count, backoff, idempotency, which errors are retried', k=3) -> [notifications-service#Delivery and retries]\"}, \"confidence\": \"high\", \"coverage\": \"unknown\", \"cost_tokens\": 184, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": [\"cost_tokens shared with the search_docs call that produced this document; count once.\", \"The source does not say whether the dead-letter list can be inspected or replayed.\"], \"claim\": \"A notification message that fails all three attempts is moved to the dead-letter list, and the caller is not told.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('NotificationsAPI retry semantics: retry count, backoff, idempotency, which errors are retried', k=3) -> [notifications-service#Delivery and retries]\"}, \"confidence\": \"high\", \"coverage\": \"unknown\", \"cost_tokens\": 184, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": [\"cost_tokens shared with the search_docs call that produced this document; count once.\"], \"claim\": \"Callers of NotificationsService that need delivery confirmation must poll the message status.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('NotificationsAPI retry semantics: retry count, backoff, idempotency, which errors are retried', k=3) -> [api-gateway#Operations]\"}, \"confidence\": \"high\", \"coverage\": \"unknown\", \"cost_tokens\": 184, \"freshness\": \"2026-11-04T02:09Z\", \"caveats\": [\"cost_tokens shared with the search_docs call that produced this document; count once.\", \"This describes the API gateway, not NotificationsAPI itself. It is included because it sets the retry behavior for clients calling through the gateway.\"], \"claim\": \"The API gateway does not retry failed upstream requests; a 5xx from a service is passed to the client unchanged, and the client library decides whether to retry.\"}\n]\n```\n\n## 4\n\n**Net written premium, Q3 2026 (effective dates 2026-07-01 to 2026-09-30):**\n\n| Region        | Net written premium |\n|---------------|--------------------:|\n| APAC          | 278,969.21 |\n| EMEA          | 343,269.84 |\n| LATAM         | 308,624.73 |\n| North America | 312,420.42 |\n\nDefinition: gross written premium less cancellations, recognized in the month the premium takes effect. Quotes are excluded.\n\nSource: governed SQL (signature `1012fdb0a2b720bc`) run against catalog revision 2026-11-03. Confidence high, coverage complete. The sources give no currency.\n\n```json\n[\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='net written premium', entity='region')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 221, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [], \"claim\": \"net_written_premium (Net Written Premium) is defined as gross written premium less cancellations, recognized in the month the premium takes effect, computed as SUM(premium_amt) - SUM(cancellation_amt), with rows counted where status != 'quote', and is valid by region.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"semantic\", \"identifier\": \"generate_governed_sql('net_written_premium', ['region'], '2026-Q3', None)\", \"revision\": \"catalog 2026-11-03\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 100, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [], \"claim\": \"The governed SQL for net_written_premium by region for 2026-Q3 sums premium_amt minus cancellation_amt from analytics.fct_policy_premium joined to analytics.dim_geography, filtered to status != 'quote' and eff_dt from 2026-07-01 up to but excluding 2026-10-01, grouped by region (signature 1012fdb0a2b720bc).\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"semantic\", \"identifier\": \"execute_query(<signed SQL from generate_governed_sql>)\", \"revision\": \"catalog 2026-11-03\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 29, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [], \"claim\": \"Net written premium for APAC in 2026-Q3 is 278969.21.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"semantic\", \"identifier\": \"execute_query(<signed SQL from generate_governed_sql>)\", \"revision\": \"catalog 2026-11-03\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 29, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [], \"claim\": \"Net written premium for EMEA in 2026-Q3 is 343269.84.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"semantic\", \"identifier\": \"execute_query(<signed SQL from generate_governed_sql>)\", \"revision\": \"catalog 2026-11-03\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 29, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [], \"claim\": \"Net written premium for LATAM in 2026-Q3 is 308624.73.\"},\n  {\"schema_version\": 1, \"status\": \"found\", \"source\": {\"path\": \"semantic\", \"identifier\": \"execute_query(<signed SQL from generate_governed_sql>)\", \"revision\": \"catalog 2026-11-03\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 29, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [], \"claim\": \"Net written premium for North America in 2026-Q3 is 312420.42.\"}\n]\n```\n\n## 5\n\n**No answer. The lookup was refused.** The governed catalog does not model loss ratio. The only metrics it can query are:\n\n- claims_paid\n- gross_written_premium\n- net_written_premium\n- policies_written\n\nThe fallback document search failed (\"Connection closed\") and returned nothing.\n\nNo loss ratio has been made up from claims_paid and premium. A non-governed number like that would need an agreed definition (for example, earned or written premium, and whether reserves are included). To get an answer: ask the data owner for a governed loss ratio definition, or retry the document search.\n\nSource: `navigate_catalog(concept='loss ratio')`.\n\n```json\n[\n  {\"schema_version\": 1, \"claim\": \"No metric matches 'loss ratio' in the governed catalog, so no loss ratio by region for Q3 2026 can be returned from the semantic path.\", \"status\": \"refused\", \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='loss ratio', entity='')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 53, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [\"re-routed to vector after semantic returned refused: the search_docs call (query: 'loss ratio by region definition claims paid earned premium Q3 2026') returned 'Connection closed' and produced no evidence, so no vector-path support was obtained.\", \"No business number is stated; the semantic path refused and no execute_query was run.\", \"navigate_catalog was called twice with identical arguments; both calls returned the same refusal envelope (53 tokens each).\"]},\n  {\"schema_version\": 1, \"claim\": \"The catalog does not model loss ratio, reinsurance recoveries, or claim frequency.\", \"status\": \"refused\", \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='loss ratio', entity='')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 53, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [\"re-routed to vector after semantic returned refused: the search_docs call returned 'Connection closed' and produced no evidence.\", \"No business number is stated; the semantic path refused and no execute_query was run.\"]},\n  {\"schema_version\": 1, \"claim\": \"The queryable governed metrics are claims_paid, gross_written_premium, net_written_premium, and policies_written.\", \"status\": \"refused\", \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='loss ratio', entity='')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 53, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [\"re-routed to vector after semantic returned refused: the search_docs call returned 'Connection closed' and produced no evidence.\", \"These metrics are listed as queryable but were not queried; no business number is stated for loss ratio or any region.\"]}\n]\n```\n\n## 6\n\n**No answer. The lookup was refused.** No governed metric covers commission paid to agents. The fallback document search failed (\"Connection closed\"), so commission documentation was **not** checked (coverage partial).\n\nTo get an answer:\n\n- Ask the data owner whether commission is modeled under another name, or\n- Retry the document search.\n\nSource: `navigate_catalog(concept='commission paid to agents')`.\n\n```json\n[\n  {\"schema_version\": 1, \"claim\": \"No governed metric matches the concept 'commission paid to agents'.\", \"status\": \"refused\", \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='commission paid to agents', entity='')\"}, \"confidence\": \"high\", \"coverage\": \"complete\", \"cost_tokens\": 57, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [\"re-routed to vector after semantic returned refused; search_docs call failed with 'Connection closed' and returned no evidence\"]},\n  {\"schema_version\": 1, \"claim\": \"The catalog does not model loss ratio, reinsurance recoveries, or claim frequency.\", \"status\": \"refused\", \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='commission paid to agents', entity='')\"}, \"confidence\": \"high\", \"coverage\": \"partial\", \"cost_tokens\": 0, \"freshness\": \"2026-11-04T02:15Z\", \"caveats\": [\"Same navigate_catalog call as the prior document; cost_tokens counted once there. Coverage set to partial because no vector search completed, so commission-related documentation was not checked.\"]}\n]\n```\n"
+   }
+  }
+ ],
+ "cost_usd": 0.422371485
+}

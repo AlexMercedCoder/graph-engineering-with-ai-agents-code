@@ -1,0 +1,65 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "route": "graph",
+ "id": 21,
+ "run": 1,
+ "answer": "**Short answer:** Two services call the NotificationsAPI directly: **BillingService** and **PaymentsService**. If the notifications Redis instance goes down, neither can get messages delivered. The graph doesn't say what happens to a message after all its retries fail.\n\n**Why Redis takes both callers down**\n- **NotificationsService** exposes the **NotificationsAPI**.\n- NotificationsService keeps its data in the **NotificationsRedisInstance** (a STORES relationship). That's the only dependency the graph lists for it, so losing Redis cuts off the one place it stores data.\n- **BillingService** and **PaymentsService** both call NotificationsAPI directly, so both lose message delivery.\n\n**Services hit indirectly (they don't call NotificationsAPI themselves):**\n- **RenewalsWorker**, through its dependency on BillingService\n- **ReportingService**, through its dependency on BillingService\n- **OrderService**, which calls **PaymentsAPI** (exposed by PaymentsService), which then calls NotificationsAPI\n\n**Retries**\n- NotificationsService makes three attempts with a 250ms backoff. The config key **RETRY_ATTEMPTS** controls this, and it applies only to NotificationsService.\n- The graph has nothing on what happens to a message after the third attempt fails. There's no dead-letter queue, fallback store, alert, or caller-side handling. It may simply be dropped, but the graph doesn't confirm that. To find out, you'd need to check NotificationsService's code or runbook.\n- Also, it's unclear whether retries would help at all with Redis gone. If the retries depend on Redis themselves, all three attempts will likely fail in quick succession, about 750ms in total.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsRedisInstance",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsAPI"
+   }
+  }
+ ],
+ "input_tokens": 20106,
+ "output_tokens": 1351,
+ "cost_usd": 0.0644868
+}

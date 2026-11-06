@@ -1,0 +1,33 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 1,
+ "run": 2,
+ "answer": "**NotificationsService** stores **queued outbound messages** (emails, SMS and push notifications) in the **NotificationsRedisInstance**, the notifications Redis instance. The dependency graph shows this as a direct `NotificationsService -STORES-> NotificationsRedisInstance` link, and the service's Data section in the docs says the same.\n\nHow the data behaves:\n- **How messages get there:** Other services hand messages to the **NotificationsAPI**, which NotificationsService exposes, instead of calling providers directly. **BillingService** is one example: it sends receipts this way after a capture succeeds.\n- **How long a message stays:** It stays queued until a provider accepts it or its retries run out.\n- **Retries:** The configuration key **RETRY_ATTEMPTS** controls this: three attempts with a 250ms backoff. The configuration graph ties this key to NotificationsService, but the sentence it comes from only says \"Its retry semantics\", so I'm inferring that it means NotificationsService.\n- **During credential rotation:** Provider credentials rotate monthly. While that happens, the queue keeps accepting messages and holds them in Redis until the new credentials load.\n\nThe graph shows nothing else that NotificationsService stores, such as a Postgres database.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "NotificationsService stores data database",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  }
+ ],
+ "input_tokens": 14534,
+ "output_tokens": 766,
+ "cost_usd": 0.0442392
+}

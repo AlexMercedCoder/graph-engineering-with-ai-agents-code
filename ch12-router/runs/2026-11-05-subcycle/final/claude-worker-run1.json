@@ -1,0 +1,178 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "setup": "worker",
+ "run": 1,
+ "seconds": 105,
+ "main_requests": 3,
+ "main_input_tokens": 41133,
+ "main_last_context": 17553,
+ "worker_requests": 7,
+ "worker_input_tokens": 74201,
+ "tool_calls": [
+  {
+   "by": "main",
+   "tool": "Skill",
+   "input": {
+    "skill": "act-on-evidence"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "description": "Retrieve evidence for six questions",
+    "subagent_type": "retrieval-router",
+    "prompt": "Look up project knowledge for these six questions and return the full structured evidence documents (JSON with schema_version, status, claim, source, confidence, coverage, etc.) for each, unmodified. Label each document with the question number it answers.\n\n1. What does error code E4021 mean, and is it retryable?\n2. If PaymentsService is down, which services that call its API directly can no longer take payments? (direct callers only, from the service graph)\n3. What are the NotificationsAPI retry semantics?\n4. What was net written premium by region in Q3 2026?\n5. What was our loss ratio by region in Q3 2026?\n6. How much commission did we pay agents in Q3 2026?\n\nIf a lookup returns no result, partial coverage, an error, or a refusal, return that evidence document as-is rather than filling the gap.",
+    "run_in_background": false
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What does error code E4021 mean, and is it retryable?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "If PaymentsService is down, which services that call its API directly can no longer take payments? (direct callers only, from the service graph)"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What are the NotificationsAPI retry semantics?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What was net written premium by region in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What was our loss ratio by region in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "How much commission did we pay agents in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "net written premium"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "loss ratio"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__navigate_catalog",
+   "input": {
+    "concept": "commission paid to agents"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__generate_governed_sql",
+   "input": {
+    "metric": "net_written_premium",
+    "dimensions": [
+     "region"
+    ],
+    "time_range": "2026-Q3"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "loss ratio by region Q3 2026"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "agent commission paid Q3 2026"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__execute_query",
+   "input": {
+    "sql": "SELECT g.region AS region,\n       ROUND(SUM(premium_amt) - SUM(cancellation_amt), 2) AS net_written_premium\nFROM analytics.fct_policy_premium AS f\nJOIN analytics.dim_geography AS g ON f.geo_id = g.geo_id\nWHERE f.status != 'quote' AND f.eff_dt >= '2026-07-01' AND f.eff_dt < '2026-10-01'\nGROUP BY g.region\nORDER BY g.region\n-- governed: catalog 2026-11-03, identity analyst, signature 4a2c6cb246fb675d"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__check_evidence",
+   "input": {
+    "documents": "[\n{\"question\":\"1\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means 'Payment authorization expired'.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"question\":\"1\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is caused by the authorization hold lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"question\":\"1\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is not retryable (Retryable: False); the handling is to re-authorize, then capture, and not to retry capture alone.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"question\":\"2\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"OrderService calls PaymentsAPI, which is exposed by PaymentsService (direct CALLS edge, 1 hop).\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=1)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":48,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]},\n{\"question\":\"2\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"RenewalsWorker calls PaymentsAPI, which is exposed by PaymentsService (direct CALLS edge, 1 hop).\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=1)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":48,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]},\n{\"question\":\"3\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"NotificationsService retries message delivery three times with a 250ms backoff, configured by RETRY_ATTEMPTS.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"question\":\"3\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"A message that fails all three delivery attempts moves to the dead-letter list, and the caller is not told.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"question\":\"3\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"Callers that need confirmation of delivery poll the message status.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"question\":\"4\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 (2026-07-01 to 2026-09-30, status != 'quote') for APAC is 278969.21.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"question\":\"4\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for EMEA is 343269.84.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"question\":\"4\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for LATAM is 308624.73.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"question\":\"4\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for North America is 312420.42.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"question\":\"5\",\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The catalog refused the concept 'loss ratio': No metric matches 'loss ratio'. The catalog does not model loss ratio.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='loss ratio', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":53,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"question\":\"5\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"No section returned by search_docs for 'loss ratio by region Q3 2026' defines or reports a loss ratio; the best match (billing-service#Data, score 0.58) covers invoice numbering.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('loss ratio by region Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":211,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.58; the documents may not cover this\",\"re-routed to vector after semantic returned refused\"]},\n{\"question\":\"6\",\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The catalog refused the concept 'commission paid to agents': No metric matches 'commission paid to agents'.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='commission paid to agents', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":57,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"question\":\"6\",\"schema_version\":1,\"status\":\"found\",\"claim\":\"No section returned by search_docs for 'agent commission paid Q3 2026' reports agent commission; the best match (payments-service#Operations, score 0.57) describes provider retry behavior.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('agent commission paid Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":173,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.57; the documents may not cover this\",\"re-routed to vector after semantic returned refused\"]}\n]"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__check_evidence",
+   "input": {
+    "documents": "[\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means 'Payment authorization expired'.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is caused by the authorization hold lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is not retryable (Retryable: False); the handling is to re-authorize, then capture, and not to retry capture alone.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]}\n]"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__check_evidence",
+   "input": {
+    "documents": "[\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means 'Payment authorization expired'.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is caused by the authorization hold lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is not retryable (Retryable: False); the handling is to re-authorize, then capture, and not to retry capture alone.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"OrderService calls PaymentsAPI, which is exposed by PaymentsService (direct CALLS edge, 1 hop).\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=1)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":48,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"RenewalsWorker calls PaymentsAPI, which is exposed by PaymentsService (direct CALLS edge, 1 hop).\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=1)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":48,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"NotificationsService retries message delivery three times with a 250ms backoff, configured by RETRY_ATTEMPTS.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"A message that fails all three delivery attempts moves to the dead-letter list, and the caller is not told.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Callers that need confirmation of delivery poll the message status.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for APAC is 278969.21.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for EMEA is 343269.84.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for LATAM is 308624.73.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for North America is 312420.42.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The catalog refused the concept 'loss ratio': No metric matches 'loss ratio'. The catalog does not model loss ratio.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='loss ratio', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":53,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"No section returned by search_docs for 'loss ratio by region Q3 2026' defines or reports a loss ratio; the best match (billing-service#Data, score 0.58) covers invoice numbering.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('loss ratio by region Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":211,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.58; the documents may not cover this\",\"re-routed to vector after semantic returned refused\"]},\n{\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The catalog refused the concept 'commission paid to agents': No metric matches 'commission paid to agents'.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='commission paid to agents', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":57,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n{\"schema_version\":1,\"status\":\"found\",\"claim\":\"No section returned by search_docs for 'agent commission paid Q3 2026' reports agent commission; the best match (payments-service#Operations, score 0.57) describes provider retry behavior.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('agent commission paid Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":173,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.57; the documents may not cover this\",\"re-routed to vector after semantic returned refused\"]}\n]"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Write",
+   "input": {
+    "file_path": "<run-dir>/brief.md",
+    "content": "# On-call brief \u2014 2026-11-05\n\nAnswers come from project-knowledge evidence documents. Each section lists the documents its answer rests on.\n\n## 1\n\n**E4021 means \"Payment authorization expired.\"** It happens when the authorization hold lapses before capture.\n\n**It is not retryable** (`Retryable: False`). Re-authorize, then capture. Don't retry the capture on its own.\n\nSource: `lookup_error_code('E4021')` (high confidence, complete coverage).\n\n```json\n[\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means 'Payment authorization expired'.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is caused by the authorization hold lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 is not retryable (Retryable: False); the handling is to re-authorize, then capture, and not to retry capture alone.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]}\n]\n```\n\n## 2\n\nTwo services call PaymentsAPI directly. PaymentsAPI is exposed by PaymentsService.\n\n- **OrderService**\n- **RenewalsWorker**\n\nSource: `find_dependents('PaymentsService', max_depth=1)` (high confidence, complete coverage). This list covers direct (1-hop) callers only. The graph shows that these services call the API. It does not say whether they have a fallback, so \"can no longer take payments\" is our inference, not a documented fact.\n\n```json\n[\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"OrderService calls PaymentsAPI, which is exposed by PaymentsService (direct CALLS edge, 1 hop).\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=1)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":48,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"RenewalsWorker calls PaymentsAPI, which is exposed by PaymentsService (direct CALLS edge, 1 hop).\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=1)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":48,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]}\n]\n```\n\n## 3\n\n- Message delivery is retried **3 times with a 250 ms backoff**. `RETRY_ATTEMPTS` sets the number of attempts.\n- If all three attempts fail, the message moves to the **dead-letter list, and the caller is not notified**.\n- Callers that need delivery confirmation must **poll the message status**.\n\nSource: `search_docs('NotificationsAPI retry semantics', k=3)`. Coverage is \"unknown\" because this was a vector search, so these are the closest documents found and may not be the full picture. Note that the docs describe *NotificationsService*.\n\n```json\n[\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"NotificationsService retries message delivery three times with a 250ms backoff, configured by RETRY_ATTEMPTS.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"A message that fails all three delivery attempts moves to the dead-letter list, and the caller is not told.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"Callers that need confirmation of delivery poll the message status.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]}\n]\n```\n\n## 4\n\nNet written premium, 2026-Q3:\n\n| Region        | Net written premium |\n|---------------|--------------------:|\n| APAC          | 278,969.21 |\n| EMEA          | 343,269.84 |\n| LATAM         | 308,624.73 |\n| North America | 312,420.42 |\n\nSource: a governed query, `execute_query(<signed SQL from generate_governed_sql>)`, against catalog revision 2026-11-03 (high confidence, complete coverage). The evidence does not state a currency.\n\n```json\n[\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for APAC is 278969.21.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for EMEA is 343269.84.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for LATAM is 308624.73.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"Net written premium for 2026-Q3 for North America is 312420.42.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]}\n]\n```\n\n## 5\n\n**No answer is available.** The governed catalog **refused** the request because it does not model loss ratio (`navigate_catalog(concept='loss ratio')`). A fallback document search found nothing relevant either: the best match scored 0.58 and is about invoice numbering. No loss-ratio figure is reported here. Answering this needs the owner of loss and claims data.\n\n```json\n[\n  {\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The catalog refused the concept 'loss ratio': No metric matches 'loss ratio'. The catalog does not model loss ratio.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='loss ratio', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":53,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"No section returned by search_docs for 'loss ratio by region Q3 2026' defines or reports a loss ratio; the best match (billing-service#Data, score 0.58) covers invoice numbering.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('loss ratio by region Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":211,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.58; the documents may not cover this\",\"re-routed to vector after semantic returned refused\"]}\n]\n```\n\n## 6\n\n**No answer is available.** The governed catalog **refused** the request because no metric matches \"commission paid to agents\" (`navigate_catalog(concept='commission paid to agents')`). A fallback document search found nothing relevant either: the best match scored 0.57 and is about provider retry behavior. No commission figure is reported here. Answering this needs the owner of agent compensation data.\n\n```json\n[\n  {\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The catalog refused the concept 'commission paid to agents': No metric matches 'commission paid to agents'.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='commission paid to agents', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":57,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"status\":\"found\",\"claim\":\"No section returned by search_docs for 'agent commission paid Q3 2026' reports agent commission; the best match (payments-service#Operations, score 0.57) describes provider retry behavior.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('agent commission paid Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":173,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.57; the documents may not cover this\",\"re-routed to vector after semantic returned refused\"]}\n]\n```\n"
+   }
+  }
+ ],
+ "cost_usd": 0.22604209000000003
+}

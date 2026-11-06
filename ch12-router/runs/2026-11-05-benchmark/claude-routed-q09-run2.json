@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 9,
+ "run": 2,
+ "answer": "**RenewalsWorker re-bills subscriptions once a month.** It runs as a scheduled job on the 1st of each month and processes every active subscription (renewals-worker, Overview).\n\n**Retries:** If a renewal's authorization fails, it is retried on day 3 and day 7. After the third failure, the subscription is suspended and the customer gets an email through the normal billing receipt flow (renewals-worker, Operations).\n\n**What's involved:**\n- **RenewalsWorker** is the scheduled job that does the re-billing.\n- **BillingService** is a dependency of RenewalsWorker. Its own invoice generation runs every 15 minutes on a separate schedule, which doesn't change the monthly renewal timing.\n- **PaymentsAPI** is called directly by RenewalsWorker for renewals.\n- **OrderService** is skipped because a renewal has no cart.\n- **`AUTH_HOLD_MINUTES`** is the configuration key that sets how long a renewal authorization is held before it is captured.\n\nThe docs don't name a configuration key for the monthly schedule itself. As documented, the 1st-of-the-month run is fixed and `AUTH_HOLD_MINUTES` is the only setting listed. None of the documents mention a database for this flow.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "RenewalsWorker re-bill subscriptions schedule",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7803,
+ "output_tokens": 547,
+ "cost_usd": 0.0359236
+}

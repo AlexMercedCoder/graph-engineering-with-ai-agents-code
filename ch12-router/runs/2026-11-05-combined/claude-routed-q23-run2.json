@@ -1,0 +1,40 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 23,
+ "run": 2,
+ "answer": "**Three services depend directly on UserService:** ApiGateway, AuditService and OrderService. **A revoked session token can still be accepted for up to 60 seconds.**\n\n**Direct dependents** (one hop back, all `DEPENDS_ON` UserService):\n1. **ApiGateway**: forwards session tokens to UserService to be validated.\n2. **AuditService**: uses UserService to resolve identities, so each audit record stores the resolved user rather than the raw token.\n3. **OrderService**\n\nUserService owns users and soft deletes and exposes **UsersAPI**. The dependency lookup treats a service and its API as one place, so callers of UsersAPI are already in this list.\n\n**Revoked tokens:** UserService caches token validation results for 60 seconds. If a token is revoked while its result is cached, it keeps being accepted until that cache entry expires. Because ApiGateway sends tokens to UserService for validation, requests through the gateway can get in with a revoked token during that window.\n\n**Configuration keys:** None of the docs name a key that sets the 60-second cache time, so it looks fixed rather than configurable. The only key linked to UserService is **ORDER_DB_URL**, which points to its read replica. It's an old name kept because three deployment scripts still read it, and it has nothing to do with the token cache.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "revoked session token still accepted cache TTL",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "UserService token validation cache configuration"
+   }
+  }
+ ],
+ "input_tokens": 14981,
+ "output_tokens": 798,
+ "cost_usd": 0.0477298
+}

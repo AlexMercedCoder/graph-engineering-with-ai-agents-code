@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 14,
+ "run": 1,
+ "answer": "Two services call the NotificationsAPI directly, and both would lose message delivery: **BillingService** and **PaymentsService**.\n\n**How the Redis instance fits in:** NotificationsService runs the NotificationsAPI. It keeps every queued message in the **notifications Redis instance**, and a message stays there until a provider accepts it or its retries run out. Callers don't send anything to providers themselves. If that Redis instance is lost, the queue is gone, so messages already waiting are lost and new ones have nowhere to be held for delivery.\n\n**Services that call the NotificationsAPI directly** (the dependency graph shows exactly these two at one hop, and the docs match):\n\n| Caller | What it sends | Effect of losing Redis |\n|---|---|---|\n| **BillingService** | Receipts, once a payment capture succeeds | Customers don't receive receipts |\n| **PaymentsService** | A message to the customer when an authorization is declined, even if checkout has already returned | Customers aren't told about declined payments |\n\n**Why the callers may not notice:** retries are set by **RETRY_ATTEMPTS** (three attempts with a 250ms backoff). A message that fails all three goes to the dead-letter list without the caller being told, and callers only get confirmation if they poll the message status. So unless BillingService and PaymentsService poll that status, these lost messages will probably fail without anyone noticing.\n\n**Not in scope:** OrderService calls the PaymentsAPI rather than the NotificationsAPI. It would only be affected indirectly, through PaymentsService, so I left it out because you asked about direct callers.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "notifications Redis instance",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "calls the NotificationsAPI to send",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 15429,
+ "output_tokens": 879,
+ "cost_usd": 0.0523488
+}

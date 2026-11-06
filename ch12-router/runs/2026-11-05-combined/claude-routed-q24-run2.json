@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 24,
+ "run": 2,
+ "answer": "**Services that depend directly on BillingService**\n\nTwo services have a direct DEPENDS_ON link to BillingService:\n- **RenewalsWorker**\n- **ReportingService**\n\n**What happens when a renewal's authorization keeps failing**\n\nThe RenewalsWorker operations doc says:\n1. **First failure:** the worker retries the authorization on day three, then again on day seven.\n2. **Third failure:** the worker suspends the subscription.\n3. **Customer email:** the customer is notified through the normal billing receipt flow. In that flow, BillingService calls the **NotificationsAPI**, which is served by **NotificationsService**. NotificationsService queues the message in the **notifications Redis** instance and tries to deliver it up to three times, with a 250ms backoff between attempts. The **`RETRY_ATTEMPTS`** key sets the number of attempts. If all three fail, the message goes to a dead-letter list and the caller isn't told. So the suspension email can be lost without anyone noticing unless someone checks the message status.\n\n**Related details**\n- **`AUTH_HOLD_MINUTES`** configures RenewalsWorker. It sets how long a renewal authorization is held before it is captured.\n- **PaymentsService** retries calls to the payment provider only on network errors, never on a decline, because retrying a decline can trigger the provider's fraud checks. A declined renewal is therefore retried only by the worker's day-3 and day-7 schedule, not right away.\n- **Gap in the docs:** BillingService's integrations doc says receipts are sent \"once a capture succeeds.\" A renewal that failed authorization never reaches capture. The docs don't explain how the suspension email gets into the receipt flow in that case, so check the code before relying on that email being sent.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "renewal authorization fails retry",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "billing receipt email flow",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 14968,
+ "output_tokens": 881,
+ "cost_usd": 0.048888
+}

@@ -1,0 +1,41 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 11,
+ "run": 2,
+ "answer": "Five services are affected within two hops of the **NotificationsAPI**, which **NotificationsService** exposes.\n\n**Hop 1: services that call the NotificationsAPI directly**\n1. **BillingService** calls it to send receipts after a capture succeeds.\n2. **PaymentsService** calls it to tell the customer about a declined authorization.\n\n**Hop 2: services that depend on those, or call their APIs**\n3. **RenewalsWorker** depends on BillingService.\n4. **ReportingService** depends on BillingService.\n5. **OrderService** calls the **PaymentsAPI**, which PaymentsService exposes.\n\n**What would change**\n- Today the retry behaviour is three attempts with a 250ms backoff. It's set by the config key **`RETRY_ATTEMPTS`**, which only configures NotificationsService.\n- If a message fails all three attempts, it goes to a dead-letter list and the caller isn't told. Callers that need confirmation have to poll the message status. So a change here mainly affects BillingService and PaymentsService: whether receipts and decline notices get delivered, and how long that takes.\n- Queued messages are kept in the **notifications Redis instance** until a provider accepts them or the retries run out. Changing the retry semantics changes how long messages stay there and how much the queue holds.\n\n**Just outside the two-hop limit**\n- **SearchService** depends on OrderService, which makes it three hops away.\n- **UserService** is something OrderService depends on, not something that depends on it, so it isn't affected.\n- **ApiGateway** doesn't retry failed upstream requests, so its behaviour doesn't change this picture.\n\n**Team overlap:** BillingService and PaymentsService are maintained by the same team. Both direct callers therefore belong to one team, which should make coordinating a change easier.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "calls the NotificationsAPI to send email or SMS",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  }
+ ],
+ "input_tokens": 16009,
+ "output_tokens": 1027,
+ "cost_usd": 0.0584668
+}

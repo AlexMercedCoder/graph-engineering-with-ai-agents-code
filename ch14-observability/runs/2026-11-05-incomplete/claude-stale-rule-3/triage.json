@@ -1,0 +1,34 @@
+{
+ "run": "claude-stale-rule-3",
+ "harness": "claude",
+ "condition": "stale-rule",
+ "role": "sre",
+ "verdict": "incomplete",
+ "stop": "api_error",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": false,
+  "find_dependents_called": false,
+  "tools": []
+ },
+ "evidence": {
+  "paths": null,
+  "coverage": null,
+  "depth": null,
+  "joined": false
+ },
+ "answer": {
+  "named": 0,
+  "missing": [],
+  "extra": [],
+  "from": "mentions in prose"
+ },
+ "traversals": 0,
+ "tokens": {
+  "input": 0,
+  "cache_read": 0,
+  "cache_write": 0,
+  "output": 0,
+  "requests": 1
+ }
+}

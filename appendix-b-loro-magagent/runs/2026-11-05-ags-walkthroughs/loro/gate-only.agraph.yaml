@@ -1,0 +1,21 @@
+ags_version: "1.0"
+kind: AgenticGraph
+id: gewaa/gate-only
+title: One approval gate
+requires_conformance: 1
+objective: Ask a maintainer to approve a release before anything else happens.
+constraints:
+  max_cost_usd: 0.1
+entrypoints: [approve_release]
+nodes:
+  approve_release:
+    type: gate
+    title: Maintainer approves the release
+    description: A maintainer approves or rejects the release.
+    gate:
+      mode: approve
+      roles: [maintainer]
+      prompt: "Approve the release?"
+      timeout_seconds: 3600
+      on_timeout: hold
+      on_reject: fail

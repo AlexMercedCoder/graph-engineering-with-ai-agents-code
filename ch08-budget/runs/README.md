@@ -1,4 +1,4 @@
-# Chapter 8 runs, 2026-11-03
+# Chapter 8 runs, 2026-11-03 and 2026-11-05
 
 Claude Code 2.1.316 with `claude-opus-5-5`, headless with `--setting-sources project,local`,
 `--strict-mcp-config`, and no MCP servers unless noted; OpenCode 1.19.5 with
@@ -22,3 +22,7 @@ Claude Code `init` events are removed; local paths are replaced with `<run-dir>`
 | `2026-11-03-deferred-tools/` | `/context` and a lookup task with an MCP server, with tool search on (default) and off (`ENABLE_TOOL_SEARCH=false`) |
 | `2026-11-03-opencode-loading/` | The same configurations as `AGENTS.md` in OpenCode, and the pointer-line substitute for path-scoped rules |
 | `2026-11-03-routing/` | Chapter 4's twenty prompts against the flat, compressed, and grouped skills, twice per harness |
+| `2026-11-05-budget-check/` | `../check-budget.py` against the split configuration (passes) and the 146-line guide (fails) |
+| `2026-11-05-names-only/` | Chapter 4's twenty prompts with the four skills listed by name only, against a same-day control with full descriptions |
+| `2026-11-05-skills-vs-inline/` | The book's own manuscript configuration with its guidance in skills against the same guidance inline in `CLAUDE.md` |
+| `2026-11-05-opencode-nested-rules/` | OpenCode loading a subdirectory's `AGENTS.md` when the agent reads a file there |

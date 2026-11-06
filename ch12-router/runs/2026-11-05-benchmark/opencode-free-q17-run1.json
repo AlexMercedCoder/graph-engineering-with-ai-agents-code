@@ -1,0 +1,28 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 17,
+ "run": 1,
+ "answer": "**Five services are affected within two hops of OrderService.** Counting OrderService and its exposed OrdersAPI as one hop location:\n\n| Hop | Affected service | Dependency path |\n|---|---|---|\n| 1 | **BillingService** | Depends on **OrderService** for line items. |\n| 1 | **ReportingService** | Depends on **OrderService**. |\n| 1 | **SearchService** | Depends on **OrderService** and reads its order changes every minute. |\n| 1 | **ApiGateway** | Calls **OrdersAPI**, exposed by **OrderService**. |\n| 2 | **RenewalsWorker** | Depends on **BillingService**, which depends on **OrderService**. |\n\nThese are the downstream services in scope for reviewing a line-item format change; actual code changes depend on how each consumes the data. No database or configuration key is part of these downstream dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "OrderService line-item format OrdersAPI BillingService ReportingService SearchService ApiGateway RenewalsWorker dependencies",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 4455,
+ "output_tokens": 267,
+ "cost_usd": null
+}

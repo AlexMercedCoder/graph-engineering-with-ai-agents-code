@@ -1,0 +1,43 @@
+{
+ "run": "claude-soft-body-2",
+ "harness": "claude",
+ "condition": "soft-body",
+ "role": "sre",
+ "verdict": "reasoning",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "Skill",
+   "ToolSearch",
+   "mcp__project-graph__find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": false
+ },
+ "answer": {
+  "named": 3,
+  "missing": [
+   "BillingService",
+   "RenewalsWorker",
+   "ReportingService",
+   "SearchService"
+  ],
+  "extra": [],
+  "from": "Affected services line"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 398,
+  "cache_read": 125746,
+  "cache_write": 8720,
+  "output": 1055,
+  "requests": 5
+ }
+}

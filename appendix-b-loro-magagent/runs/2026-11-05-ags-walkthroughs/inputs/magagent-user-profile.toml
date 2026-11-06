@@ -1,0 +1,24 @@
+[preferences]
+default_provider = ""
+default_model = ""
+default_agent_profile = ""
+theme = "dark"
+memory_budget_tokens = 4000
+
+[permissions]
+mode = "silent"
+auto_commit_memory = false
+allowed_shell_patterns = [
+    "git *",
+    "npm *",
+    "cargo *",
+    "pytest *",
+    "python *",
+    "pip *",
+]
+
+[memory]
+auto_write = true
+write_every_n_turns = 5
+max_nodes = 10000
+encrypt = false

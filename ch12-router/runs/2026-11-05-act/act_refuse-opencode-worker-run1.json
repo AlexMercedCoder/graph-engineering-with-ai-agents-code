@@ -1,0 +1,99 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "setup": "worker",
+ "run": 1,
+ "seconds": 76,
+ "main_requests": 9,
+ "main_input_tokens": 96079,
+ "main_last_context": 12169,
+ "worker_requests": 5,
+ "worker_input_tokens": 12678,
+ "tool_calls": [
+  {
+   "by": "main",
+   "tool": "read",
+   "input": {
+    "filePath": "<run-dir>"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "read",
+   "input": {
+    "filePath": "<run-dir>/config/staging/payments.conf"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "skill",
+   "input": {
+    "name": "act-on-evidence"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "list_mcp_resources",
+   "input": {}
+  },
+  {
+   "by": "main",
+   "tool": "list_mcp_resource_templates",
+   "input": {}
+  },
+  {
+   "by": "main",
+   "tool": "read",
+   "input": {
+    "filePath": "<run-dir>/opencode.json"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "task",
+   "input": {
+    "description": "Lookup fraud threshold default",
+    "subagent_type": "retrieval-worker",
+    "prompt": "Find the documented config key and default value for the fraud-check score threshold in config/staging/payments.conf. Return evidence documents for the key/default, including any conflicting claims or applicability details. Do not edit files. Use configured project-knowledge routing and preserve evidence envelopes."
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "Find the documented config key and default value for the fraud-check score threshold in config/staging/payments.conf. Return evidence documents for the key/default, including any conflicting claims or applicability details. Do not edit files."
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_search_docs",
+   "input": {
+    "query": "config/staging/payments.conf fraud-check score threshold config key default conflicting applicability",
+    "k": 8
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_search_docs",
+   "input": {
+    "query": "\"fraud\" \"threshold\" \"payments.conf\"",
+    "k": 8
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_check_evidence",
+   "input": {
+    "documents": "[{\"schema_version\":1,\"status\":\"found\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('config/staging/payments.conf fraud-check score threshold config key default conflicting applicability', k=8)\"},\"confidence\":\"medium\",\"coverage\":\"unknown\",\"cost_tokens\":401,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[],\"claim\":\"The retrieved payments-service#Configuration section documents CAPTURE_TIMEOUT with a default of 30 seconds; it does not identify this as a fraud-check score threshold or establish applicability to config/staging/payments.conf.\"},{\"schema_version\":1,\"status\":\"found\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('\\\"fraud\\\" \\\"threshold\\\" \\\"payments.conf\\\"', k=8)\"},\"confidence\":\"medium\",\"coverage\":\"unknown\",\"cost_tokens\":470,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[],\"claim\":\"The retrieved sections do not document a fraud-check score threshold key or default for config/staging/payments.conf, nor conflicting threshold claims or staging applicability details; the requested key and default therefore remain unverified.\"}]"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "apply_patch",
+   "input": {
+    "patchText": "*** Begin Patch\n*** Add File: <run-dir>/brief.md\n+# Fraud-check threshold\n+\n+No changes were made to `config/staging/payments.conf`. The file contains no fraud-check score threshold setting, and the closest documents found did not verify its configuration key or documented default. Search coverage is unknown, so this does not establish that documentation is absent elsewhere.\n+\n+The first search documents `CAPTURE_TIMEOUT=30`, but does not identify it as the fraud-check score threshold. That value is not sufficient evidence to change or add a fraud threshold. The second search likewise left the requested key and default unverified. Sources and full evidence documents follow.\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"source\": {\n+      \"path\": \"vector\",\n+      \"identifier\": \"search_docs('config/staging/payments.conf fraud-check score threshold config key default conflicting applicability', k=8)\"\n+    },\n+    \"confidence\": \"medium\",\n+    \"coverage\": \"unknown\",\n+    \"cost_tokens\": 401,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": [],\n+    \"claim\": \"The retrieved payments-service#Configuration section documents CAPTURE_TIMEOUT with a default of 30 seconds; it does not identify this as a fraud-check score threshold or establish applicability to config/staging/payments.conf.\"\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"source\": {\n+      \"path\": \"vector\",\n+      \"identifier\": \"search_docs('\\\"fraud\\\" \\\"threshold\\\" \\\"payments.conf\\\"', k=8)\"\n+    },\n+    \"confidence\": \"medium\",\n+    \"coverage\": \"unknown\",\n+    \"cost_tokens\": 470,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": [],\n+    \"claim\": \"The retrieved sections do not document a fraud-check score threshold key or default for config/staging/payments.conf, nor conflicting threshold claims or staging applicability details; the requested key and default therefore remain unverified.\"\n+  }\n+]\n+```\n*** End Patch"
+   }
+  }
+ ],
+ "cost_usd": null
+}

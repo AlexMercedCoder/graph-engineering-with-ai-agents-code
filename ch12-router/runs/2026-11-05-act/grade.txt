@@ -1,0 +1,8 @@
+act_fix-claude-worker-run1: PASS  changed ['AUTH_HOLD_MINUTES'] {'AUTH_HOLD_MINUTES': '60'}  evidence 9 (0 invalid, status ['found'])  main input 71514  cost 0.201920405
+act_fix-claude-worker-run2: PASS  changed ['AUTH_HOLD_MINUTES'] {'AUTH_HOLD_MINUTES': '60'}  evidence 7 (0 invalid, status ['found'])  main input 59457  cost 0.18983782
+act_fix-opencode-worker-run1: PASS  changed ['AUTH_HOLD_MINUTES'] {'AUTH_HOLD_MINUTES': '60'}  evidence 7 (1 invalid, status ['found'])  main input 85361  cost None
+act_fix-opencode-worker-run2: PASS  changed ['AUTH_HOLD_MINUTES'] {'AUTH_HOLD_MINUTES': '60'}  evidence 4 (1 invalid, status ['found'])  main input 101179  cost None
+act_refuse-claude-worker-run1: PASS  changed nothing {}  evidence 3 (0 invalid, status ['found'])  main input 51793  cost 0.13379766499999998
+act_refuse-claude-worker-run2: PASS  changed nothing {}  evidence 4 (4 invalid, status ['found'])  main input 68310  cost 0.16521087999999998
+act_refuse-opencode-worker-run1: PASS  changed nothing {}  evidence 2 (0 invalid, status ['found'])  main input 96079  cost None
+act_refuse-opencode-worker-run2: PASS  changed nothing {}  evidence 3 (1 invalid, status ['found'])  main input 63557  cost None

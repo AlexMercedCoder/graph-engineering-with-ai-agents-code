@@ -1,0 +1,4 @@
+routing accuracy: 42/42
+mis-routes that only cost more: 0
+mis-routes to a path that can't answer: 0
+model calls: 42, 189 s, $0.0240

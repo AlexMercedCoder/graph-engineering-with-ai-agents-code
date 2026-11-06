@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph",
+ "id": 13,
+ "run": 2,
+ "answer": "Within two hops, OrderService needs **3 services, 2 APIs and 3 databases**. All of this comes from one dependency lookup at depth 2. The tool counts an API and the service behind it as a single hop.\n\n**Hop 1: what OrderService uses directly**\n\n| Relationship | Target | Behind it |\n|---|---|---|\n| CALLS | **PaymentsAPI** | served by **PaymentsService** |\n| DEPENDS_ON | **UserService** | \u2014 |\n| STORES | **OrdersPostgresDatabase** | \u2014 |\n\n**Hop 2: what each of those uses**\n\n- **PaymentsService** (reached through PaymentsAPI):\n  - CALLS **NotificationsAPI**, which **NotificationsService** serves\n  - STORES **PaymentsPostgresDatabase**\n- **UserService**:\n  - STORES **UsersPostgresDatabase**\n  - The lookup found no API calls or service dependencies for UserService within this range.\n- **OrdersPostgresDatabase**: a database, so nothing further.\n\n**Totals**\n- **APIs (2):** PaymentsAPI, NotificationsAPI\n- **Services (3):** PaymentsService, UserService, NotificationsService\n- **Databases (3):** OrdersPostgresDatabase, PaymentsPostgresDatabase, UsersPostgresDatabase\n\n**Not covered**\n- **Hop 3:** NotificationsService would be the next step out, so its own dependencies are outside the two-hop range and I didn't look them up.\n- **Configuration keys:** I didn't check configuration, so the answer doesn't include any keys.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 8883,
+ "output_tokens": 816,
+ "cost_usd": 0.0417224
+}

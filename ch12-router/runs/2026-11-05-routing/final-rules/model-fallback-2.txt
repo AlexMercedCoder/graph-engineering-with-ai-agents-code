@@ -1,0 +1,5 @@
+routing accuracy: 42/42
+unmatched by rules: 9/42
+mis-routes that only cost more: 0
+mis-routes to a path that can't answer: 0
+model calls: 9, 45 s, $0.0044

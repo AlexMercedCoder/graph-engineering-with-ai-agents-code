@@ -1,0 +1,98 @@
+{
+  "ags_version": "1.0",
+  "kind": "AgenticGraphRun",
+  "run_id": "ef6c40dd-8c43-48d9-aaea-f11432052f51",
+  "graph_id": "gewaa/migrate-order-service",
+  "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+  "harness": {
+    "name": "loro",
+    "version": "0.22.0",
+    "conformance_level": 3,
+    "supported_features": [
+      "validation.layers.1-3",
+      "planning",
+      "sequential-and-parallel-scheduling",
+      "task-decision-gate-loop-map-subgraph",
+      "criteria.all",
+      "durable-run-records",
+      "resume-digest-guard",
+      "generation"
+    ]
+  },
+  "status": "failed",
+  "started_at": "2026-11-05T16:46:05.826210+00:00",
+  "nodes": [
+    {
+      "node_id": "run_tests",
+      "type": "task",
+      "status": "failed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "failed",
+          "started_at": "2026-11-05T16:46:05.828378+00:00",
+          "finished_at": "2026-11-05T16:46:06.064968+00:00",
+          "routed": {
+            "requested_tier": "minimal",
+            "effective_tier": "minimal",
+            "provider": "mock",
+            "model": "mock-small",
+            "downgraded": false,
+            "context_tokens": null,
+            "api_key_env": null,
+            "credential_ref": null,
+            "base_url": null
+          },
+          "usage": {
+            "input_tokens": 2265,
+            "output_tokens": 170,
+            "cost_usd": 0.0,
+            "tool_calls": 1
+          },
+          "success": {
+            "passed": false,
+            "mode": "all",
+            "results": [
+              {
+                "id": "report_written",
+                "kind": "file_exists",
+                "severity": "required",
+                "passed": false,
+                "evidence": ""
+              }
+            ]
+          },
+          "error": "output_missing: node contract failed"
+        }
+      ],
+      "outputs": {}
+    },
+    {
+      "node_id": "migrate_module",
+      "type": "task",
+      "status": "pending"
+    },
+    {
+      "node_id": "verify",
+      "type": "task",
+      "status": "pending"
+    }
+  ],
+  "usage": {
+    "input_tokens": 2265,
+    "output_tokens": 170,
+    "total_tokens": 0,
+    "cost_usd": 0.0,
+    "tool_calls": 1,
+    "wall_clock_seconds": 0.0,
+    "node_executions": 1
+  },
+  "diagnostics": [],
+  "metadata": {
+    "source": "<run-dir>/migrate-order-service.agraph.yaml",
+    "params": {},
+    "conformance_level": 3,
+    "dry_run": false
+  },
+  "finished_at": "2026-11-05T16:46:06.066305+00:00"
+}

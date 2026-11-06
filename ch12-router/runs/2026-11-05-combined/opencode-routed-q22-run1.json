@@ -1,0 +1,28 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 22,
+ "run": 1,
+ "answer": "Two services call **PaymentsAPI** directly:\n\n- **OrderService** calls it to authorize and capture payments. [order-service#Integrations]\n- **RenewalsWorker** calls it directly because a renewal has no cart, so it does not go through **OrderService**. [renewals-worker#Integrations]\n\n**PaymentsService** never retries a declined payment because retrying a decline can trigger the payment provider\u2019s fraud checks. It retries provider calls **only on network errors**. [payments-service#Operations]",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "PaymentsService PaymentsAPI declined payment never retry decline retry policy",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 2978,
+ "output_tokens": 183,
+ "cost_usd": null
+}

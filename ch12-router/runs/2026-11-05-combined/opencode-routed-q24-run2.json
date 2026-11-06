@@ -1,0 +1,42 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 24,
+ "run": 2,
+ "answer": "### Direct dependents of `BillingService`\n- **`RenewalsWorker`** depends directly on `BillingService` and calls `PaymentsAPI` directly for renewal payments.\n- **`ReportingService`** depends directly on `BillingService` for invoice totals.\n\n### When renewal authorization keeps failing\n`RenewalsWorker` retries the failed authorization on **day 3 and day 7**. After the **third failure**, the subscription is **suspended**, and the customer is **emailed through the normal billing receipt flow**. That flow uses **`NotificationsAPI`**, exposed by **`NotificationsService`**.\n\nSources: `renewals-worker#Integrations`, `renewals-worker#Operations`, `reporting-service#Integrations`, `billing-service#Integrations`, and `notifications-service#Overview`.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "renewal authorization keeps failing BillingService retry exhausted",
+    "k": 5
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "BillingService billing receipt flow customer emailed NotificationsAPI ReportingService depends BillingService renewal suspended",
+    "k": 5
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "NotificationsAPI served by NotificationsService PaymentsAPI exposed PaymentsService",
+    "k": 2
+   }
+  }
+ ],
+ "input_tokens": 7061,
+ "output_tokens": 317,
+ "cost_usd": null
+}

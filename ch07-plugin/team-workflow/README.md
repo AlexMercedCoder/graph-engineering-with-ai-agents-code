@@ -2,8 +2,8 @@
 
 The Part 2 execution graph from *Graph Engineering with AI Agents*, packaged: four skills
 (`code-review`, `explain-module`, `fix-lint`, `migrate-module`), three agents (`test-runner`,
-`module-migrator`, `migration-dispatcher`), and six hooks (`protect-paths`, `guard-bash`,
-`confirm-destructive-sql`, `lint-on-edit`, `test-on-stop`, `audit`).
+`module-migrator`, `migration-dispatcher`), and seven hooks (`protect-paths`, `guard-bash`,
+`confirm-destructive-sql`, `lint-on-edit`, `test-on-stop`, `audit`, `git-context`).
 
     /plugin install team-workflow@book-platform     # from the book-platform marketplace
     claude --plugin-dir ./team-workflow             # try it without installing

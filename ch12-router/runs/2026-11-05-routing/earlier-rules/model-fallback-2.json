@@ -1,0 +1,558 @@
+[
+ {
+  "q": "What does NotificationsService store, and where?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q1",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What are the NotificationsAPI retry semantics?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q2",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Which database does OrderService use?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q3",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Where does AuditService store its records?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q4",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Which configuration key sets the PaymentsService capture timeout, and what is its default?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q5",
+  "accept": [
+   "tool"
+  ],
+  "note": "the payments config schema also lists CAPTURE_TIMEOUT and its default",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What does AuditService depend on for identity resolution?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q6",
+  "accept": [
+   "graph"
+  ],
+  "note": "find_dependencies answered it in Chapter 10's runs",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Where does SearchService keep its index?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q7",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What does ApiGateway use for token validation?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q8",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "How often does RenewalsWorker re-bill subscriptions?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q9",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Which configuration key does UserService use for its read replica?",
+  "expected": [
+   "vector"
+  ],
+  "from": "ch10 q10",
+  "got": [
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "If the NotificationsAPI changes its retry semantics, which services are affected within two hops? Count services that call it, then services that depend on those or call their APIs.",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q11",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "If BillingService goes down, which services stop working within two hops? Count services that depend on it or call its API, then services that depend on those.",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q12",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What does OrderService need in order to run, within two hops? Count the APIs it calls and the service behind each, the services it depends on, and the databases it stores data in, then the same for each of those.",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q13",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "If the notifications Redis instance is lost, which services that call the NotificationsAPI directly can no longer get their messages delivered?",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q14",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "If UserService goes down, which services are affected within two hops? Count services that depend on it or call its API, then services that depend on those or call their APIs.",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q15",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Which services call the PaymentsAPI directly?",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q16",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "If OrderService changes its line-item format, which services are affected within two hops? Count services that depend on it or call its API, then services that depend on those.",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q17",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What does ReportingService need in order to run, within two hops? Count the APIs it calls and the service behind each, the services it depends on, and the databases it stores data in, then the same for each of those.",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q18",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "If PaymentsService is down, which services that call its API directly can no longer take payments?",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q19",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What does BillingService need in order to run, within two hops? Count the APIs it calls and the service behind each, the services it depends on, and the databases it stores data in, then the same for each of those.",
+  "expected": [
+   "graph"
+  ],
+  "from": "ch10 q20",
+  "got": [
+   "graph"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What was net written premium by region in Q3 2026?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "ch11 q1",
+  "got": [
+   "semantic"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What was gross written premium by product line for the first half of 2026?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "ch11 q2",
+  "got": [
+   "semantic"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "How many policies did we write in March 2026?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "ch11 q3",
+  "got": [
+   "semantic"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "How much did we pay on closed claims in Q2 2026, by severity?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "ch11 q4",
+  "got": [
+   "semantic"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What was our loss ratio by region in Q3 2026?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "ch11 q5",
+  "got": [
+   "semantic"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "How much commission did we pay agents in Q3 2026?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "ch11 q6",
+  "got": [
+   "semantic"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What does error code E4021 mean?",
+  "expected": [
+   "tool"
+  ],
+  "from": "new",
+  "got": [
+   "tool"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Is E5011 retryable?",
+  "expected": [
+   "tool"
+  ],
+  "from": "new",
+  "got": [
+   "tool"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What should a client do when it gets E1002?",
+  "expected": [
+   "tool"
+  ],
+  "from": "new",
+  "got": [
+   "tool"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Give me the config schema for payments",
+  "expected": [
+   "tool"
+  ],
+  "from": "new",
+  "got": [
+   "tool"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "What's in the configuration schema for the orders service?",
+  "expected": [
+   "tool"
+  ],
+  "from": "new",
+  "got": [
+   "tool"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Which keys does the gateway's config file accept, and which are required?",
+  "expected": [
+   "tool"
+  ],
+  "from": "new",
+  "got": [
+   "vector"
+  ],
+  "by": "model",
+  "ok": false,
+  "miss": "wrong path"
+ },
+ {
+  "q": "Who gets hurt if we take the users service offline for maintenance?",
+  "expected": [
+   "graph"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "graph"
+  ],
+  "by": "model",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Would anything else notice if the search index were rebuilt from scratch tonight?",
+  "expected": [
+   "graph"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "graph"
+  ],
+  "by": "model",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Does the gateway talk to the payments service, directly or through something else?",
+  "expected": [
+   "graph"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "graph"
+  ],
+  "by": "model",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Tell me about the PaymentsService capture timeout.",
+  "expected": [
+   "vector"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "vector"
+  ],
+  "by": "model",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "When a card is declined, does PaymentsService try again?",
+  "expected": [
+   "vector"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "vector"
+  ],
+  "by": "model",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Which team looks after PaymentsService?",
+  "expected": [
+   "vector"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "tool"
+  ],
+  "by": "model",
+  "ok": false,
+  "miss": "wrong path"
+ },
+ {
+  "q": "How much did agents earn from us in the third quarter?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "semantic"
+  ],
+  "by": "model",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Did we sell more policies in March 2026 than in February 2026?",
+  "expected": [
+   "semantic"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "semantic"
+  ],
+  "by": "model",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Show me premium for EMEA in 2026, month by month.",
+  "expected": [
+   "semantic"
+  ],
+  "from": "new, no keywords",
+  "got": [
+   "semantic"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ },
+ {
+  "q": "Why did checkout start timing out after last week's NotificationsAPI change?",
+  "expected": [
+   "graph",
+   "vector"
+  ],
+  "from": "new, fan-out",
+  "got": [
+   "graph",
+   "vector"
+  ],
+  "by": "rule",
+  "ok": true,
+  "miss": ""
+ }
+]

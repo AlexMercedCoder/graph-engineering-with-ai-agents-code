@@ -1,0 +1,10 @@
+claude-analyst-1             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=11 skill=yes
+claude-analyst-2             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=16 skill=yes
+claude-emea-analyst-1        3/6  q1:refused q2:refused q3:refused q4:correct q5:correct q6:correct  tools=16 skill=yes
+claude-emea-analyst-2        3/6  q1:wrong q2:wrong q3:wrong q4:correct q5:correct q6:correct  tools=13 skill=yes
+claude-new-analyst-1         2/6  q1:refused q2:refused q3:refused q4:refused q5:correct q6:correct  tools=16 skill=yes
+opencode-analyst-1           6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=17 skill=yes
+opencode-analyst-2           6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=17 skill=yes
+opencode-emea-analyst-1      3/6  q1:wrong q2:wrong q3:wrong q4:correct q5:correct q6:correct  tools=17 skill=yes
+opencode-emea-analyst-2      3/6  q1:wrong q2:wrong q3:wrong q4:correct q5:correct q6:correct  tools=17 skill=yes
+opencode-new-analyst-1       2/6  q1:refused q2:refused q3:refused q4:refused q5:correct q6:correct  tools=17 skill=yes

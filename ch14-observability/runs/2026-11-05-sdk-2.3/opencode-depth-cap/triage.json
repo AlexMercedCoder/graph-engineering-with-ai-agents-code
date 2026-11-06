@@ -1,0 +1,37 @@
+{
+ "run": "opencode-depth-cap",
+ "harness": "opencode",
+ "condition": "depth-cap",
+ "role": "sre",
+ "verdict": "knowledge graph",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "skill",
+   "project-graph_find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 3,
+  "coverage": "partial",
+  "depth": "1/1",
+  "joined": true
+ },
+ "answer": {
+  "named": 3,
+  "missing": [],
+  "extra": [],
+  "from": "Affected services line"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 3494,
+  "cache_read": 8704,
+  "cache_write": 0,
+  "output": 190,
+  "requests": 4
+ }
+}

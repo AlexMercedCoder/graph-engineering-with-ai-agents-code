@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "vector",
+ "id": 6,
+ "run": 1,
+ "answer": "**AuditService depends on UserService for identity resolution.** UserService exposes **UsersAPI** and validates session tokens forwarded by the gateway. AuditService\u2019s records contain the **resolved user**, rather than the raw token.\n\nSource: `audit-service#Integrations`, `user-service#Overview`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "AuditService identity resolution dependencies",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 2274,
+ "output_tokens": 90,
+ "cost_usd": null
+}

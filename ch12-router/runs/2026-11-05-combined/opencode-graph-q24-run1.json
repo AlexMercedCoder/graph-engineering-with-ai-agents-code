@@ -1,0 +1,60 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "route": "graph",
+ "id": 24,
+ "run": 1,
+ "answer": "**Two services depend directly on `BillingService`:**\n- `RenewalsWorker`\n- `ReportingService`\n\n**The available architecture data does not specify what happens when a renewal\u2019s authorization repeatedly fails.** It establishes that:\n- `RenewalsWorker` calls `PaymentsAPI`, exposed by `PaymentsService`, which stores data in `PaymentsPostgresDatabase`.\n- `RenewalsWorker` is configured by `AUTH_HOLD_MINUTES`, which sets how long a renewal authorization is held before capture.\n- `PaymentsService` is configured by `PAYMENT_API_KEY` and `CAPTURE_TIMEOUT`.\n\nThese relationships do **not** establish a retry limit, retry schedule, cancellation rule, or final failure state. In particular, `AUTH_HOLD_MINUTES` describes the authorization hold before capture; it does not establish what happens after repeated authorization failures.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "RenewalsWorker",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "RenewalsWorker"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "BillingService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "RenewalsWorker",
+    "max_depth": 4
+   }
+  }
+ ],
+ "input_tokens": 6760,
+ "output_tokens": 364,
+ "cost_usd": null
+}

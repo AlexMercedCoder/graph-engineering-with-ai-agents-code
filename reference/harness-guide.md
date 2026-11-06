@@ -15,21 +15,26 @@ production.
 
 | Harness | Version verified | Verification date | Source |
 |---|---|---|---|
-| Claude Code | 2.1.231 | 2026-08-13 | Official hooks and plugins references |
-| OpenAI Codex | 0.147.0 | 2026-08-13 | Official hooks reference |
-| Google Antigravity | agy CLI 1.1.12, Hub 2.8.0 | 2026-08-13 | Official hooks, skills, and plugin docs |
-| OpenCode | 1.18.18 | 2026-08-13 | Official plugins and skills docs |
-| Pi | 0.84.1 | 2026-08-13 | Official extensions docs |
+| Claude Code | 2.1.316 | 2026-11-05 | Official hooks and plugin-marketplace references, plus the book's runs |
+| OpenAI Codex | CLI 0.166.0 | 2026-11-05 | Official hooks reference, `codex features list`, and the book's runs |
+| Google Antigravity | agy CLI 1.4.12 | 2026-11-05 | `agy` help and installed layout; hooks, skills, and rules details from the docs as of agy 1.1.12 (2026-08-13) unless marked |
+| OpenCode | 1.19.5 | 2026-11-05 | Official plugins docs, plus the book's runs |
+| Pi | 1.4.0 | 2026-11-05 | The docs and changelog shipped with the installed package, plus the book's runs |
+
+Each fact below is either **measured** (seen in a run on the version given) or
+**documented** (read in the vendor's documentation for that version). Where the
+documentation and the installed release disagreed, the installed release won
+and the text says so.
 
 ## Quick map
 
 | Harness | Skills root | Subagents root | Hooks live in | Plugins |
 |---|---|---|---|---|
 | Claude Code | `.claude/skills/` (project), `~/.claude/skills/` (personal) | `.claude/agents/`, `~/.claude/agents/` | `.claude/settings.json`, or a skill/subagent definition | `.claude-plugin/` with `plugin.json` |
-| OpenAI Codex | `.codex/` skills directory | `.codex/agents/` | `hooks.json`, or `[hooks]` in `config.toml` | plugin manifest or `hooks/hooks.json` |
-| Google Antigravity | `.agents/skills/` (workspace), `~/.gemini/antigravity-cli/skills/` (global) | `.agents/` agents directory | `.agents/hooks.json`, or `~/.gemini/config/hooks.json` | `~/.gemini/antigravity-cli/plugins/` |
-| OpenCode | `.opencode/skills/` (project), `~/.config/opencode/skills/` (user) | `.opencode/agents/` | A plugin module in the project | `.opencode/plugins/`, `~/.config/opencode/plugins/` |
-| Pi | `.pi/skills/` (project), `~/.pi/agent/skills/` (global) | `.pi/agents/` | A TypeScript extension | `~/.pi/agent/extensions/`, `.pi/extensions/` |
+| OpenAI Codex | `.codex/` skills directory | `.codex/agents/` | `hooks.json`, or `[hooks]` in `config.toml` | Installed with `codex plugin add` from a marketplace; hooks in the manifest or `hooks/hooks.json` |
+| Google Antigravity | `.agents/skills/` (workspace), `~/.gemini/antigravity-cli/skills/` (global) | `.agents/` agents directory | `.agents/hooks.json`, or `~/.gemini/config/hooks.json` | Installed with `agy plugin install` into `~/.gemini/config/plugins/<name>/` (observed, 1.4.12) |
+| OpenCode | `.opencode/skills/` (project), `~/.config/opencode/skills/` (user) | `.opencode/agents/` | A plugin module in the project | `.opencode/plugins/`, `~/.config/opencode/plugins/`, or npm packages named in `opencode.json` |
+| Pi | `.pi/skills/` or `.agents/skills/` (project), `~/.pi/agent/skills/` or `~/.agents/skills/` (global) | None built in; add them with an extension or a Pi package | A TypeScript extension | Extensions in `~/.pi/agent/extensions/` or `.pi/extensions/`; Pi packages from npm or Git |
 
 ## Skills
 
@@ -76,14 +81,28 @@ three-tier logic with a different root.
   is `~/.pi/agent/skills/`.
 - **Project scope**: travels with the code, so it reaches every teammate who
   clones it. In Claude Code this is `.claude/skills/`; in OpenCode `.opencode/skills/`;
-  in Pi `.pi/skills/`; in Antigravity `.agents/skills/`.
+  in Pi `.pi/skills/` or the standard `.agents/skills/`, which Pi 1.4.0 also
+  searches up to the repository root (documented); in Google Antigravity `.agents/skills/`.
 - **Organization scope**: applied by enterprise-managed settings where the
   harness supports them.
 
-Antigravity follows the same shape: workspace skills in `.agents/skills/` and
+Google Antigravity follows the same shape: workspace skills in `.agents/skills/` and
 global skills under `~/.gemini/antigravity-cli/skills/`. Its frontmatter needs
 only `description`; `name` is optional and defaults to the folder name if
 absent.
+
+### How much of the skill list reaches the model
+
+Every harness caps the standing cost of the skill list differently, and the cap
+decides what happens when a project grows (Chapter 8).
+
+| Harness | What happens to the listing | Status |
+|---|---|---|
+| Claude Code | Descriptions are shortened or dropped once the list passes its budget, starting with the least-used skills, not alphabetically. A skill listed by name only routes far worse: Chapter 4's routing prompts reached the right skill in 12 of 40 runs with names only, against 29 of 40 with descriptions | Measured, 2.1.316 |
+| OpenAI Codex | Skills are listed in up to 2% of the context window (8,000 characters if the window is unknown); `skills.max_context_tokens` raises the limit to 10,000 | Documented, 0.166.0 |
+| Google Antigravity | Rules can load by `trigger: glob`; always-on rules share a 20,000-token budget | Documented, November 2026 |
+| OpenCode | Loads a subdirectory's `AGENTS.md` along with the first file the agent reads there | Measured, 1.19.5 |
+| Pi | Skills are listed in the system prompt; no separate cap is documented | Documented, 1.4.0 |
 
 ### If your harness does not support skills
 
@@ -97,7 +116,9 @@ give up is the routing decision, which moves from the agent to you.
 A subagent is a Markdown file with YAML frontmatter, placed in the harness's
 agents directory. In Claude Code that is `.claude/agents/` for project scope or
 `~/.claude/agents/` for personal scope, with the same three-tier logic as
-skills. The other harnesses use their own agents roots with the same shape.
+skills. OpenAI Codex, Google Antigravity, and OpenCode use their own agents
+roots with the same shape. Pi ships without subagents by design; its docs
+point you to an extension or a Pi package that adds them (documented, 1.4.0).
 
 A subagent runs in its own context window with its own tool grant. It is how a
 node gets isolation: a worker receives a self-contained assignment and returns
@@ -119,8 +140,8 @@ guarantee is identical; the file differs.
 
 | Harness | Where a hook lives | How it is written | Event vocabulary | How it refuses |
 |---|---|---|---|---|
-| Claude Code | `.claude/settings.json`, `~/.claude/settings.json`, or a skill/subagent definition | Shell command (or HTTP, MCP tool, prompt, or agent handler), event JSON on stdin | The widest catalogue: `PreToolUse`, `PostToolUse`, `PermissionRequest`, `SubagentStop`, `Stop`, and two dozen more | Exit code 2, or JSON `permissionDecision` |
-| OpenAI Codex | `hooks.json` or `[hooks]` in `config.toml`, at `~/.codex/` or `<repo>/.codex/` | Shell command with a `matcher` | `PreToolUse`, `PermissionRequest`, `PostToolUse`, `UserPromptSubmit`, `SubagentStop`, `Stop`, and session events | Exit code 2, or a JSON `decision` |
+| Claude Code | `.claude/settings.json`, `~/.claude/settings.json`, or a skill/subagent definition | Shell command (or HTTP, MCP tool, prompt, or agent handler), event JSON on stdin; an `if` field such as `"Bash(rm *)"` keeps the hook from starting on calls it doesn't match | The widest catalogue, about thirty events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`, `UserPromptSubmit`, `SubagentStop`, `Stop`, and more | Exit code 2, or JSON `permissionDecision` |
+| OpenAI Codex | `hooks.json` or `[hooks]` in `config.toml`, at `~/.codex/` or `<repo>/.codex/` | Shell command or MCP tool with a `matcher`; hooks that an administrator didn't manage must be reviewed and trusted before they run | `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PreCompact`, `PostCompact`, `UserPromptSubmit`, `SubagentStart`, `SubagentStop`, `Stop`, per-request `PreModelRequest` and `PostModelRequest`, and session events | Exit code 2, or a JSON `decision` |
 | Google Antigravity | `.agents/hooks.json` (workspace) or `~/.gemini/config/hooks.json` (global) | Shell command with a `matcher` | `PreToolUse`, `PreInvocation`, `PostInvocation`, plus `PostToolUse` and `Stop` | JSON `decision` with `allow`, `deny`, or `force_ask` |
 | OpenCode | A plugin module in `.opencode/plugins/` | TypeScript or JavaScript function | `tool.execute.before`, `tool.execute.after`, plus session, message, and permission events | Throw from the handler |
 | Pi | A TypeScript extension in `~/.pi/agent/extensions/` or `.pi/extensions/` | In-process TypeScript via `pi.on()` | Events observe; hooks intercept, including `tool_call` | Return `{ block: true }` |
@@ -130,7 +151,7 @@ scripts: a `tool.execute.before` handler that throws on `rm -rf` is the same
 guarantee as `guard-bash.sh`, expressed in the language the harness already
 runs. And the refusal vocabulary is not uniform: every harness can deny, but
 the exact decision values differ, and one harness has historically parsed
-`ask` without acting on it. Antigravity widens the set with `force_ask`, which
+`ask` without acting on it. Google Antigravity widens the set with `force_ask`, which
 forces a human prompt even in an unattended run. Where a harness cannot prompt,
 fall back to `deny` with a rejection message that names the approved path.
 
@@ -141,6 +162,21 @@ Read the target paths from the patch text, on its `*** Add File:`,
 `*** Update File:`, and `*** Delete File:` lines, and from `*** Move to:` lines
 for renames (checked November 2026).
 
+Adding context before each prompt maps unevenly across the five:
+
+| Harness | Per-prompt context event | Status |
+|---|---|---|
+| Claude Code | `UserPromptSubmit` | Measured, 2.1.316 (Chapter 6's `git-context.sh`, about 70 tokens a prompt) |
+| OpenAI Codex | `UserPromptSubmit` | Documented, 0.166.0 |
+| Google Antigravity | None per prompt; `PreInvocation` runs before every model call | Documented, November 2026 |
+| OpenCode | None documented | Documented, 1.19.5 |
+| Pi | `before_agent_start` | Documented, 1.4.0 |
+
+Hook cost depends on how the hook runs. A shell hook is a new process per call:
+in Chapter 6 a bare script took about 5 ms and each `jq` call added about 25 ms,
+while OpenCode's in-process plugin took about 0.018 ms per call (measured,
+Claude Code 2.1.316 and OpenCode 1.19.5).
+
 The working hooks are in `ch06-hooks/scripts/`, the Claude Code wiring that
 registers them is in `ch06-hooks/settings.json`, and the OpenCode equivalent is
 `ch06-hooks/opencode/guards.js`. `ch15-governed-workflow/`
@@ -149,11 +185,14 @@ tool calls.
 
 ### Enabling hooks
 
-Hooks are on by default in Claude Code, OpenCode, Pi, and Antigravity. Codex
-ships hooks behind a feature flag: set `[features] hooks = true` in
-`~/.codex/config.toml` (the older `codex_hooks` key still works as a deprecated
-alias). Hooks that are not enabled are silently ignored, so verify the flag
-before debugging a hook that never fires.
+Hooks are on by default in all five harnesses. OpenAI Codex 0.166.0 lists the
+`hooks` feature as stable and enabled (`codex features list`), where 0.147.0
+needed `[features] hooks = true`; a user can still turn it off, which is why
+administrators pin `[features] hooks = true` in `requirements.toml`. Two OpenAI Codex
+checks remain before a hook runs: the feature must not be disabled, and a hook
+that isn't administrator-managed must be reviewed and trusted. Hooks that don't
+run are ignored silently, so check both before debugging a hook that never
+fires.
 
 ### Verifying a hook fires
 
@@ -161,10 +200,11 @@ Hooks fail silently more often than they fail loudly. Work through this
 sequence, because each step rules out the ones after it.
 
 1. Confirm the harness loaded the hook at all. Claude Code's `/hooks` command
-   and Codex's `/hooks` command list every active hook and the settings file it
+   and OpenAI Codex's `/hooks` command list every active hook and the settings file it
    came from.
-2. Confirm hooks are enabled. In Codex, the `[features] hooks = true` flag must
-   be set or nothing runs.
+2. Confirm hooks are enabled. In OpenAI Codex, `codex features list` shows
+   whether `hooks` is on, and an untrusted project hook doesn't run until you
+   review it.
 3. Check the matcher against the actual tool name. Tool names are
    case-sensitive and more specific than people expect.
 4. Run the script by hand with real input. Pipe a saved event JSON into it from
@@ -205,21 +245,25 @@ Hook paths inside a Claude Code plugin use `${CLAUDE_PLUGIN_ROOT}`, not
 whose name changes on every update, so a project-relative path works on the
 machine that built it and nowhere else.
 
-### The Codex plugin shape
+### The OpenAI Codex plugin shape
 
-Codex loads plugin-bundled hooks from `hooks/hooks.json` inside the plugin root
-by default, or from a `hooks` entry in `.codex-plugin/plugin.json`. Plugin hook
-commands receive `PLUGIN_ROOT` and `PLUGIN_DATA` environment variables, plus
-`CLAUDE_PLUGIN_ROOT` and `CLAUDE_PLUGIN_DATA` for compatibility with existing
-plugin hooks.
+OpenAI Codex loads plugin-bundled hooks from `hooks/hooks.json` inside the
+plugin root by default, or from the plugin manifest (documented, 0.166.0).
+Plugin hook commands receive `PLUGIN_ROOT` and `PLUGIN_DATA` environment
+variables, plus `CLAUDE_PLUGIN_ROOT` and `CLAUDE_PLUGIN_DATA` for compatibility
+with existing plugin hooks (documented as of 0.147.0, not rechecked). The
+`plugin_hooks` feature flag no longer exists in 0.166.0, and plugins install
+from marketplaces with `codex plugin add` and `codex plugin marketplace`.
 
-### The Antigravity plugin shape
+### The Google Antigravity plugin shape
 
-Antigravity plugins live under `~/.gemini/antigravity-cli/plugins/<name>/` and
-require a `plugin.json` marker file. Optional components sit beside it:
-`mcp_config.json` for MCP servers, `hooks.json` for event hooks, plus `skills/`,
-`agents/`, and `rules/` directories. An `import_manifest.json` tracks what the
-agent has installed.
+`agy plugin install` puts a plugin in `~/.gemini/config/plugins/<name>/`, with
+a `plugin.json` manifest at its root (observed, 1.4.12; the 1.1.12 docs named
+`~/.gemini/antigravity-cli/plugins/`). Optional components sit beside the
+manifest: `mcp_config.json` for MCP servers, `hooks.json` for event hooks, plus
+`skills/`, `agents/`, and `rules/` directories. `agy plugin validate [path]
+--strict` checks a manifest and its files, and `agy plugin import` converts a
+Claude Code plugin.
 
 ### Packaging steps (Claude Code, as the reference)
 
@@ -237,24 +281,51 @@ agent has installed.
 A marketplace is a JSON file in a Git repository that catalogs plugins and
 where to fetch them. The `source` field carries the flexibility: a relative
 path for a directory in the same repository, a `github` source for another
-repository, or npm, zip, and Git sources with an optional SHA-256 pin for
-integrity. Versioning resolves from the first of: `version` in `plugin.json`,
-`version` in the marketplace entry, the Git commit SHA, the SHA-256 digest, or
-`unknown`.
+repository, `git-subdir` for a folder in a monorepo, a `url` for a Git
+repository on any host, an `archive` (a zip over HTTPS, with an optional
+SHA-256 pin), `npm`, or a `command` that builds the plugin on the installing
+machine (documented, 2.1.316). Versioning resolves from the first of: `version`
+in `plugin.json`, `version` in the marketplace entry, the Git commit SHA, the
+SHA-256 digest, or `unknown`.
+
+Pin a Git-based source with `sha` as well as `ref`. In Chapter 7, moving a tag
+to a new commit changed nothing for a source pinned with `sha`, while a source
+with only `ref` fetched the changed script into a cache folder still named
+`1.0.0` (measured, 2.1.316).
+
+Two permission facts matter before you ship a plugin (measured, 2.1.316, on a
+personal claude.ai login with no managed settings):
+
+- A plugin's own `settings.json` can't bring allow rules with it.
+- A hook that returns `allow` can't override a project deny rule, but a mod can:
+  a call the project denied ran when a plugin's mod approved it. The docs say
+  managed settings keep the deny by default; that case wasn't run.
 
 The worked example is `ch07-plugin/team-workflow/`. The manuscript's chapter 7
 shows the full manifest and marketplace file shapes.
 
+### Configuration merges
+
+Layered configuration doesn't merge the same way everywhere. OpenCode merges
+its config files key by key, and the last matching permission rule wins; a key
+keeps the position the earlier file gave it, so a merge can reorder rules
+(measured, 1.19.5; the reordering isn't documented). Print the merged
+configuration before trusting a rule's order.
+
 ## MCP servers
 
 Chapters 9 to 11 register their servers per project so nothing touches your
-user configuration. The two harnesses below were run on 2026-11-03 (Claude Code
-2.1.316, OpenCode 1.19.5); the others are pointers only.
+user configuration. Claude Code 2.1.316 and OpenCode 1.19.5 ran the full
+exercises on 2026-11-03; OpenAI Codex 0.166.0 and Pi 1.4.0 ran one connection
+check each on 2026-11-05; Google Antigravity wasn't run.
 
 | Harness | Project config | Local (stdio) server | Remote (HTTP) server |
 |---|---|---|---|
 | Claude Code | `.mcp.json` at the project root | `{"type": "stdio", "command": "python3", "args": [...], "env": {...}}` | `{"type": "http", "url": "...", "headers": {"Authorization": "Bearer ${VAR}"}}` |
 | OpenCode | `mcp` key in `opencode.json` | `{"type": "local", "command": ["python3", ...], "environment": {...}}` | `{"type": "remote", "url": "...", "headers": {"Authorization": "Bearer {env:VAR}"}}` |
+| OpenAI Codex | `[mcp_servers.<name>]` in `config.toml`, or `-c mcp_servers.<name>.command=...` overrides | `command`, `args`, and `env` keys | `url` with headers |
+| Pi | `.pi/mcp.json` (trusted projects only) or `~/.pi/agent/mcp.json`, under `mcpServers` | `command`, `args`, `env` | `url`, `headers`, or OAuth |
+| Google Antigravity | User configuration only, through `agy mcp add [-e KEY=value] <name> <command> [args]` | `--type stdio` (default) | `agy mcp add -H "Key: Value" <name> <url>` |
 
 Behavior observed in those runs:
 
@@ -269,10 +340,80 @@ Behavior observed in those runs:
 - On a 403 for a missing scope, OpenCode tried to step up through the
   authorization server named in the protected resource metadata (discovery,
   then `POST /register`). Claude Code reported a tool error and carried on.
-- Pi has built-in MCP support from 0.99; earlier releases need the
-  `pi-mcp-adapter` package. OpenAI Codex and Google Antigravity configure MCP
-  servers in their own files (Antigravity uses `mcp_config.json`); check their
-  documentation for the current keys.
+- OpenAI Codex 0.166.0: `codex exec` runs with no approvals, so it refused
+  the tool call until `default_tools_approval_mode = "approve"` was set for the
+  server, and a project `.codex/config.toml` in an untrusted folder wasn't
+  loaded; pass the server with `-c` overrides instead (measured). A server's
+  `omit_tools_from` takes `direct`, `deferred`, or `code_mode` (documented).
+- Pi has MCP built in from 0.99.0 (changelog); earlier releases need the
+  `pi-mcp-adapter` package. Pi 1.4.0 ignores `.pi/mcp.json` until the project
+  is trusted, and `PI_CODING_AGENT_DIR` pointed at a scratch folder keeps a
+  test away from your own configuration (measured). A server's `exposure` is
+  `codemode` (the default), `deferred`, `direct`, or `hidden` (documented).
+- Google Antigravity 1.4.12 manages servers with `agy mcp add`, `remove`,
+  `list`, `enable`, and `disable`, which write the user's `mcp_config.json` in
+  `~/.gemini/config/` (observed; not run against the book's servers).
+
+### Giving a subagent its own server
+
+- Claude Code 2.1.316: an `mcpServers` entry in a subagent's agent file did
+  not start the server in four variants; the same entry passed as a list in
+  `--agents` JSON did (measured). `--disallowedTools` on the main session also
+  removes those tools from its subagents (measured). Parallel subagents with
+  byte-identical inline server configs share one server process, so one
+  worker exiting can cut off the others (measured; anthropics/claude-code
+  issue 84638).
+- OpenCode 1.19.5: turn a server's tools on or off per agent with
+  `permission` entries such as `"<server>_*": "deny"` or `"allow"`; the older
+  `tools` map still works but is deprecated (documented).
+- OpenAI Codex: `mcp_servers` in an agent file don't override the parent's
+  (documented).
+
+### Connecting a server to Claude Desktop
+
+- Claude's custom connectors use OAuth with the redirect
+  `https://claude.ai/api/mcp/auth_callback`. Claude requests the scopes the
+  protected resource metadata lists in `scopes_supported`, so a server that
+  advertises only a read scope can never be granted more; Client ID Metadata
+  Documents are preferred over dynamic client registration (documented;
+  checked with `ch13-desktop-port/tools/connector-check.py`, 2026-11-05).
+- A desktop extension (`.mcpb`) runs the server locally over stdio with the
+  user's own settings, so an identity typed into its configuration is not a
+  boundary (measured in Chapter 13).
+- Claude Desktop's Chat, Cowork, and Code tabs load plugin skills; Cowork also
+  loads hooks and subagents, and has run in the cloud by default since
+  2026-10-06 (documented).
+
+### Plugins, write limits, and timeouts for a governed workflow
+
+- Claude Code 2.1.316 names a plugin's MCP tools
+  `mcp__plugin_<plugin>_<server>__<tool>`. `--strict-mcp-config` drops a
+  plugin's MCP servers but still loads its skills, and
+  `ENABLE_CLAUDEAI_MCP_SERVERS=false` keeps claude.ai connectors out (measured
+  in Chapter 15).
+- Limit writes in Claude Code with `Edit(path)` rules (a `Write(path)` rule
+  didn't match) plus `permissions.blockWritesOutsideWorkingDirectories`
+  (2.1.314 and later). In OpenCode 1.19.5, use `permission.edit` patterns and
+  `external_directory: deny` (both measured).
+- Long-running MCP tools: Claude Code's HTTP idle timeout is 5 minutes
+  (`CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`), and interactive calls move to the
+  background after 2 minutes; OpenAI Codex `tool_timeout_sec` defaults to 60
+  seconds and Google Antigravity `timeoutSeconds` to 180 (documented). With
+  no timeout set, neither Claude Code (76 seconds) nor OpenCode (46 seconds)
+  gave up on a slow reviewer (measured).
+
+## Telemetry
+
+| Harness | How tracing is switched on | Notes |
+|---|---|---|
+| Claude Code 2.1.316 | `CLAUDE_CODE_ENABLE_TELEMETRY=1` and the OTLP environment variables | Project settings can't switch it on (measured). It sends a `traceparent` header to HTTP MCP servers. `input_tokens` excludes cache reads and writes. Hook spans need detailed beta tracing. One `agent_classifier` request per session is missing from the cost events (measured). |
+| OpenCode 1.19.5 | `experimental.openTelemetry` plus the endpoint variable | No `traceparent` to MCP servers. About 1,200 internal spans per session, with prompts, responses, and tool content included by default (measured). |
+| OpenAI Codex 0.166.0 | `[otel]` with `trace_exporter` in `config.toml` | Documented, not run. |
+| Google Antigravity 1.4.12 | No built-in exporter; use hooks | Documented, not run. |
+| Pi 1.4.0 | `--mode json` output and `pi.on()` extension events | Documented, not run. |
+
+`--max-budget-usd` in Claude Code stops after the response that crosses the
+limit, so it can overshoot by up to one response (measured in Chapter 14).
 
 ## Choosing a mechanism
 

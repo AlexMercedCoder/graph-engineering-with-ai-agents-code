@@ -119,6 +119,26 @@ def extract_document(path, raw, log):
     return validate({"doc": path.name, "entities": entities, "edges": edges}, log)
 
 
+# Files and contents that must never go to the model. A folder holding any of them is
+# refused whole, because a credential next to the documents is usually in them too.
+SECRET_FILES = ("*.env", ".env", "*.pem", "*.key", "id_rsa*", "*.p12", "credentials*")
+SECRET_TEXT = re.compile(
+    r"-----BEGIN [A-Z ]*PRIVATE KEY-----"
+    r"|\bAKIA[0-9A-Z]{16}\b"
+    r"|\bsk-[A-Za-z0-9_-]{20,}"
+    r"|(?i:\b(?:password|passwd|secret|api[_-]?key|token)\s*[:=]\s*['\"]?[^\s'\"]{8,})")
+
+
+def secret_findings(folder):
+    """Names of files that look like credentials, and documents with key-like text."""
+    found = [f"{p.name}: credential file" for pattern in SECRET_FILES for p in folder.glob(pattern)]
+    for p in sorted(folder.glob("*.md")):
+        m = SECRET_TEXT.search(p.read_text(encoding="utf-8", errors="replace"))
+        if m:
+            found.append(f"{p.name}: looks like a secret near '{m.group(0)[:12]}...'")
+    return found
+
+
 def doc_hash(path):
     """Hash the document together with the prompt: a schema change re-extracts all."""
     return hashlib.sha256(EXTRACTION_PROMPT.encode() + path.read_bytes()).hexdigest()
@@ -175,6 +195,12 @@ def refresh(use_model=False, rebuild=False):
         DB.unlink()
     con = sqlite3.connect(DB)
     con.executescript(SCHEMA)
+    found = secret_findings(DOCS)
+    if found:
+        con.close()
+        raise SystemExit("Refusing to extract: every document goes to the model, and these look "
+                         "like credentials. Remove them or move them out of the folder.\n  "
+                         + "\n  ".join(found))
     stored = dict(con.execute("SELECT name, sha256 FROM docs"))
     current = {p.name: p for p in sorted(DOCS.glob("*.md"))}
     log, spent, changed = [], [], []

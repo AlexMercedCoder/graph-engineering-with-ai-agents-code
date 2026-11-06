@@ -95,7 +95,8 @@ class Catalog:
         problems = []
         body = re.sub(r"--[^\n]*", "", re.sub(r"'[^']*'", "''", sql))
         body = re.sub(r'["`\[\]]', "", body)   # "quoted", `quoted`, and [quoted] identifiers
-        # 1. table resolution, over FROM lists (including comma joins) and JOINs
+        # 1. table resolution, over FROM lists (including comma joins) and JOINs;
+        #    names a WITH clause defines are skipped
         refs = re.findall(r"\bJOIN\s+([\w.]+)(?:\s+(?:AS\s+)?(\w+))?", body, re.I)
         for clause in re.findall(r"\bFROM\s+(.+?)(?=\b(?:WHERE|GROUP|ORDER|LIMIT|HAVING|UNION|"
                                  r"JOIN|LEFT|RIGHT|INNER|FULL|CROSS|NATURAL)\b|\)|;|$)", body, re.I | re.S):
@@ -103,9 +104,13 @@ class Catalog:
                 m = re.match(r"\s*([\w.]+)(?:\s+(?:AS\s+)?(\w+))?", item, re.I)
                 if m and not item.strip().startswith("("):
                     refs.append((m[1], m[2] or ""))
+        ctes = {n.lower() for n in re.findall(r"(?:\bWITH\s+(?:RECURSIVE\s+)?|,\s*)(\w+)\s+AS\s*\(",
+                                              body, re.I)}
         aliases = {}
         for table, alias in refs:
             bare = table.split(".")[-1]
+            if bare.lower() in ctes:  # a common table expression, checked where it's defined
+                continue
             aliases[bare] = bare
             if alias and alias.lower() not in SQL_WORDS:
                 aliases[alias] = bare
@@ -134,7 +139,7 @@ class Catalog:
                                     f"\n   Declared joins from {ta}: {', '.join(declared) or 'none'}.")
         # 4. metric lineage and grain, for any output column named after a metric
         norm = re.sub(r"\s+", " ", re.sub(r"--[^\n]*", "", sql)).lower()
-        for expr, name in re.findall(r"(?:SELECT|,)\s*([^,]+?)\s+AS\s+(\w+)", body, re.I | re.S):
+        for expr, name in labeled_columns(body):
             m = self.metrics.get(name)
             if not m:
                 continue
@@ -153,6 +158,40 @@ class Catalog:
                                 f"`{m['time']}`, a day.\n   Group by the month instead: "
                                 f"strftime('%Y-%m', {m['time']}).")
         return Result(problems)
+
+
+def labeled_columns(body):
+    """(expression, label) for every `expr AS label` in each SELECT list.
+
+    Splits on top-level commas only, so ROUND(SUM(x), 2) AS label stays whole.
+    """
+    out = []
+    for start in re.finditer(r"\bSELECT\b", body, re.I):
+        depth, item, i = 0, "", start.end()
+        while i < len(body):
+            ch = body[i]
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                if depth == 0:
+                    break
+                depth -= 1
+            if depth == 0 and (ch == "," or re.match(r"\s+FROM\b", body[i:], re.I) or ch == ";"):
+                out.append(item)
+                item = ""
+                if ch != ",":
+                    break
+            else:
+                item += ch
+            i += 1
+        else:
+            out.append(item)
+    labeled = []
+    for item in out:
+        m = re.match(r"\s*(.+?)\s+AS\s+(\w+)\s*$", item, re.I | re.S)
+        if m:
+            labeled.append((m[1], m[2]))
+    return labeled
 
 
 class Result:
@@ -239,6 +278,39 @@ def compile_to_sql(plan):
             + (f"\nGROUP BY {', '.join(group)}\nORDER BY {', '.join(group)}" if group else ""))
 
 
+def check_revision(path=HERE / "catalog.yaml", lock=HERE / "catalog.lock", record=False):
+    """Fail when catalog.yaml changed but its revision string didn't.
+
+    catalog.lock maps each recorded revision to a hash of the catalog without its
+    revision line. Record a new revision after bumping it: --record-revision.
+    """
+    import hashlib
+    text = Path(path).read_text(encoding="utf-8")
+    revision = str(yaml.safe_load(text)["revision"])
+    body = "\n".join(l for l in text.splitlines() if not l.startswith("revision:"))
+    digest = hashlib.sha256(body.encode()).hexdigest()[:16]
+    recorded = dict(l.split() for l in Path(lock).read_text().splitlines() if l.strip()) \
+        if Path(lock).exists() else {}
+    if record:
+        if recorded.get(revision, digest) != digest:
+            print(f"revision {revision} is already recorded for a different catalog. "
+                  "Bump the revision string, then record it.")
+            return 1
+        recorded[revision] = digest
+        Path(lock).write_text("".join(f"{r} {h}\n" for r, h in sorted(recorded.items())))
+        print(f"recorded revision {revision}")
+        return 0
+    if recorded.get(revision) == digest:
+        print(f"catalog matches revision {revision}")
+        return 0
+    if revision in recorded:
+        print(f"catalog.yaml changed since revision {revision} was recorded. "
+              "Bump the revision, then run validate.py --record-revision.")
+    else:
+        print(f"revision {revision} is not recorded. Run validate.py --record-revision.")
+    return 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true")
@@ -247,7 +319,11 @@ def main():
     ap.add_argument("--range", dest="rng", default="2026-Q3")
     ap.add_argument("--sql")
     ap.add_argument("--sql-file")
+    ap.add_argument("--check-revision", action="store_true")
+    ap.add_argument("--record-revision", action="store_true")
     a = ap.parse_args()
+    if a.check_revision or a.record_revision:
+        return check_revision(record=a.record_revision)
     cat = Catalog()
 
     if a.list:

@@ -1,0 +1,41 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 23,
+ "run": 2,
+ "answer": "The services that **depend directly on UserService** are:\n\n| Service | Dependency |\n|---|---|\n| **ApiGateway** | Uses UserService for session-token validation and calls its **UsersAPI**. |\n| **OrderService** | Uses UserService to resolve the ordering customer. |\n| **AuditService** | Uses UserService for identity resolution so audit records contain the resolved user rather than the raw token. |\n\nA revoked session token can remain accepted for **up to 60 seconds after revocation**. **UserService** caches token-validation results for 60 seconds; if a token is revoked while its cached validation is still valid, it remains accepted until that entry expires. The actual delay is the cache entry\u2019s remaining lifetime.\n\nSources: `api-gateway#Integrations`, `order-service#Integrations`, `audit-service#Integrations`, and `user-service#Operations`. The documented revocation behavior names no database or configuration key.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "revoked session token accepted cache TTL UserService session revocation",
+    "k": 5
+   }
+  },
+  {
+   "tool": "knowledge_trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "ApiGateway AuditService OrderService direct depends UserService UsersAPI token validation",
+    "k": 6
+   }
+  }
+ ],
+ "input_tokens": 5009,
+ "output_tokens": 347,
+ "cost_usd": null
+}

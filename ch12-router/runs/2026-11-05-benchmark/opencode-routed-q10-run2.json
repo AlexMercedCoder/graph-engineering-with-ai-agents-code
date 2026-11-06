@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "vector",
+ "id": 10,
+ "run": 2,
+ "answer": "UserService uses **`ORDER_DB_URL`** for its read replica. The historical name is retained because three deployment scripts read it.\n\nSource: `user-service` \u2192 **Configuration**.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService read replica configuration key",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2208,
+ "output_tokens": 70,
+ "cost_usd": null
+}

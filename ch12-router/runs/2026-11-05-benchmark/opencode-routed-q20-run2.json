@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph",
+ "id": 20,
+ "run": 2,
+ "answer": "Within two dependency hops, **BillingService needs 9 entities: 4 services, 2 APIs, and 3 databases/data stores.** An API and the service that exposes it are counted together as one hop.\n\n| Hop | Entity | Type | Dependency path |\n|---|---|---|---|\n| 1 | **BillingPostgresDatabase** | Database | BillingService stores data in it |\n| 1 | **NotificationsAPI** | API | BillingService calls it |\n| 1 | **NotificationsService** | Service | Exposes NotificationsAPI |\n| 1 | **OrderService** | Service | BillingService depends on it |\n| 2 | **NotificationsRedisInstance** | Data store | NotificationsService stores data in it |\n| 2 | **OrdersPostgresDatabase** | Database | OrderService stores data in it |\n| 2 | **PaymentsAPI** | API | OrderService calls it |\n| 2 | **PaymentsService** | Service | Exposes PaymentsAPI |\n| 2 | **UserService** | Service | OrderService depends on it |\n\nThese are the dependencies returned for the requested two-hop scope, following API calls, service dependencies, and data-storage relationships.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2772,
+ "output_tokens": 274,
+ "cost_usd": null
+}

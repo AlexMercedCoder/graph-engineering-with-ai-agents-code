@@ -1,0 +1,180 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "setup": "worker",
+ "run": 3,
+ "seconds": 181,
+ "main_requests": 4,
+ "main_input_tokens": 47935,
+ "main_last_context": 14737,
+ "worker_requests": 6,
+ "worker_input_tokens": 23730,
+ "tool_calls": [
+  {
+   "by": "main",
+   "tool": "task",
+   "input": {
+    "description": "Retrieve on-call brief evidence",
+    "subagent_type": "retrieval-router",
+    "prompt": "Retrieve project knowledge evidence for all six questions; return evidence documents (schema_version,status,claim,source,confidence,coverage), including unsupported/ambiguous findings as applicable. 1 What does error code E4021 mean and is it retryable? 2 If PaymentsService is down, which services that call its API directly can no longer take payments? Need direct API dependency and payment capability evidence, distinguish transitive dependencies. 3 NotificationsAPI retry semantics? 4 Net written premium by region in Q3 2026? 5 Loss ratio by region in Q3 2026? 6 How much commission paid agents in Q3 2026? Use governed definitions and exact dates/metrics, return provenance and any ambiguity or unavailable data. Research only, do not edit files."
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "What does error code E4021 mean and is it retryable?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "If PaymentsService is down, which services that call its API directly can no longer take payments? Need direct API dependency and payment capability evidence, distinguish transitive dependencies."
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "NotificationsAPI retry semantics?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "Net written premium by region in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "Loss ratio by region in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "How much commission paid agents in Q3 2026?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsService",
+    "max_depth": 2
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_navigate_catalog",
+   "input": {
+    "concept": "net written premium by region Q3 2026"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_navigate_catalog",
+   "input": {
+    "concept": "loss ratio by region Q3 2026"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_navigate_catalog",
+   "input": {
+    "concept": "commission paid agents Q3 2026"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "What payment-taking capabilities do OrderService and RenewalsWorker implement, and how do they behave when PaymentsAPI is unavailable?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_generate_governed_sql",
+   "input": {
+    "metric": "net_written_premium",
+    "dimensions": [
+     "region"
+    ],
+    "time_range": "2026-Q3"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_search_docs",
+   "input": {
+    "query": "loss ratio governed definition region Q3 2026",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_search_docs",
+   "input": {
+    "query": "commission paid agents governed metric Q3 2026",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_search_docs",
+   "input": {
+    "query": "OrderService RenewalsWorker payment authorization capture PaymentsAPI unavailable",
+    "k": 5
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_execute_query",
+   "input": {
+    "sql": "SELECT g.region AS region,\n       ROUND(SUM(premium_amt) - SUM(cancellation_amt), 2) AS net_written_premium\nFROM analytics.fct_policy_premium AS f\nJOIN analytics.dim_geography AS g ON f.geo_id = g.geo_id\nWHERE f.status != 'quote' AND f.eff_dt >= '2026-07-01' AND f.eff_dt < '2026-10-01'\nGROUP BY g.region\nORDER BY g.region\n-- governed: catalog 2026-11-03, identity analyst, signature 7e28d8bc302b243e"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "project-knowledge_check_evidence",
+   "input": {
+    "documents": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means payment authorization expired because the authorization hold lapsed before capture; it is not retryable: re-authorize, then capture, and do not retry capture alone.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"OrderService and RenewalsWorker directly CALL PaymentsAPI, exposed by PaymentsService.\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=2)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":180,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Within two hops, BillingService, ReportingService and SearchService depend transitively on PaymentsService through DEPENDS_ON OrderService; ApiGateway is transitive through CALLS OrdersAPI exposed by OrderService, which CALLS PaymentsAPI.\",\"source\":{\"path\":\"graph\",\"identifier\":\"find_dependents('PaymentsService', max_depth=2)\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":180,\"freshness\":\"2026-11-04T02:56Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"OrderService calls PaymentsAPI to authorize and capture payments.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('OrderService RenewalsWorker payment authorization capture PaymentsAPI unavailable', k=5)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":279,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"This establishes payment capability and direct API use, but does not explicitly document outage behavior or alternative payment paths.\"]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"RenewalsWorker calls PaymentsAPI directly without going through OrderService because a renewal has no cart; a renewal whose authorization fails is retried on days three and seven, with suspension and customer email after the third failure.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('OrderService RenewalsWorker payment authorization capture PaymentsAPI unavailable', k=5)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":279,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"Evidence supports renewal authorization capability, not an explicit capture operation or an exhaustive assertion that no payments can be taken during an outage.\"]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"NotificationsService exposes NotificationsAPI and documents three delivery attempts with a 250ms backoff configured by RETRY_ATTEMPTS; exhausted messages go to a dead-letter list without telling the caller, who must poll message status for confirmation.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('NotificationsAPI retry semantics', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":222,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The governed net_written_premium metric is SUM(premium_amt) minus SUM(cancellation_amt), excludes quote rows, and recognizes premium in its effective month; region is a valid dimension and finance-reporting owns the metric.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='net written premium by region Q3 2026', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":221,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The governed Q3 2026 regional net_written_premium query uses effective dates >= 2026-07-01 and < 2026-10-01, excluding quote rows and rounding regional sums to two decimal places.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"generate_governed_sql('net_written_premium', ['region'], '2026-Q3', None)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":100,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Executed governed net_written_premium by region for Q3 2026 returned APAC: 278969.21; EMEA: 343269.84; LATAM: 308624.73; North America: 312420.42.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"execute_query(<signed SQL from generate_governed_sql>)\",\"revision\":\"catalog 2026-11-03\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":29,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[\"The returned evidence does not specify currency or units.\"]},{\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The governed catalog refused loss ratio by region for Q3 2026 because loss ratio is not modeled; no loss ratio number is available from this retrieval.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='loss ratio by region Q3 2026', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":57,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The fallback search for loss ratio returned billing invoice storage, reporting integrations and audit operations rather than a loss ratio definition or regional result.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('loss ratio governed definition region Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":211,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.58; the documents may not cover this\",\"re-routed to vector after semantic returned refused\",\"These matches do not support a loss ratio calculation; no number is reported.\"]},{\"schema_version\":1,\"status\":\"refused\",\"claim\":\"The governed catalog found no metric matching commission paid agents Q3 2026; its queryable metrics are claims_paid, gross_written_premium, net_written_premium and policies_written, so no commission amount is reported.\",\"source\":{\"path\":\"semantic\",\"identifier\":\"navigate_catalog(concept='commission paid agents Q3 2026', entity='')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":58,\"freshness\":\"2026-11-05T16:49Z\",\"caveats\":[\"The refusal's generic unmodeled-metrics list names loss ratio, reinsurance recoveries and claim frequency, not commission; the explicit no-match response is the evidence of unavailability for this request.\"]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The fallback search for commission paid agents returned reporting integrations, payment-provider retry behavior and billing payment capture rather than an agent commission definition or amount.\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('commission paid agents governed metric Q3 2026', k=3)\"},\"confidence\":\"low\",\"coverage\":\"unknown\",\"cost_tokens\":187,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"best match scored 0.60; the documents may not cover this\",\"re-routed to vector after semantic returned refused\",\"These matches do not establish commission paid or its accounting date basis; no number is reported.\"]}]"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "skill",
+   "input": {
+    "name": "act-on-evidence"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "apply_patch",
+   "input": {
+    "patchText": "*** Begin Patch\n*** Add File: <run-dir>/brief.md\n+# On-call lead brief\n+\n+## 1\n+\n+**E4021 means payment authorization expired:** the authorization hold lapsed before capture. **It is not retryable.** Re-authorize, then capture; do not retry capture alone. Source: `lookup_error_code('E4021')`.\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"E4021 means payment authorization expired because the authorization hold lapsed before capture; it is not retryable: re-authorize, then capture, and do not retry capture alone.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"lookup_error_code('E4021')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 43,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": []\n+  }\n+]\n+```\n+\n+## 2\n+\n+**OrderService and RenewalsWorker** are the direct callers of PaymentsAPI exposed by PaymentsService. A PaymentsService outage therefore blocks their PaymentsAPI-dependent payment operations: OrderService authorization/capture and RenewalsWorker renewal authorization. Direct callers are established by `find_dependents('PaymentsService', max_depth=2)`; payment operations come from the closest documents found by `search_docs('OrderService RenewalsWorker payment authorization capture PaymentsAPI unavailable', k=5)`. Those documents do not establish whether alternative payment paths exist, so an absolute claim that neither can take any payments is not verified.\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"OrderService and RenewalsWorker directly CALL PaymentsAPI, exposed by PaymentsService.\",\n+    \"source\": {\"path\": \"graph\", \"identifier\": \"find_dependents('PaymentsService', max_depth=2)\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 180,\n+    \"freshness\": \"2026-11-04T02:56Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"OrderService calls PaymentsAPI to authorize and capture payments.\",\n+    \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('OrderService RenewalsWorker payment authorization capture PaymentsAPI unavailable', k=5)\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"unknown\",\n+    \"cost_tokens\": 279,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": [\"This establishes payment capability and direct API use, but does not explicitly document outage behavior or alternative payment paths.\"]\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"RenewalsWorker calls PaymentsAPI directly without going through OrderService because a renewal has no cart; a renewal whose authorization fails is retried on days three and seven, with suspension and customer email after the third failure.\",\n+    \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('OrderService RenewalsWorker payment authorization capture PaymentsAPI unavailable', k=5)\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"unknown\",\n+    \"cost_tokens\": 279,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": [\"Evidence supports renewal authorization capability, not an explicit capture operation or an exhaustive assertion that no payments can be taken during an outage.\"]\n+  }\n+]\n+```\n+\n+## 3\n+\n+The closest documents found describe **three delivery attempts with a 250 ms backoff**, with the attempt count configured by `RETRY_ATTEMPTS`. Exhausted messages go to a dead-letter list **without notifying the caller**; callers must poll message status for confirmation. Source: `search_docs('NotificationsAPI retry semantics', k=3)`; retrieval coverage is unknown.\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"NotificationsService exposes NotificationsAPI and documents three delivery attempts with a 250ms backoff configured by RETRY_ATTEMPTS; exhausted messages go to a dead-letter list without telling the caller, who must poll message status for confirmation.\",\n+    \"source\": {\"path\": \"vector\", \"identifier\": \"search_docs('NotificationsAPI retry semantics', k=3)\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"unknown\",\n+    \"cost_tokens\": 222,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": []\n+  }\n+]\n+```\n+\n+## 4\n+\n+**Q3 2026 net written premium by region:**\n+\n+| Region | Net written premium |\n+| --- | ---: |\n+| APAC | 278,969.21 |\n+| EMEA | 343,269.84 |\n+| LATAM | 308,624.73 |\n+| North America | 312,420.42 |\n+\n+Currency/units were not specified in the returned evidence. The governed metric is premium less cancellations, excluding quotes and recognizing premium in its effective month. The query covers July 1 through September 30, 2026. Sources: `navigate_catalog(concept='net written premium by region Q3 2026', entity='')`, `generate_governed_sql('net_written_premium', ['region'], '2026-Q3', None)`, and `execute_query(<signed SQL from generate_governed_sql>)`.\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"The governed net_written_premium metric is SUM(premium_amt) minus SUM(cancellation_amt), excludes quote rows, and recognizes premium in its effective month; region is a valid dimension and finance-reporting owns the metric.\",\n+    \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='net written premium by region Q3 2026', entity='')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 221,\n+    \"freshness\": \"2026-11-05T16:49Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"The governed Q3 2026 regional net_written_premium query uses effective dates >= 2026-07-01 and < 2026-10-01, excluding quote rows and rounding regional sums to two decimal places.\",\n+    \"source\": {\"path\": \"semantic\", \"identifier\": \"generate_governed_sql('net_written_premium', ['region'], '2026-Q3', None)\", \"revision\": \"catalog 2026-11-03\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 100,\n+    \"freshness\": \"2026-11-05T16:49Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"Executed governed net_written_premium by region for Q3 2026 returned APAC: 278969.21; EMEA: 343269.84; LATAM: 308624.73; North America: 312420.42.\",\n+    \"source\": {\"path\": \"semantic\", \"identifier\": \"execute_query(<signed SQL from generate_governed_sql>)\", \"revision\": \"catalog 2026-11-03\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 29,\n+    \"freshness\": \"2026-11-05T16:49Z\",\n+    \"caveats\": [\"The returned evidence does not specify currency or units.\"]\n+  }\n+]\n+```\n+\n+## 5\n+\n+**Q3 2026 loss ratio by region is unavailable from the governed catalog.** The request was refused because loss ratio is not modeled; no regional ratios can be reported from this evidence. Source: `navigate_catalog(concept='loss ratio by region Q3 2026', entity='')`.\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"refused\",\n+    \"claim\": \"The governed catalog refused loss ratio by region for Q3 2026 because loss ratio is not modeled; no loss ratio number is available from this retrieval.\",\n+    \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='loss ratio by region Q3 2026', entity='')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 57,\n+    \"freshness\": \"2026-11-05T16:49Z\",\n+    \"caveats\": []\n+  }\n+]\n+```\n+\n+## 6\n+\n+**Agent commission paid in Q3 2026 is unavailable from the governed catalog.** The request was refused with no matching metric, so no amount can be reported from this evidence. Source: `navigate_catalog(concept='commission paid agents Q3 2026', entity='')`.\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"refused\",\n+    \"claim\": \"The governed catalog found no metric matching commission paid agents Q3 2026; its queryable metrics are claims_paid, gross_written_premium, net_written_premium and policies_written, so no commission amount is reported.\",\n+    \"source\": {\"path\": \"semantic\", \"identifier\": \"navigate_catalog(concept='commission paid agents Q3 2026', entity='')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 58,\n+    \"freshness\": \"2026-11-05T16:49Z\",\n+    \"caveats\": [\"The refusal's generic unmodeled-metrics list names loss ratio, reinsurance recoveries and claim frequency, not commission; the explicit no-match response is the evidence of unavailability for this request.\"]\n+  }\n+]\n+```\n*** End Patch"
+   }
+  }
+ ],
+ "cost_usd": null
+}

@@ -1,0 +1,37 @@
+{
+ "run": "opencode-soft-body-2",
+ "harness": "opencode",
+ "condition": "soft-body",
+ "role": "sre",
+ "verdict": "pass",
+ "stop": "completed",
+ "answer_correct": true,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "skill",
+   "project-graph_find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": true
+ },
+ "answer": {
+  "named": 7,
+  "missing": [],
+  "extra": [],
+  "from": "Affected services line"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 4856,
+  "cache_read": 7424,
+  "cache_write": 0,
+  "output": 336,
+  "requests": 4
+ }
+}

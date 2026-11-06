@@ -1,0 +1,29 @@
+# MCP Python SDK 2.3.0, fresh virtual environment, same connector
+Discovery, as Claude's connector client performs it
+pass  unauthenticated call answers 401  401
+pass  401 carries a resource_metadata pointer  http://127.0.0.1:8813/.well-known/oauth-protected-resource/mcp
+pass  metadata resource equals the URL users enter  http://127.0.0.1:8813/mcp
+pass  first authorization server serves RFC 8414 metadata
+pass  S256 PKCE advertised
+pass  client registration available (DCR or CIMD)  DCR: Claude uses 'Register automatically'
+pass  metadata advertises every scope the tools need  catalog:read data:read
+
+Sign-in as analyst, redirect to https://claude.ai/api/mcp/auth_callback
+pass  authorization code exchanged for tokens
+pass  token carries the analyst's scopes  catalog:read data:read
+
+What each signed-in identity gets
+pass  analyst: net written premium by region runs  (4 rows)
+pass  analyst: the result names no table the analyst can't see  Access applied: signed in as analyst; no row limits.
+pass  analyst: commission is not in the catalog the analyst sees
+pass  emea-analyst: the same query returns EMEA only  (1 row)
+pass  emea-analyst: the result names the row policy that applied  Access applied: signed in as emea-analyst; fct_policy_premium rows lim
+pass  new-analyst: SQL generates, execution is refused  Forbidden: execute_query needs the data:read scope.
+pass  SQL signed for analyst won't run under another identity  Rejected: this SQL did not come from generate_governed_sql, 
+
+Token handling
+pass  finance token issued for another application is refused  401
+pass  refresh returns a new access and refresh token
+pass  a used refresh token answers invalid_grant  invalid_grant
+
+all checks pass

@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 5,
+ "run": 1,
+ "answer": "The key is **`CAPTURE_TIMEOUT`**. It's measured in seconds and **defaults to 30**.\n\nThe PaymentsService configuration section of the architecture docs says: \"It is configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT. CAPTURE_TIMEOUT is in seconds and defaults to 30.\" A trace of PaymentsService's configuration found the same two keys:\n- **`CAPTURE_TIMEOUT`**: the capture timeout.\n- **`PAYMENT_API_KEY`**: the API key. It doesn't affect the timeout.\n\n**`AUTH_HOLD_MINUTES`** is a different setting that could be mistaken for this one. It belongs to RenewalsWorker and sets how long a renewal authorization is held before capture, not the PaymentsService capture timeout.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "PaymentsService capture timeout configuration default",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 9457,
+ "output_tokens": 446,
+ "cost_usd": 0.0360596
+}

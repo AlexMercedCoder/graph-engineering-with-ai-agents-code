@@ -1,0 +1,28 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "vector",
+ "id": 6,
+ "run": 2,
+ "answer": "**AuditService depends on UserService for identity resolution.** Audit records contain the resolved user rather than the raw session token. [audit-service#Integrations]\n\nThe supporting identity-resolution components are:\n\n- **UserService / UsersAPI:** UserService exposes **UsersAPI** and validates session tokens forwarded by the **gateway**. [user-service#Overview]\n- **`users` Postgres database:** UserService stores user identities here. Soft-deleted users retain their rows with a deletion timestamp, allowing audit records to continue resolving those users. [user-service#Data]\n- **`ORDER_DB_URL`:** This configuration key points to UserService\u2019s read replica. Its historical name remains because three deployment scripts use it. [user-service#Configuration]",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "AuditService identity resolution dependencies",
+    "k": 5
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "UserService identity resolution UsersAPI database read replica ORDER_DB_URL",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 3719,
+ "output_tokens": 217,
+ "cost_usd": null
+}

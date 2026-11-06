@@ -1,0 +1,8 @@
+project-graph on http://127.0.0.1:8815/mcp (depth cap 4, spans to http://127.0.0.1:8814)
+[11/05/26 21:03:33] INFO     StreamableHTTP       streamable_http_manager.py:162
+                             session manager                                    
+                             started                                            
+tools/call find_dependents: trace context from header
+[11/05/26 21:04:00] INFO     StreamableHTTP       streamable_http_manager.py:166
+                             session manager                                    
+                             shutting down                                      

@@ -23,12 +23,15 @@ query it over MCP, and a benchmark against a vector retriever over the same docu
 | `eval/run_graph_side.py` | Calls the traversal tools directly for the ten multi-hop questions |
 | `eval/check_refresh.py` | Checks that an incremental refresh matches a full rebuild |
 | `eval/check_guards.py` | Feeds the pipeline a reply with one of each extraction error |
+| `eval/check_manifest.py`, `deploy/services.txt` | Compares the graph's `Service` nodes with what's deployed; fails on a stale or missing service, warns on one with no edges |
+| `eval/time_tools.py` | Times vector search and `find_dependents` at two and four hops, without a model |
+| `eval/check_secrets.py` | Checks that extraction refuses a folder holding a credential file or key-like text |
 | `runs/` | Real runs from 2026-11-03; see `runs/README.md` |
 
 ## Setup
 
 ```bash
-pip install "mcp>=2,<3" fastembed ladybug
+pip install "mcp>=2.2,<3" fastembed ladybug
 ```
 
 `extract.py`, `query.py`, `run_graph_side.py`, `check_refresh.py`, and `check_guards.py` need

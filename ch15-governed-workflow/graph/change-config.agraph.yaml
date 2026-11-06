@@ -1,0 +1,153 @@
+# The governed-change workflow as an AGS 1.0 document (Appendix A).
+#
+#   python3 -m pip install agentic-graph-spec==1.0.4
+#   ags-validate --strict change-config.agraph.yaml
+#
+# Claude Code and OpenCode don't run AGS documents, so in the chapter the
+# change-config skill carries the task nodes and the change-gate server holds
+# the gate: propose_change files the request, waits for a reviewer with the
+# gate's role, and applies only an approved change. A harness that runs AGS
+# (Appendix B) would pause at production_approval itself. Either way the
+# contract is the one written here.
+ags_version: "1.0"
+kind: AgenticGraph
+id: gewaa/change-config
+title: Change a deployed configuration from evidence
+version: 1.0.0
+requires_conformance: 1
+
+objective: >
+  Find why a service is failing, change one configuration value to what the
+  evidence supports, and let a reviewer with the payments-oncall role decide
+  before anything changes in production.
+
+constraints:
+  max_cost_usd: 2.0
+  max_parallel_nodes: 1
+
+entrypoints: [diagnose]
+
+nodes:
+  diagnose:
+    type: task
+    title: Gather evidence
+    description: >
+      Look up the error code, the service's configuration schema, the deployed
+      values, and the services the configuration key reaches. Return one
+      evidence document per claim, validated with check_evidence.
+    instructions: Follow the retrieve-evidence skill.
+    outputs:
+      evidence:
+        type: json
+        description: Evidence documents, schema version 1.
+    intelligence:
+      tier: standard
+      hints: [tool_use_heavy]
+    requirements:
+      mcp_servers: [project-knowledge, change-gate]
+      skills: [retrieve-evidence]
+    constraints:
+      max_agent_steps: 15
+    success:
+      summary: At least one evidence document with status found.
+      criteria:
+        - id: evidence_present
+          kind: artifact_present
+          description: The evidence documents were produced.
+          output: evidence
+    estimate: { effort: s, cost_usd: 0.15 }
+
+  propose:
+    type: task
+    title: Decide the change
+    description: >
+      From the evidence, choose one key and the value the evidence supports,
+      or decide that nothing documented supports a change.
+    instructions: Follow the act-on-evidence and change-config skills.
+    depends_on: [diagnose]
+    inputs:
+      evidence:
+        type: json
+        description: The evidence documents.
+        from: nodes.diagnose.outputs.evidence
+    outputs:
+      proposal:
+        type: json
+        description: Environment, service, key, value, and a one-sentence reason, or no change.
+    intelligence:
+      tier: standard
+      hints: [code_comprehension]
+    requirements:
+      skills: [act-on-evidence, change-config]
+    constraints:
+      max_agent_steps: 5
+    success:
+      summary: A proposal or a reasoned decision not to change anything.
+      criteria:
+        - id: proposal_present
+          kind: artifact_present
+          description: The proposal was produced.
+          output: proposal
+    estimate: { effort: xs, cost_usd: 0.05 }
+
+  production_approval:
+    type: gate
+    title: A payments on-call reviewer approves production changes
+    description: >
+      The reviewer reads the approval packet: the operation, the evidence, the
+      services the key reaches from the knowledge graph, what can and can't be
+      undone, and the alternatives, including doing nothing.
+    depends_on: [propose]
+    gate:
+      mode: approve
+      roles: [payments-oncall]
+      prompt: "Apply this configuration change to production?"
+      present:
+        - nodes.propose.outputs.proposal
+        - nodes.diagnose.outputs.evidence
+      timeout_seconds: 120
+      on_timeout: fail
+      on_reject: fail
+
+  apply:
+    type: task
+    title: Apply the approved change and report
+    description: >
+      Apply the approved change through the change gate and write report.md:
+      what changed or didn't, the request id, the reviewer's reason, and the
+      evidence documents.
+    depends_on: [production_approval]
+    inputs:
+      proposal:
+        type: json
+        description: The approved proposal.
+        from: nodes.propose.outputs.proposal
+    outputs:
+      report:
+        type: file
+        description: What changed, with the request id and the evidence.
+        path_hint: report.md
+    intelligence:
+      tier: minimal
+      hints: [low_cost]
+    requirements:
+      mcp_servers: [change-gate]
+      tools: [file_write]
+      permissions:
+        - fs:write:report.md
+    constraints:
+      max_agent_steps: 5
+    success:
+      summary: The report exists.
+      criteria:
+        - id: report_written
+          kind: file_exists
+          description: report.md exists.
+          path: report.md
+    estimate: { effort: xs, cost_usd: 0.05 }
+
+outputs:
+  report:
+    type: file
+    description: The change report.
+    from: nodes.apply.outputs.report

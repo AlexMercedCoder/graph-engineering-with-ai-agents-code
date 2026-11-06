@@ -1,0 +1,27 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 4,
+ "run": 1,
+ "answer": "**AuditService stores its records in AuditIcebergTable**, the audit Iceberg table. Records are **append-only** and retained for **seven years**.\n\nSource: architecture documentation, `audit-service` \u2192 **Data**.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependencies",
+   "input": {
+    "service": "AuditService"
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "Where does AuditService store its audit records database storage",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 2882,
+ "output_tokens": 116,
+ "cost_usd": null
+}

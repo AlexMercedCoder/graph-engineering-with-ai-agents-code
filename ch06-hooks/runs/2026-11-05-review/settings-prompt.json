@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "if": "Bash(git commit *)",
+            "prompt": "You review commit messages before a commit runs. The hook input is: $ARGUMENTS. Read the commit message in tool_input.command. Return ok false, with a reason the agent can act on, if the message is vague (such as 'fix stuff', 'update', or 'wip') or doesn't say what changed. Otherwise return ok true.",
+            "continueOnBlock": true,
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

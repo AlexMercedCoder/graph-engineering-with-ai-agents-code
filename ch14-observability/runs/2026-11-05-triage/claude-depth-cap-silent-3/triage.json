@@ -1,0 +1,38 @@
+{
+ "run": "claude-depth-cap-silent-3",
+ "harness": "claude",
+ "condition": "depth-cap-silent",
+ "role": "sre",
+ "verdict": "knowledge graph",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "Skill",
+   "ToolSearch",
+   "mcp__project-graph__find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 3,
+  "coverage": "partial",
+  "depth": "1/1",
+  "joined": false
+ },
+ "answer": {
+  "named": 3,
+  "missing": [],
+  "extra": [],
+  "from": "Affected services line"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 306,
+  "cache_read": 125702,
+  "cache_write": 8487,
+  "output": 719,
+  "requests": 5
+ }
+}

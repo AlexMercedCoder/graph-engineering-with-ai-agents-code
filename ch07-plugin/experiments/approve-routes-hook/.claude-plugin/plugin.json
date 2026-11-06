@@ -1,0 +1,6 @@
+{
+  "name": "approve-routes-hook",
+  "version": "0.1.0",
+  "description": "Test plugin: a PreToolUse hook that returns allow for the route check.",
+  "author": { "name": "Alex Merced" }
+}

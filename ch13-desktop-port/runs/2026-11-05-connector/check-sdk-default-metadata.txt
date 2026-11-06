@@ -1,0 +1,28 @@
+Discovery, as Claude's connector client performs it
+pass  unauthenticated call answers 401  401
+pass  401 carries a resource_metadata pointer  http://127.0.0.1:8813/.well-known/oauth-protected-resource/mcp
+pass  metadata resource equals the URL users enter  http://127.0.0.1:8813/mcp
+pass  first authorization server serves RFC 8414 metadata
+pass  S256 PKCE advertised
+pass  client registration available (DCR or CIMD)  DCR: Claude uses 'Register automatically'
+FAIL  metadata advertises every scope the tools need  catalog:read
+
+Sign-in as analyst, redirect to https://claude.ai/api/mcp/auth_callback
+pass  authorization code exchanged for tokens
+FAIL  token carries the analyst's scopes  catalog:read
+
+What each signed-in identity gets
+FAIL  analyst: net written premium by region runs  Forbidden: execute_query needs the data:read scope.
+pass  analyst: the result names no table the analyst can't see  Forbidden: execute_query needs the data:read scope.
+pass  analyst: commission is not in the catalog the analyst sees
+FAIL  emea-analyst: the same query returns EMEA only  Forbidden: execute_query needs the data:read scope.
+FAIL  emea-analyst: the result names the row policy that applied  Forbidden: execute_query needs the data:read scope.
+pass  new-analyst: SQL generates, execution is refused  Forbidden: execute_query needs the data:read scope.
+FAIL  SQL signed for analyst won't run under another identity  Forbidden: execute_query needs the data:read scope.
+
+Token handling
+pass  finance token issued for another application is refused  401
+pass  refresh returns a new access and refresh token
+pass  a used refresh token answers invalid_grant  invalid_grant
+
+6 check(s) failed

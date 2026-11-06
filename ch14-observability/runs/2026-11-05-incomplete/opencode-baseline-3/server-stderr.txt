@@ -1,0 +1,13 @@
+project-graph on http://127.0.0.1:8815/mcp (depth cap 4, spans to http://127.0.0.1:8824)
+[11/05/26 12:06:31] INFO     StreamableHTTP       streamable_http_manager.py:151
+                             session manager                                    
+                             started                                            
+[11/05/26 12:06:39] INFO     Created new          streamable_http_manager.py:303
+                             transport with                                     
+                             session ID:                                        
+                             c446ef247d404468a872                               
+                             a6c336c8f582                                       
+tools/call find_dependents: trace context from none
+[11/05/26 12:06:59] INFO     StreamableHTTP       streamable_http_manager.py:155
+                             session manager                                    
+                             shutting down                                      

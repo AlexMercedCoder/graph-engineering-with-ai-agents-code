@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a1ac96-dc06-7f21-9bfe-48e402ccdfbf"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll look up E4021 in project knowledge and return only its title."}}
+{"type":"item.started","item":{"id":"item_1","type":"mcp_tool_call","server":"project-knowledge","tool":"lookup_error_code","arguments":{"code":"E4021"},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"mcp_tool_call","server":"project-knowledge","tool":"lookup_error_code","arguments":{"code":"E4021"},"result":{"content":[{"type":"text","text":"E4021: Payment authorization expired\nCause: The authorization hold lapsed before capture.\nHandling: Re-authorize, then capture. Do not retry capture alone.\nRetryable: False"}],"structured_content":{"result":"E4021: Payment authorization expired\nCause: The authorization hold lapsed before capture.\nHandling: Re-authorize, then capture. Do not retry capture alone.\nRetryable: False"}},"error":null,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"Payment authorization expired"}}
+{"type":"turn.completed","usage":{"input_tokens":99717,"cached_input_tokens":76544,"cache_write_input_tokens":0,"output_tokens":181,"reasoning_output_tokens":33}}

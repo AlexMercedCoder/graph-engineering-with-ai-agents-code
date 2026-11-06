@@ -1,0 +1,146 @@
+{
+ "claude-bad-description-1": {
+  "verdict": "execution graph",
+  "answer_correct": true
+ },
+ "claude-bad-description-2": {
+  "verdict": "execution graph",
+  "answer_correct": true
+ },
+ "claude-bad-description-3": {
+  "verdict": "execution graph",
+  "answer_correct": true
+ },
+ "claude-baseline-1": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "claude-baseline-2": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "claude-baseline-3": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "claude-depth-cap-1": {
+  "verdict": "knowledge graph",
+  "answer_correct": true
+ },
+ "claude-depth-cap-2": {
+  "verdict": "knowledge graph",
+  "answer_correct": true
+ },
+ "claude-depth-cap-3": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "claude-depth-cap-silent-1": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "claude-depth-cap-silent-2": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "claude-depth-cap-silent-3": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "claude-soft-body-1": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "claude-soft-body-2": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ },
+ "claude-soft-body-3": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ },
+ "claude-stale-rule-1": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ },
+ "claude-stale-rule-2": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ },
+ "claude-stale-rule-3": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ },
+ "opencode-bad-description-1": {
+  "verdict": "execution graph",
+  "answer_correct": true
+ },
+ "opencode-bad-description-2": {
+  "verdict": "execution graph",
+  "answer_correct": true
+ },
+ "opencode-bad-description-3": {
+  "verdict": "execution graph",
+  "answer_correct": true
+ },
+ "opencode-baseline-1": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "opencode-baseline-2": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "opencode-baseline-3": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "opencode-depth-cap-1": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "opencode-depth-cap-2": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "opencode-depth-cap-3": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "opencode-depth-cap-silent-1": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "opencode-depth-cap-silent-2": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "opencode-depth-cap-silent-3": {
+  "verdict": "knowledge graph",
+  "answer_correct": false
+ },
+ "opencode-soft-body-1": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "opencode-soft-body-2": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "opencode-soft-body-3": {
+  "verdict": "pass",
+  "answer_correct": true
+ },
+ "opencode-stale-rule-1": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ },
+ "opencode-stale-rule-2": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ },
+ "opencode-stale-rule-3": {
+  "verdict": "reasoning",
+  "answer_correct": false
+ }
+}

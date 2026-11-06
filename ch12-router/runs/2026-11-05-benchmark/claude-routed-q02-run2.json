@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 2,
+ "run": 2,
+ "answer": "The **NotificationsAPI** is provided by **NotificationsService**. Other services use it to send email, SMS and push messages so they don't call providers directly.\n\n**How retries work:**\n- **Attempts and backoff:** Each message gets **three delivery attempts with a 250ms backoff**. The **`RETRY_ATTEMPTS`** configuration key sets the number of attempts.\n- **Where messages wait:** Queued messages sit in the **notifications Redis instance**. A message stays there until a provider accepts it or it uses up its retries.\n- **When all attempts fail:** The message moves to the **dead-letter list**, and **the caller is not notified**.\n- **Confirming delivery:** The API doesn't report failures back, so a caller that needs confirmation has to **poll the message status**.\n\n**Related points:**\n- **PaymentsService** calls the NotificationsAPI when an authorization is declined. If all three attempts fail, that decline notice goes to the dead-letter list without anyone being told, unless PaymentsService polls the status.\n- **ApiGateway** does **not** retry failed upstream requests. It passes 5xx errors to the client unchanged and leaves retries to the client library. The NotificationsAPI's retries are separate from that and happen inside NotificationsService.\n\nSource: notifications-service docs (Overview, Delivery and retries, Data sections), plus payments-service and api-gateway docs.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7809,
+ "output_tokens": 567,
+ "cost_usd": 0.0364964
+}

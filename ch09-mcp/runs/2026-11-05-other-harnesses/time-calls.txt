@@ -1,0 +1,24 @@
+# python3 tools/time-calls.py 50, run four times on 2026-11-05 while other jobs shared the machine
+startup to tool list (3 tools): 1428 ms
+lookup_error_code: median 1.69 ms, max 73.36 ms over 50 calls
+get_config_schema: median 1.68 ms, max 2.71 ms over 50 calls
+find_architecture_docs: median 1.75 ms, max 3.08 ms over 50 calls
+grep for comparison: median 2.24 ms
+
+startup to tool list (3 tools): 1065 ms
+lookup_error_code: median 1.40 ms, max 47.73 ms over 50 calls
+get_config_schema: median 1.44 ms, max 2.32 ms over 50 calls
+find_architecture_docs: median 1.44 ms, max 2.31 ms over 50 calls
+grep for comparison: median 1.82 ms
+
+startup to tool list (3 tools): 1014 ms
+lookup_error_code: median 1.39 ms, max 49.23 ms over 50 calls
+get_config_schema: median 1.48 ms, max 2.36 ms over 50 calls
+find_architecture_docs: median 1.51 ms, max 2.64 ms over 50 calls
+grep for comparison: median 1.90 ms
+
+startup to tool list (3 tools): 1023 ms
+lookup_error_code: median 1.26 ms, max 47.09 ms over 50 calls
+get_config_schema: median 1.28 ms, max 2.07 ms over 50 calls
+find_architecture_docs: median 1.64 ms, max 2.52 ms over 50 calls
+grep for comparison: median 1.86 ms

@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph",
+ "id": 17,
+ "run": 2,
+ "answer": "Five services are affected within two hops of OrderService.\n\n**Hop 1: services that depend on OrderService or call its API**\n1. **BillingService** depends on OrderService.\n2. **ReportingService** depends on OrderService.\n3. **SearchService** depends on OrderService.\n4. **ApiGateway** calls **OrdersAPI**, the API that OrderService exposes.\n\n**Hop 2: services that depend on those**\n5. **RenewalsWorker** depends on BillingService, which depends on OrderService.\n\nNo other service depends on ReportingService, SearchService or ApiGateway within the two-hop limit.\n\nThe dependency graph doesn't list any database or configuration key in this chain, so none are involved. It also only shows which services are connected, not which ones read the line-item fields. Each of these five may need checking, but some may not use the line-item format at all.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 8659,
+ "output_tokens": 509,
+ "cost_usd": 0.0338762
+}

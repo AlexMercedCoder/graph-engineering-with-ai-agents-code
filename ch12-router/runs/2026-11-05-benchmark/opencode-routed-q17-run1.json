@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph",
+ "id": 17,
+ "run": 1,
+ "answer": "Within two hops, **5 services are affected** by an OrderService line-item format change:\n\n| Hop | Affected service | Dependency path |\n|---|---|---|\n| 1 | **BillingService** | Depends on **OrderService** |\n| 1 | **ReportingService** | Depends on **OrderService** |\n| 1 | **SearchService** | Depends on **OrderService** |\n| 1 | **ApiGateway** | Calls **OrdersAPI**, exposed by **OrderService** |\n| 2 | **RenewalsWorker** | Depends on **BillingService**, which depends on **OrderService** |\n\n**OrderService** and its **OrdersAPI** count as one place for hop counting. No databases or configuration keys appear in these dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2655,
+ "output_tokens": 190,
+ "cost_usd": null
+}

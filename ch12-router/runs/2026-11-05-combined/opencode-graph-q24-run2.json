@@ -1,0 +1,46 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "route": "graph",
+ "id": 24,
+ "run": 2,
+ "answer": "**Two services depend directly on `BillingService`:**\n- `RenewalsWorker`\n- `ReportingService`\n\nFor a renewal whose authorization keeps failing, **the available graph does not establish the retry or final-failure behavior**. It confirms that:\n- `RenewalsWorker` calls `PaymentsAPI`, exposed by `PaymentsService`.\n- `RenewalsWorker` is configured by `AUTH_HOLD_MINUTES`, which controls how long a renewal authorization is held before capture.\n\nNo returned relationship specifies a retry limit, backoff, cancellation, or dead-letter outcome. Therefore, I can identify the services involved, but cannot reliably say what ultimately happens to a repeatedly failing authorization.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "RenewalsWorker",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "RenewalsWorker"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "BillingService"
+   }
+  }
+ ],
+ "input_tokens": 6146,
+ "output_tokens": 270,
+ "cost_usd": null
+}

@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 13,
+ "run": 2,
+ "answer": "Within two hops, **OrderService needs 8 entities: 3 services, 2 APIs, and 3 databases.**\n\n| Hop | Entity | Type | Dependency path |\n|---|---|---|---|\n| 1 | PaymentsAPI | API | OrderService calls PaymentsAPI |\n| 1 | PaymentsService | Service | Serves PaymentsAPI, which OrderService calls |\n| 1 | UserService | Service | OrderService depends on UserService |\n| 1 | OrdersPostgresDatabase | Database | OrderService stores data in OrdersPostgresDatabase |\n| 2 | NotificationsAPI | API | PaymentsService calls NotificationsAPI |\n| 2 | NotificationsService | Service | Serves NotificationsAPI, which PaymentsService calls |\n| 2 | PaymentsPostgresDatabase | Database | PaymentsService stores data in PaymentsPostgresDatabase |\n| 2 | UsersPostgresDatabase | Database | UserService stores data in UsersPostgresDatabase |\n\nThe API and the service serving it are counted at the same hop, as requested. No configuration keys were returned by this dependency traversal.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2917,
+ "output_tokens": 249,
+ "cost_usd": null
+}

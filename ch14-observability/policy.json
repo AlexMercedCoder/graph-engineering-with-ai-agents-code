@@ -1,0 +1,5 @@
+{
+ "budget": {"max_session_usd": 0.50, "max_session_tokens": 300000, "max_request_context_tokens": 60000},
+ "access": {"restricted_tools": ["trace_configuration"], "holders": ["sre-oncall"]},
+ "regression": {"token_band": 1.5}
+}

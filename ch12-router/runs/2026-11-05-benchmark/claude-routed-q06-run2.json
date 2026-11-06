@@ -1,0 +1,28 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 6,
+ "run": 2,
+ "answer": "**AuditService depends on UserService for identity resolution.** Each audit record stores the resolved user, not the raw session token (audit-service#Integrations).\n\nRelated details from the docs:\n\n- **UserService** owns users and validates the session tokens that **ApiGateway** forwards. It exposes the **UsersAPI** (user-service#Overview). The docs don't say outright that AuditService calls the UsersAPI. That is the only API UserService is documented to expose, so it's the likely interface.\n- **Users Postgres database:** this is where UserService stores users. Deletes are soft, so a deleted user keeps their row with a deletion timestamp. That's why audit records for deleted users still resolve (user-service#Data).\n- **ORDER_DB_URL:** this config key points UserService at its read replica. The name is historical and was kept because three deployment scripts read it (user-service#Configuration).\n- **Token validation cache:** UserService caches token validation results for 60 seconds. A token revoked within that window is still accepted until the cache entry expires (user-service#Operations). The docs don't say whether this affects AuditService lookups.\n- **Audit Iceberg table:** this is where AuditService stores the resolved records. They are append-only and kept for seven years (audit-service#Data).",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "AuditService identity resolution dependency",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService database UsersAPI endpoints session token validation",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 12284,
+ "output_tokens": 662,
+ "cost_usd": 0.042442400000000005
+}

@@ -1,0 +1,33 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 2,
+ "run": 1,
+ "answer": "The **NotificationsAPI** is served by **NotificationsService**, and it retries each delivery **three times with a 250ms backoff**.\n\n- **Configuration:** The **`RETRY_ATTEMPTS`** key sets the retry count. A configuration trace shows it configures only NotificationsService, so changing it affects no other service. The docs don't name a separate key for the 250ms backoff.\n- **Queueing:** Messages wait in the **notifications Redis instance** until a provider (email, SMS or push) accepts them or the retries run out.\n- **After three failures:** The message goes to the **dead-letter list**, and **the caller is not told**. Callers that need delivery confirmation have to **poll the message status**.\n- **Effect on callers:** **PaymentsService** calls the NotificationsAPI when an authorization is declined. Because failures are silent, it won't learn that a decline notice never reached the customer unless it polls the status.\n- **The gateway doesn't retry:** **ApiGateway** passes upstream 5xx errors straight to the client, so any retrying at that level is up to the client library. NotificationsService's own retries are the only ones the docs describe for delivery.\n\n**Involved:** NotificationsAPI, NotificationsService, `RETRY_ATTEMPTS`, the notifications Redis instance, the dead-letter list, PaymentsService and ApiGateway.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  }
+ ],
+ "input_tokens": 14700,
+ "output_tokens": 724,
+ "cost_usd": 0.04380679999999999
+}

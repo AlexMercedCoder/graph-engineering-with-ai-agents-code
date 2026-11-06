@@ -1,0 +1,9 @@
+{
+ "question": "Which services are affected if UserService changes?",
+ "route": {"skill": "blast-radius", "tool": "find_dependents"},
+ "evidence": {"root": "UserService",
+              "targets": ["ApiGateway", "AuditService", "BillingService", "OrderService",
+                          "RenewalsWorker", "ReportingService", "SearchService"]},
+ "services": ["ApiGateway", "AuditService", "BillingService", "NotificationsService", "OrderService",
+              "PaymentsService", "RenewalsWorker", "ReportingService", "SearchService", "UserService"]
+}

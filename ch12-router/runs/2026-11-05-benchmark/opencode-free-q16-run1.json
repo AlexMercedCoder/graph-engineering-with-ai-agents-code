@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 16,
+ "run": 1,
+ "answer": "Two services call **PaymentsAPI** directly:\n\n- **OrderService**\n- **RenewalsWorker**",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 2697,
+ "output_tokens": 53,
+ "cost_usd": null
+}

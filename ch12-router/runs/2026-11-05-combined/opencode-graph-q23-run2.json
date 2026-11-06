@@ -1,0 +1,104 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "route": "graph",
+ "id": 23,
+ "run": 2,
+ "answer": "**Three services depend directly on `UserService`:**\n- `ApiGateway`\n- `AuditService`\n- `OrderService`\n\nEach has an explicit `DEPENDS_ON \u2192 UserService` relationship. `ApiGateway` also calls `UsersAPI`.\n\n**The available architecture data does not establish how long a revoked session token can still be accepted.** It contains no session-token cache duration, revocation propagation delay, or token-expiry setting, so a time limit cannot be determined from these tools.\n\nFor completeness, `UserService` stores data in `UsersPostgresDatabase` and is configured by `ORDER_DB_URL` for its read replica. That configuration does not specify token-revocation timing.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "ApiGateway",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "OrderService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "UsersAPI"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "OrderService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "UsersAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "SESSION_TOKEN_TTL"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "AuthService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "ORDER_DB_URL"
+   }
+  }
+ ],
+ "input_tokens": 13027,
+ "output_tokens": 518,
+ "cost_usd": null
+}

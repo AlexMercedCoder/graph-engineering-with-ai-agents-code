@@ -1,0 +1,1288 @@
+{
+  "ok": true,
+  "schema_version": "magent.graph-status.v1",
+  "run_id": "agraph_72fc0cb2992546c2",
+  "state": "succeeded",
+  "summary": {
+    "text": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+    "succeeded": [
+      "run_tests",
+      "migrate_module",
+      "verify"
+    ],
+    "failed": [],
+    "skipped": [],
+    "total": 3
+  },
+  "run": {
+    "id": "graph_run_0017",
+    "created_at": "2026-11-05T16:50:09.262493+00:00",
+    "ags_version": "1.0",
+    "kind": "AgenticGraphRun",
+    "run_id": "agraph_72fc0cb2992546c2",
+    "graph_id": "gewaa/migrate-order-service",
+    "graph_version": "1.0.0",
+    "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+    "harness": {
+      "name": "MagAgent",
+      "version": "1.4.0",
+      "conformance_level": 3,
+      "supported_features": [
+        "validation",
+        "planning",
+        "task",
+        "decision",
+        "gate",
+        "loop",
+        "map",
+        "subgraph",
+        "criteria",
+        "retries",
+        "budgets",
+        "parallelism",
+        "run-records",
+        "resume",
+        "generation"
+      ]
+    },
+    "status": "succeeded",
+    "started_at": "2026-11-05T16:50:09.081287+00:00",
+    "params": {},
+    "context": {
+      "conventions": "ES modules, Node 20 or newer, tests under tests/ run with node --test. Repository classes live in src/repositories/. Routes in src/api/routes.js call the services.\n"
+    },
+    "outputs": {
+      "verdict": "No regressions: the suite and the route check pass, and only the three declared files changed."
+    },
+    "usage": {
+      "node_executions": 3,
+      "tool_calls": 9,
+      "wall_clock_seconds": 13.483004,
+      "cost_usd": 0.0,
+      "input_tokens": 27815,
+      "output_tokens": 731,
+      "total_tokens": 28546
+    },
+    "diagnostics": [],
+    "nodes": [
+      {
+        "node_id": "run_tests",
+        "scope_path": "run_tests",
+        "type": "task",
+        "status": "succeeded",
+        "started_at": "2026-11-05T16:50:09.920303+00:00",
+        "finished_at": "2026-11-05T16:50:19.849523+00:00",
+        "inputs": {},
+        "outputs": {
+          "failures": ".agent-work/test-failures.md"
+        },
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "succeeded",
+            "started_at": "2026-11-05T16:50:09.920303+00:00",
+            "finished_at": "2026-11-05T16:50:18.039742+00:00",
+            "routed": {
+              "requested_tier": "minimal",
+              "effective_tier": "minimal",
+              "role": "cheap",
+              "provider": "mock",
+              "model": "offline-demo",
+              "downgraded": false,
+              "reason": ""
+            },
+            "success": {
+              "passed": true,
+              "mode": "all",
+              "results": [
+                {
+                  "id": "report_written",
+                  "kind": "file_exists",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": ".agent-work/test-failures.md",
+                  "duration_seconds": 0.002922,
+                  "evaluated_at": "2026-11-05T16:50:18.039563+00:00"
+                }
+              ]
+            },
+            "usage": {
+              "input_tokens": 8895,
+              "output_tokens": 60,
+              "total_tokens": 8955,
+              "cost_usd": 0.0,
+              "tool_calls": 1,
+              "wall_clock_seconds": 0.0,
+              "node_executions": 0
+            }
+          }
+        ],
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 8895,
+          "output_tokens": 60,
+          "total_tokens": 8955,
+          "cost_usd": 0.0,
+          "tool_calls": 1,
+          "wall_clock_seconds": 0.0
+        },
+        "x-magagent-dependencies": [],
+        "x-magagent-summary": "Recorded the baseline: all passing.",
+        "x-magagent-files-changed": []
+      },
+      {
+        "node_id": "migrate_module",
+        "scope_path": "migrate_module",
+        "type": "task",
+        "status": "succeeded",
+        "started_at": "2026-11-05T16:50:19.907038+00:00",
+        "finished_at": "2026-11-05T16:50:20.753798+00:00",
+        "inputs": {
+          "failures": ".agent-work/test-failures.md"
+        },
+        "outputs": {
+          "changed_files": [
+            "src/services/order-service.js",
+            "tests/order-service.test.js",
+            "src/api/routes.js"
+          ]
+        },
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "succeeded",
+            "started_at": "2026-11-05T16:50:19.907038+00:00",
+            "finished_at": "2026-11-05T16:50:20.566424+00:00",
+            "routed": {
+              "requested_tier": "standard",
+              "effective_tier": "standard",
+              "role": "coding",
+              "provider": "mock",
+              "model": "offline-demo",
+              "downgraded": false,
+              "reason": ""
+            },
+            "success": {
+              "passed": true,
+              "mode": "all",
+              "results": [
+                {
+                  "id": "no_db_import",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "duration_seconds": 0.012857,
+                  "evaluated_at": "2026-11-05T16:50:20.433699+00:00"
+                },
+                {
+                  "id": "module_tests_pass",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "✔ listOrdersForUser returns only that user orders (3.257476ms)\n✔ totalPaidCents counts only paid orders (0.800993ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 55.250333",
+                  "duration_seconds": 0.103761,
+                  "evaluated_at": "2026-11-05T16:50:20.537495+00:00"
+                },
+                {
+                  "id": "routes_respond",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "ok    GET /users -> [{\"id\":1,\"email\":\"ada@example.com\",\"name\":\"Ada\",\"deleted_at\"\nok    GET /users/:id -> {\"id\":1,\"email\":\"ada@example.com\",\"name\":\"Ada\",\"deleted_at\":\nok    GET /users/:id/orders -> [{\"id\":10,\"user_id\":1,\"total_cents\":4200,\"status\":\"paid\",\"de\nok    GET /reports/paid-total -> 14600\nok    GET /reports/uncaptured-total -> 9900\nall 5 routes respond",
+                  "duration_seconds": 0.02886,
+                  "evaluated_at": "2026-11-05T16:50:20.566378+00:00"
+                }
+              ]
+            },
+            "usage": {
+              "input_tokens": 9440,
+              "output_tokens": 609,
+              "total_tokens": 10049,
+              "cost_usd": 0.0,
+              "tool_calls": 6,
+              "wall_clock_seconds": 0.0,
+              "node_executions": 0
+            }
+          }
+        ],
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 9440,
+          "output_tokens": 609,
+          "total_tokens": 10049,
+          "cost_usd": 0.0,
+          "tool_calls": 6,
+          "wall_clock_seconds": 0.0
+        },
+        "x-magagent-dependencies": [
+          "run_tests"
+        ],
+        "x-magagent-summary": "Migrated order-service.js to OrderRepository (replayed edits).",
+        "x-magagent-files-changed": []
+      },
+      {
+        "node_id": "verify",
+        "scope_path": "verify",
+        "type": "task",
+        "status": "succeeded",
+        "started_at": "2026-11-05T16:50:20.817629+00:00",
+        "finished_at": "2026-11-05T16:50:22.563858+00:00",
+        "inputs": {
+          "failures": ".agent-work/test-failures.md",
+          "changed_files": [
+            "src/services/order-service.js",
+            "tests/order-service.test.js",
+            "src/api/routes.js"
+          ]
+        },
+        "outputs": {
+          "verdict": "No regressions: the suite and the route check pass, and only the three declared files changed."
+        },
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "succeeded",
+            "started_at": "2026-11-05T16:50:20.817629+00:00",
+            "finished_at": "2026-11-05T16:50:22.254481+00:00",
+            "routed": {
+              "requested_tier": "minimal",
+              "effective_tier": "minimal",
+              "role": "cheap",
+              "provider": "mock",
+              "model": "offline-demo",
+              "downgraded": false,
+              "reason": ""
+            },
+            "success": {
+              "passed": true,
+              "mode": "all",
+              "results": [
+                {
+                  "id": "verdict_written",
+                  "kind": "artifact_present",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "\"No regressions: the suite and the route check pass, and only the three declared files changed.\"",
+                  "duration_seconds": 2.9e-05,
+                  "evaluated_at": "2026-11-05T16:50:21.895164+00:00"
+                },
+                {
+                  "id": "suite_still_passes",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "> orders-api@1.0.0 test\n> node --test\n\n✔ findByEmail ignores soft-deleted users (8.998691ms)\n✔ isActive is true for a live user (4.41341ms)\n✔ listOrdersForUser returns only that user orders (8.890421ms)\n✔ totalPaidCents counts only paid orders (3.035448ms)\n✔ findPaymentsForOrder finds the payment for an order (8.593314ms)\n✔ uncapturedTotalCents sums uncaptured payments (3.767524ms)\n✔ UserRepository.findActive matches the service behaviour (13.19645ms)\n✔ OrderRepository.findPaid matches the service behaviour (5.216104ms)\n✔ listActiveUsers excludes soft-deleted users (13.064489ms)\n✔ findUser returns null for an unknown id (4.429181ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 183.922448",
+                  "duration_seconds": 0.359209,
+                  "evaluated_at": "2026-11-05T16:50:22.254425+00:00"
+                }
+              ]
+            },
+            "usage": {
+              "input_tokens": 9480,
+              "output_tokens": 62,
+              "total_tokens": 9542,
+              "cost_usd": 0.0,
+              "tool_calls": 2,
+              "wall_clock_seconds": 0.0,
+              "node_executions": 0
+            }
+          }
+        ],
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 9480,
+          "output_tokens": 62,
+          "total_tokens": 9542,
+          "cost_usd": 0.0,
+          "tool_calls": 2,
+          "wall_clock_seconds": 0.0
+        },
+        "x-magagent-dependencies": [
+          "migrate_module"
+        ],
+        "x-magagent-summary": "Verdict written.",
+        "x-magagent-files-changed": []
+      }
+    ],
+    "edges_taken": [
+      {
+        "from": "run_tests",
+        "to": "migrate_module",
+        "kind": "sequence",
+        "active": true,
+        "when_result": true,
+        "at": "2026-11-05T16:50:22.564195+00:00"
+      },
+      {
+        "from": "migrate_module",
+        "to": "verify",
+        "kind": "sequence",
+        "active": true,
+        "when_result": true,
+        "at": "2026-11-05T16:50:22.564211+00:00"
+      }
+    ],
+    "metadata": {
+      "source_path": "<run-dir>/migrate-order-service.agraph.yaml",
+      "project": "<run-dir>/proj-replay-2",
+      "graph_snapshot": {
+        "ags_version": "1.0",
+        "kind": "AgenticGraph",
+        "id": "gewaa/migrate-order-service",
+        "title": "Migrate the order service to its repository class",
+        "version": "1.0.0",
+        "requires_conformance": 1,
+        "objective": "Move src/services/order-service.js off callback-style database access and onto OrderRepository, keep every route responding, and confirm that no test that passed before the migration fails after it.\n",
+        "context": {
+          "conventions": "ES modules, Node 20 or newer, tests under tests/ run with node --test. Repository classes live in src/repositories/. Routes in src/api/routes.js call the services.\n"
+        },
+        "constraints": {
+          "max_cost_usd": 5.0,
+          "max_parallel_nodes": 1
+        },
+        "entrypoints": [
+          "run_tests"
+        ],
+        "nodes": {
+          "run_tests": {
+            "type": "task",
+            "title": "Record the failing tests",
+            "description": "Run the project test suite from the project root and write the failing tests, each with the assertion that failed and its source file and line, to .agent-work/test-failures.md. If nothing fails, write \"all passing\". Fix nothing.\n",
+            "outputs": {
+              "failures": {
+                "type": "file",
+                "description": "The list of failing tests, or \"all passing\".",
+                "path_hint": ".agent-work/test-failures.md"
+              }
+            },
+            "intelligence": {
+              "tier": "minimal",
+              "hints": [
+                "tool_use_heavy",
+                "low_cost"
+              ]
+            },
+            "requirements": {
+              "tools": [
+                "shell_exec",
+                "file_read",
+                "file_write"
+              ],
+              "permissions": [
+                "fs:read:**",
+                "fs:write:.agent-work/**",
+                "shell:exec:node*",
+                "shell:exec:npm*"
+              ],
+              "workspace": "read_write"
+            },
+            "constraints": {
+              "max_agent_steps": 12
+            },
+            "success": {
+              "summary": "The failure report exists.",
+              "criteria": [
+                {
+                  "id": "report_written",
+                  "kind": "file_exists",
+                  "description": ".agent-work/test-failures.md exists.",
+                  "path": ".agent-work/test-failures.md"
+                }
+              ]
+            },
+            "estimate": {
+              "effort": "xs"
+            }
+          },
+          "migrate_module": {
+            "type": "task",
+            "title": "Migrate the order service",
+            "description": "Migrate src/services/order-service.js from callback-style database access to OrderRepository in src/repositories/order-repository.js. Convert its exported functions to return promises, update tests/order-service.test.js to await them, and update the callers in src/api/routes.js so every route still responds. Change no other file.\n",
+            "instructions": "Follow the migrate-module skill.",
+            "depends_on": [
+              "run_tests"
+            ],
+            "inputs": {
+              "failures": {
+                "type": "file",
+                "description": "Tests that were already failing before the migration started.",
+                "from": "nodes.run_tests.outputs.failures"
+              }
+            },
+            "outputs": {
+              "changed_files": {
+                "type": "file_set",
+                "description": "The module, its test file, and src/api/routes.js."
+              }
+            },
+            "intelligence": {
+              "tier": "standard",
+              "hints": [
+                "code_generation"
+              ]
+            },
+            "requirements": {
+              "tools": [
+                "file_read",
+                "file_search",
+                "file_write",
+                "shell_exec"
+              ],
+              "permissions": [
+                "fs:read:**",
+                "fs:write:src/services/order-service.js",
+                "fs:write:tests/order-service.test.js",
+                "fs:write:src/api/routes.js",
+                "shell:exec:node*",
+                "shell:exec:grep*"
+              ],
+              "skills": [
+                "migrate-module"
+              ],
+              "workspace": "read_write"
+            },
+            "constraints": {
+              "max_agent_steps": 40
+            },
+            "failure": {
+              "retry": {
+                "max_attempts": 2,
+                "retry_on": [
+                  "criteria_failed"
+                ],
+                "feedback": "failed_criteria"
+              },
+              "on_exhausted": "fail"
+            },
+            "success": {
+              "summary": "The module uses its repository, its tests pass, and every route responds.",
+              "criteria": [
+                {
+                  "id": "no_db_import",
+                  "kind": "command",
+                  "description": "order-service.js no longer imports ../db.js.",
+                  "run": "grep -n db.js src/services/order-service.js",
+                  "expect_exit_code": 1,
+                  "timeout_seconds": 30
+                },
+                {
+                  "id": "module_tests_pass",
+                  "kind": "command",
+                  "description": "tests/order-service.test.js passes.",
+                  "run": "node --test tests/order-service.test.js",
+                  "expect_exit_code": 0,
+                  "timeout_seconds": 300
+                },
+                {
+                  "id": "routes_respond",
+                  "kind": "command",
+                  "description": "Every route in src/api/routes.js still responds.",
+                  "run": "node scripts/check-routes.js",
+                  "expect_exit_code": 0,
+                  "timeout_seconds": 120
+                }
+              ]
+            },
+            "estimate": {
+              "effort": "m"
+            }
+          },
+          "verify": {
+            "type": "task",
+            "title": "Check for regressions",
+            "description": "Run the whole suite and the route check, compare the result with the failure report from before the migration, and report any test that passed before and fails now. Write a one-paragraph verdict. Change nothing.\n",
+            "depends_on": [
+              "migrate_module"
+            ],
+            "inputs": {
+              "failures": {
+                "type": "file",
+                "description": "The failure report from before the migration.",
+                "from": "nodes.run_tests.outputs.failures"
+              },
+              "changed_files": {
+                "type": "file_set",
+                "description": "The files the migration changed; anything else changing is a regression.",
+                "from": "nodes.migrate_module.outputs.changed_files"
+              }
+            },
+            "outputs": {
+              "verdict": {
+                "type": "markdown",
+                "description": "One paragraph naming any regression, or saying there is none."
+              }
+            },
+            "intelligence": {
+              "tier": "minimal",
+              "hints": [
+                "tool_use_heavy",
+                "low_cost"
+              ]
+            },
+            "requirements": {
+              "tools": [
+                "shell_exec",
+                "file_read"
+              ],
+              "permissions": [
+                "fs:read:**",
+                "shell:exec:node*",
+                "shell:exec:npm*"
+              ],
+              "workspace": "read_only"
+            },
+            "constraints": {
+              "max_agent_steps": 12
+            },
+            "success": {
+              "summary": "The verdict exists and the suite still passes.",
+              "criteria": [
+                {
+                  "id": "verdict_written",
+                  "kind": "artifact_present",
+                  "description": "The verdict was produced.",
+                  "output": "verdict"
+                },
+                {
+                  "id": "suite_still_passes",
+                  "kind": "command",
+                  "description": "npm test exits zero.",
+                  "run": "npm test",
+                  "expect_exit_code": 0,
+                  "timeout_seconds": 300
+                }
+              ]
+            },
+            "estimate": {
+              "effort": "xs"
+            }
+          }
+        },
+        "outputs": {
+          "verdict": {
+            "type": "markdown",
+            "description": "The regression verdict.",
+            "from": "nodes.verify.outputs.verdict"
+          }
+        }
+      },
+      "event_schema_version": "magent.graph-event.v1",
+      "execution_task_id": "task_136d48c2cbe94b9a",
+      "x-magagent-summary": {
+        "text": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+        "succeeded": [
+          "run_tests",
+          "migrate_module",
+          "verify"
+        ],
+        "failed": [],
+        "skipped": [],
+        "total": 3
+      }
+    },
+    "finished_at": "2026-11-05T16:50:22.564254+00:00"
+  },
+  "task": {
+    "id": "task_136d48c2cbe94b9a",
+    "schema_version": "magent.task.v2",
+    "kind": "agentic_graph",
+    "title": "Migrate the order service to its repository class",
+    "state": "succeeded",
+    "project_id": "project_2fa50ed2897392e6",
+    "project_path": "<run-dir>/proj-replay-2",
+    "session_id": "",
+    "parent_task_id": "",
+    "created_at": "2026-11-05T16:50:09.081494+00:00",
+    "updated_at": "2026-11-05T16:50:22.706216+00:00",
+    "started_at": "2026-11-05T16:50:09.081494+00:00",
+    "finished_at": "2026-11-05T16:50:22.565323+00:00",
+    "planning_role": "",
+    "execution_role": "",
+    "permission_policy": "silent",
+    "attempt": 1,
+    "usage": {
+      "node_executions": 3,
+      "tool_calls": 9,
+      "wall_clock_seconds": 13.483004,
+      "cost_usd": 0.0,
+      "input_tokens": 27815,
+      "output_tokens": 731,
+      "total_tokens": 28546
+    },
+    "files_changed": [],
+    "checkpoints": [],
+    "final_audit": {
+      "ok": true,
+      "summary": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+      "error": "",
+      "error_code": "",
+      "text": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+      "succeeded": [
+        "run_tests",
+        "migrate_module",
+        "verify"
+      ],
+      "failed": [],
+      "skipped": [],
+      "total": 3
+    },
+    "metadata": {
+      "run_id": "agraph_72fc0cb2992546c2",
+      "graph_id": "gewaa/migrate-order-service",
+      "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+      "source_path": "<run-dir>/migrate-order-service.agraph.yaml",
+      "event_schema_version": "magent.graph-event.v1",
+      "summary": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+      "result_summary": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+      "run_status": "succeeded"
+    }
+  },
+  "nodes": [
+    {
+      "node_id": "run_tests",
+      "title": "Record the failing tests",
+      "profile": "",
+      "dependencies": [],
+      "state": "succeeded",
+      "summary": "Recorded the baseline: all passing.",
+      "error_code": "",
+      "error": "",
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "error": "",
+          "criteria": [
+            {
+              "id": "report_written",
+              "passed": true,
+              "evidence": ".agent-work/test-failures.md"
+            }
+          ]
+        }
+      ],
+      "files_changed": [],
+      "blocked_by": [],
+      "task": {
+        "id": "task_49e7370c6a224595",
+        "schema_version": "magent.task.v2",
+        "kind": "agentic_graph_node",
+        "title": "Record the failing tests",
+        "state": "succeeded",
+        "project_id": "project_2fa50ed2897392e6",
+        "project_path": "<run-dir>/proj-replay-2",
+        "session_id": "",
+        "parent_task_id": "task_136d48c2cbe94b9a",
+        "created_at": "2026-11-05T16:50:09.459270+00:00",
+        "updated_at": "2026-11-05T16:50:19.806925+00:00",
+        "started_at": "2026-11-05T16:50:09.856830+00:00",
+        "finished_at": "2026-11-05T16:50:18.856285+00:00",
+        "planning_role": "",
+        "execution_role": "",
+        "permission_policy": "silent",
+        "attempt": 1,
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 8895,
+          "output_tokens": 60,
+          "total_tokens": 8955,
+          "cost_usd": 0.0,
+          "tool_calls": 1,
+          "wall_clock_seconds": 0.0
+        },
+        "files_changed": [],
+        "checkpoints": [],
+        "final_audit": {
+          "ok": true,
+          "summary": "Recorded the baseline: all passing.",
+          "error_code": "",
+          "error": ""
+        },
+        "metadata": {
+          "node_id": "run_tests",
+          "scope_path": "run_tests",
+          "graph_node_id": "run_tests",
+          "run_id": "agraph_72fc0cb2992546c2",
+          "graph_id": "gewaa/migrate-order-service",
+          "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+          "agent_profile": "",
+          "dependencies": [],
+          "blocked_by": [],
+          "summary": "Recorded the baseline: all passing.",
+          "event_schema_version": "magent.graph-event.v1",
+          "result_summary": "Recorded the baseline: all passing."
+        }
+      },
+      "record": {
+        "node_id": "run_tests",
+        "scope_path": "run_tests",
+        "type": "task",
+        "status": "succeeded",
+        "started_at": "2026-11-05T16:50:09.920303+00:00",
+        "finished_at": "2026-11-05T16:50:19.849523+00:00",
+        "inputs": {},
+        "outputs": {
+          "failures": ".agent-work/test-failures.md"
+        },
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "succeeded",
+            "started_at": "2026-11-05T16:50:09.920303+00:00",
+            "finished_at": "2026-11-05T16:50:18.039742+00:00",
+            "routed": {
+              "requested_tier": "minimal",
+              "effective_tier": "minimal",
+              "role": "cheap",
+              "provider": "mock",
+              "model": "offline-demo",
+              "downgraded": false,
+              "reason": ""
+            },
+            "success": {
+              "passed": true,
+              "mode": "all",
+              "results": [
+                {
+                  "id": "report_written",
+                  "kind": "file_exists",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": ".agent-work/test-failures.md",
+                  "duration_seconds": 0.002922,
+                  "evaluated_at": "2026-11-05T16:50:18.039563+00:00"
+                }
+              ]
+            },
+            "usage": {
+              "input_tokens": 8895,
+              "output_tokens": 60,
+              "total_tokens": 8955,
+              "cost_usd": 0.0,
+              "tool_calls": 1,
+              "wall_clock_seconds": 0.0,
+              "node_executions": 0
+            }
+          }
+        ],
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 8895,
+          "output_tokens": 60,
+          "total_tokens": 8955,
+          "cost_usd": 0.0,
+          "tool_calls": 1,
+          "wall_clock_seconds": 0.0
+        },
+        "x-magagent-dependencies": [],
+        "x-magagent-summary": "Recorded the baseline: all passing.",
+        "x-magagent-files-changed": []
+      }
+    },
+    {
+      "node_id": "migrate_module",
+      "title": "Migrate the order service",
+      "profile": "",
+      "dependencies": [
+        "run_tests"
+      ],
+      "state": "succeeded",
+      "summary": "Migrated order-service.js to OrderRepository (replayed edits).",
+      "error_code": "",
+      "error": "",
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "error": "",
+          "criteria": [
+            {
+              "id": "no_db_import",
+              "passed": true,
+              "evidence": null
+            },
+            {
+              "id": "module_tests_pass",
+              "passed": true,
+              "evidence": "✔ listOrdersForUser returns only that user orders (3.257476ms)\n✔ totalPaidCents counts only paid orders (0.800993ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 55.250333"
+            },
+            {
+              "id": "routes_respond",
+              "passed": true,
+              "evidence": "ok    GET /users -> [{\"id\":1,\"email\":\"ada@example.com\",\"name\":\"Ada\",\"deleted_at\"\nok    GET /users/:id -> {\"id\":1,\"email\":\"ada@example.com\",\"name\":\"Ada\",\"deleted_at\":\nok    GET /users/:id/orders -> [{\"id\":10,\"user_id\":1,\"total_cents\":4200,\"status\":\"paid\",\"de\nok    GET /reports/paid-total -> 14600\nok    GET /reports/uncaptured-total -> 9900\nall 5 routes respond"
+            }
+          ]
+        }
+      ],
+      "files_changed": [],
+      "blocked_by": [
+        {
+          "code": "GRAPH_DEPENDENCY_PENDING",
+          "dependency": "run_tests",
+          "message": "Waiting for run_tests (pending)."
+        }
+      ],
+      "task": {
+        "id": "task_8dd79090952c42a8",
+        "schema_version": "magent.task.v2",
+        "kind": "agentic_graph_node",
+        "title": "Migrate the order service",
+        "state": "succeeded",
+        "project_id": "project_2fa50ed2897392e6",
+        "project_path": "<run-dir>/proj-replay-2",
+        "session_id": "",
+        "parent_task_id": "task_136d48c2cbe94b9a",
+        "created_at": "2026-11-05T16:50:09.516875+00:00",
+        "updated_at": "2026-11-05T16:50:20.703450+00:00",
+        "started_at": "2026-11-05T16:50:19.856246+00:00",
+        "finished_at": "2026-11-05T16:50:20.612417+00:00",
+        "planning_role": "",
+        "execution_role": "",
+        "permission_policy": "silent",
+        "attempt": 1,
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 9440,
+          "output_tokens": 609,
+          "total_tokens": 10049,
+          "cost_usd": 0.0,
+          "tool_calls": 6,
+          "wall_clock_seconds": 0.0
+        },
+        "files_changed": [],
+        "checkpoints": [],
+        "final_audit": {
+          "ok": true,
+          "summary": "Migrated order-service.js to OrderRepository (replayed edits).",
+          "error_code": "",
+          "error": ""
+        },
+        "metadata": {
+          "node_id": "migrate_module",
+          "scope_path": "migrate_module",
+          "graph_node_id": "migrate_module",
+          "run_id": "agraph_72fc0cb2992546c2",
+          "graph_id": "gewaa/migrate-order-service",
+          "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+          "agent_profile": "",
+          "dependencies": [
+            "run_tests"
+          ],
+          "blocked_by": [
+            {
+              "code": "GRAPH_DEPENDENCY_PENDING",
+              "dependency": "run_tests",
+              "message": "Waiting for run_tests (pending)."
+            }
+          ],
+          "summary": "Migrated order-service.js to OrderRepository (replayed edits).",
+          "event_schema_version": "magent.graph-event.v1",
+          "result_summary": "Migrated order-service.js to OrderRepository (replayed edits)."
+        }
+      },
+      "record": {
+        "node_id": "migrate_module",
+        "scope_path": "migrate_module",
+        "type": "task",
+        "status": "succeeded",
+        "started_at": "2026-11-05T16:50:19.907038+00:00",
+        "finished_at": "2026-11-05T16:50:20.753798+00:00",
+        "inputs": {
+          "failures": ".agent-work/test-failures.md"
+        },
+        "outputs": {
+          "changed_files": [
+            "src/services/order-service.js",
+            "tests/order-service.test.js",
+            "src/api/routes.js"
+          ]
+        },
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "succeeded",
+            "started_at": "2026-11-05T16:50:19.907038+00:00",
+            "finished_at": "2026-11-05T16:50:20.566424+00:00",
+            "routed": {
+              "requested_tier": "standard",
+              "effective_tier": "standard",
+              "role": "coding",
+              "provider": "mock",
+              "model": "offline-demo",
+              "downgraded": false,
+              "reason": ""
+            },
+            "success": {
+              "passed": true,
+              "mode": "all",
+              "results": [
+                {
+                  "id": "no_db_import",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "duration_seconds": 0.012857,
+                  "evaluated_at": "2026-11-05T16:50:20.433699+00:00"
+                },
+                {
+                  "id": "module_tests_pass",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "✔ listOrdersForUser returns only that user orders (3.257476ms)\n✔ totalPaidCents counts only paid orders (0.800993ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 55.250333",
+                  "duration_seconds": 0.103761,
+                  "evaluated_at": "2026-11-05T16:50:20.537495+00:00"
+                },
+                {
+                  "id": "routes_respond",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "ok    GET /users -> [{\"id\":1,\"email\":\"ada@example.com\",\"name\":\"Ada\",\"deleted_at\"\nok    GET /users/:id -> {\"id\":1,\"email\":\"ada@example.com\",\"name\":\"Ada\",\"deleted_at\":\nok    GET /users/:id/orders -> [{\"id\":10,\"user_id\":1,\"total_cents\":4200,\"status\":\"paid\",\"de\nok    GET /reports/paid-total -> 14600\nok    GET /reports/uncaptured-total -> 9900\nall 5 routes respond",
+                  "duration_seconds": 0.02886,
+                  "evaluated_at": "2026-11-05T16:50:20.566378+00:00"
+                }
+              ]
+            },
+            "usage": {
+              "input_tokens": 9440,
+              "output_tokens": 609,
+              "total_tokens": 10049,
+              "cost_usd": 0.0,
+              "tool_calls": 6,
+              "wall_clock_seconds": 0.0,
+              "node_executions": 0
+            }
+          }
+        ],
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 9440,
+          "output_tokens": 609,
+          "total_tokens": 10049,
+          "cost_usd": 0.0,
+          "tool_calls": 6,
+          "wall_clock_seconds": 0.0
+        },
+        "x-magagent-dependencies": [
+          "run_tests"
+        ],
+        "x-magagent-summary": "Migrated order-service.js to OrderRepository (replayed edits).",
+        "x-magagent-files-changed": []
+      }
+    },
+    {
+      "node_id": "verify",
+      "title": "Check for regressions",
+      "profile": "",
+      "dependencies": [
+        "migrate_module"
+      ],
+      "state": "succeeded",
+      "summary": "Verdict written.",
+      "error_code": "",
+      "error": "",
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "succeeded",
+          "error": "",
+          "criteria": [
+            {
+              "id": "verdict_written",
+              "passed": true,
+              "evidence": "\"No regressions: the suite and the route check pass, and only the three declared files changed.\""
+            },
+            {
+              "id": "suite_still_passes",
+              "passed": true,
+              "evidence": "> orders-api@1.0.0 test\n> node --test\n\n✔ findByEmail ignores soft-deleted users (8.998691ms)\n✔ isActive is true for a live user (4.41341ms)\n✔ listOrdersForUser returns only that user orders (8.890421ms)\n✔ totalPaidCents counts only paid orders (3.035448ms)\n✔ findPaymentsForOrder finds the payment for an order (8.593314ms)\n✔ uncapturedTotalCents sums uncaptured payments (3.767524ms)\n✔ UserRepository.findActive matches the service behaviour (13.19645ms)\n✔ OrderRepository.findPaid matches the service behaviour (5.216104ms)\n✔ listActiveUsers excludes soft-deleted users (13.064489ms)\n✔ findUser returns null for an unknown id (4.429181ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 183.922448"
+            }
+          ]
+        }
+      ],
+      "files_changed": [],
+      "blocked_by": [
+        {
+          "code": "GRAPH_DEPENDENCY_PENDING",
+          "dependency": "migrate_module",
+          "message": "Waiting for migrate_module (pending)."
+        }
+      ],
+      "task": {
+        "id": "task_0d8bd3360ae14ccd",
+        "schema_version": "magent.task.v2",
+        "kind": "agentic_graph_node",
+        "title": "Check for regressions",
+        "state": "succeeded",
+        "project_id": "project_2fa50ed2897392e6",
+        "project_path": "<run-dir>/proj-replay-2",
+        "session_id": "",
+        "parent_task_id": "task_136d48c2cbe94b9a",
+        "created_at": "2026-11-05T16:50:09.574288+00:00",
+        "updated_at": "2026-11-05T16:50:22.496220+00:00",
+        "started_at": "2026-11-05T16:50:20.760765+00:00",
+        "finished_at": "2026-11-05T16:50:22.427328+00:00",
+        "planning_role": "",
+        "execution_role": "",
+        "permission_policy": "silent",
+        "attempt": 1,
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 9480,
+          "output_tokens": 62,
+          "total_tokens": 9542,
+          "cost_usd": 0.0,
+          "tool_calls": 2,
+          "wall_clock_seconds": 0.0
+        },
+        "files_changed": [],
+        "checkpoints": [],
+        "final_audit": {
+          "ok": true,
+          "summary": "Verdict written.",
+          "error_code": "",
+          "error": ""
+        },
+        "metadata": {
+          "node_id": "verify",
+          "scope_path": "verify",
+          "graph_node_id": "verify",
+          "run_id": "agraph_72fc0cb2992546c2",
+          "graph_id": "gewaa/migrate-order-service",
+          "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+          "agent_profile": "",
+          "dependencies": [
+            "migrate_module"
+          ],
+          "blocked_by": [
+            {
+              "code": "GRAPH_DEPENDENCY_PENDING",
+              "dependency": "migrate_module",
+              "message": "Waiting for migrate_module (pending)."
+            }
+          ],
+          "summary": "Verdict written.",
+          "event_schema_version": "magent.graph-event.v1",
+          "result_summary": "Verdict written."
+        }
+      },
+      "record": {
+        "node_id": "verify",
+        "scope_path": "verify",
+        "type": "task",
+        "status": "succeeded",
+        "started_at": "2026-11-05T16:50:20.817629+00:00",
+        "finished_at": "2026-11-05T16:50:22.563858+00:00",
+        "inputs": {
+          "failures": ".agent-work/test-failures.md",
+          "changed_files": [
+            "src/services/order-service.js",
+            "tests/order-service.test.js",
+            "src/api/routes.js"
+          ]
+        },
+        "outputs": {
+          "verdict": "No regressions: the suite and the route check pass, and only the three declared files changed."
+        },
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "succeeded",
+            "started_at": "2026-11-05T16:50:20.817629+00:00",
+            "finished_at": "2026-11-05T16:50:22.254481+00:00",
+            "routed": {
+              "requested_tier": "minimal",
+              "effective_tier": "minimal",
+              "role": "cheap",
+              "provider": "mock",
+              "model": "offline-demo",
+              "downgraded": false,
+              "reason": ""
+            },
+            "success": {
+              "passed": true,
+              "mode": "all",
+              "results": [
+                {
+                  "id": "verdict_written",
+                  "kind": "artifact_present",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "\"No regressions: the suite and the route check pass, and only the three declared files changed.\"",
+                  "duration_seconds": 2.9e-05,
+                  "evaluated_at": "2026-11-05T16:50:21.895164+00:00"
+                },
+                {
+                  "id": "suite_still_passes",
+                  "kind": "command",
+                  "severity": "required",
+                  "passed": true,
+                  "evidence": "> orders-api@1.0.0 test\n> node --test\n\n✔ findByEmail ignores soft-deleted users (8.998691ms)\n✔ isActive is true for a live user (4.41341ms)\n✔ listOrdersForUser returns only that user orders (8.890421ms)\n✔ totalPaidCents counts only paid orders (3.035448ms)\n✔ findPaymentsForOrder finds the payment for an order (8.593314ms)\n✔ uncapturedTotalCents sums uncaptured payments (3.767524ms)\n✔ UserRepository.findActive matches the service behaviour (13.19645ms)\n✔ OrderRepository.findPaid matches the service behaviour (5.216104ms)\n✔ listActiveUsers excludes soft-deleted users (13.064489ms)\n✔ findUser returns null for an unknown id (4.429181ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 183.922448",
+                  "duration_seconds": 0.359209,
+                  "evaluated_at": "2026-11-05T16:50:22.254425+00:00"
+                }
+              ]
+            },
+            "usage": {
+              "input_tokens": 9480,
+              "output_tokens": 62,
+              "total_tokens": 9542,
+              "cost_usd": 0.0,
+              "tool_calls": 2,
+              "wall_clock_seconds": 0.0,
+              "node_executions": 0
+            }
+          }
+        ],
+        "usage": {
+          "node_executions": 1,
+          "input_tokens": 9480,
+          "output_tokens": 62,
+          "total_tokens": 9542,
+          "cost_usd": 0.0,
+          "tool_calls": 2,
+          "wall_clock_seconds": 0.0
+        },
+        "x-magagent-dependencies": [
+          "migrate_module"
+        ],
+        "x-magagent-summary": "Verdict written.",
+        "x-magagent-files-changed": []
+      }
+    }
+  ],
+  "events": [
+    {
+      "event_id": "evt_d83ce06d823540f9",
+      "task_id": "task_136d48c2cbe94b9a",
+      "sequence": 1,
+      "schema_version": "magent.task-event.v1",
+      "type": "task_created",
+      "ts": "2026-11-05T16:50:09.081986+00:00",
+      "state": "running",
+      "detail": {
+        "kind": "agentic_graph",
+        "title": "Migrate the order service to its repository class"
+      }
+    },
+    {
+      "event_id": "evt_e8dcd35511fb4b4b",
+      "task_id": "task_136d48c2cbe94b9a",
+      "sequence": 2,
+      "schema_version": "magent.task-event.v1",
+      "type": "task_context_updated",
+      "ts": "2026-11-05T16:50:09.199335+00:00",
+      "state": "running",
+      "detail": {
+        "usage": {},
+        "files_changed": [],
+        "checkpoints": [],
+        "final_audit": {},
+        "metadata": {
+          "run_id": "agraph_72fc0cb2992546c2",
+          "graph_id": "gewaa/migrate-order-service",
+          "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+          "source_path": "<run-dir>/migrate-order-service.agraph.yaml",
+          "event_schema_version": "magent.graph-event.v1"
+        }
+      }
+    },
+    {
+      "event_id": "evt_e4493f16a01742ae",
+      "task_id": "task_136d48c2cbe94b9a",
+      "sequence": 3,
+      "schema_version": "magent.task-event.v1",
+      "type": "graph_lifecycle",
+      "ts": "2026-11-05T16:50:09.403885+00:00",
+      "state": "running",
+      "detail": {
+        "schema_version": "magent.graph-event.v1",
+        "event_id": "gevt_5accfaa05b244fa0",
+        "type": "graph.started",
+        "timestamp": "2026-11-05T16:50:09.402111+00:00",
+        "run_id": "agraph_72fc0cb2992546c2",
+        "graph_id": "gewaa/migrate-order-service",
+        "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+        "task_id": "task_136d48c2cbe94b9a",
+        "state": "running",
+        "summary": "Graph execution started."
+      }
+    },
+    {
+      "event_id": "evt_f41c9424eebc41a3",
+      "task_id": "task_136d48c2cbe94b9a",
+      "sequence": 4,
+      "schema_version": "magent.task-event.v1",
+      "type": "state_changed",
+      "ts": "2026-11-05T16:50:22.565685+00:00",
+      "state": "succeeded",
+      "detail": {
+        "reason": "Graph execution succeeded"
+      }
+    },
+    {
+      "event_id": "evt_82ac08b6d4ae4bdb",
+      "task_id": "task_136d48c2cbe94b9a",
+      "sequence": 5,
+      "schema_version": "magent.task-event.v1",
+      "type": "task_context_updated",
+      "ts": "2026-11-05T16:50:22.706682+00:00",
+      "state": "succeeded",
+      "detail": {
+        "usage": {
+          "node_executions": 3,
+          "tool_calls": 9,
+          "wall_clock_seconds": 13.483004,
+          "cost_usd": 0.0,
+          "input_tokens": 27815,
+          "output_tokens": 731,
+          "total_tokens": 28546
+        },
+        "files_changed": [],
+        "checkpoints": [],
+        "final_audit": {
+          "ok": true,
+          "summary": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+          "error": "",
+          "error_code": "",
+          "text": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+          "succeeded": [
+            "run_tests",
+            "migrate_module",
+            "verify"
+          ],
+          "failed": [],
+          "skipped": [],
+          "total": 3
+        },
+        "metadata": {
+          "summary": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+          "result_summary": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped.",
+          "run_status": "succeeded"
+        }
+      }
+    },
+    {
+      "event_id": "evt_c6576395c9a74e09",
+      "task_id": "task_136d48c2cbe94b9a",
+      "sequence": 6,
+      "schema_version": "magent.task-event.v1",
+      "type": "graph_lifecycle",
+      "ts": "2026-11-05T16:50:24.452945+00:00",
+      "state": "succeeded",
+      "detail": {
+        "schema_version": "magent.graph-event.v1",
+        "event_id": "gevt_561b741cdef341f0",
+        "type": "graph.completed",
+        "timestamp": "2026-11-05T16:50:24.450406+00:00",
+        "run_id": "agraph_72fc0cb2992546c2",
+        "graph_id": "gewaa/migrate-order-service",
+        "graph_digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+        "task_id": "task_136d48c2cbe94b9a",
+        "state": "succeeded",
+        "summary": "Graph succeeded: 3 succeeded, 0 failed or blocked, 0 skipped."
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "approve-routes-mod",
+  "version": "0.1.0",
+  "description": "Test mod: approves the route check in tool.check, to show what a mod can grant.",
+  "author": { "name": "Alex Merced" }
+}

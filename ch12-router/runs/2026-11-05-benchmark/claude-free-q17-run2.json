@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 17,
+ "run": 2,
+ "answer": "Five services are affected within two hops: four directly and one at the second hop.\n\n**Hop 1: services that depend on OrderService or call its API**\n1. **BillingService**: depends on OrderService for line items. This is the most direct dependency on the line-item format.\n2. **ReportingService**: depends on OrderService for order status.\n3. **SearchService**: depends on OrderService and reads order changes from it every minute to index orders for the storefront.\n4. **ApiGateway**: calls the **OrdersAPI**, which OrderService exposes.\n\n**Hop 2: services that depend on those**\n5. **RenewalsWorker**: depends on BillingService.\n\n**Notes**\n- ReportingService also depends on BillingService for invoice totals, so it would be affected a second way, through BillingService. It's still only counted once.\n- The docs say ApiGateway and SearchService share an on-call rotation. That's an organisational link, not a dependency, so it doesn't change the count.\n- OrderService stores line items with the order in the **orders Postgres database**, and they can't be changed once the order is placed. Orders that already exist will keep the old format unless they're migrated, so the services above may have to handle both formats.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "OrderService line-item format",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "depends on ReportingService or SearchService or ApiGateway or BillingService",
+    "k": 6
+   }
+  }
+ ],
+ "input_tokens": 15448,
+ "output_tokens": 840,
+ "cost_usd": 0.0514322
+}

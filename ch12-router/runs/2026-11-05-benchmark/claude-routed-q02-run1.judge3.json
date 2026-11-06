@@ -1,0 +1,1 @@
+{"included": [true, true], "extra": ["RETRY_ATTEMPTS configuration key", "notifications Redis instance", "dead-letter list", "message status polling"]}

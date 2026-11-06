@@ -1,0 +1,46 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph",
+ "id": 14,
+ "run": 2,
+ "answer": "Two services call the NotificationsAPI directly and would lose message delivery: **BillingService** and **PaymentsService**.\n\nHow the graph connects them:\n- **NotificationsAPI** is exposed by **NotificationsService**.\n- **NotificationsService** stores its data in **NotificationsRedisInstance** (a STORES relationship). That instance is the only dependency the graph lists for it.\n- Only two services call NotificationsAPI directly: **BillingService** and **PaymentsService**.\n\nSo if NotificationsRedisInstance is lost, NotificationsService can't store messages, and both direct callers stop getting their messages delivered.\n\nThe one configuration key on NotificationsService is **RETRY_ATTEMPTS**: three attempts with a 250ms backoff. That only helps with short blips. If the Redis instance is gone for good, the retries will just fail too.\n\nI limited the search to one hop, so this list covers direct callers only. Services that reach notifications through BillingService or PaymentsService could also be affected, but they aren't included here.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 18605,
+ "output_tokens": 820,
+ "cost_usd": 0.046827400000000005
+}

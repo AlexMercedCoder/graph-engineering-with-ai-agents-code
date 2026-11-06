@@ -1,0 +1,32 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 4,
+ "run": 1,
+ "answer": "AuditService stores its records in the **audit Iceberg table** (`AuditIcebergTable`).\n\n- **The relationship:** the dependency graph has a direct link, AuditService STORES AuditIcebergTable. The docs say the same thing (`audit-service#Data`): \"AuditService stores records in the audit Iceberg table.\"\n- **How the records are kept:** you can only add records, not change them, and they're kept for seven years.\n- **What a record holds** (`audit-service#Overview`): the caller, the dataset, the columns returned, and the policy decision that allowed or denied the access. AuditService writes one for every governed data access.\n\n**Related, but not where audit records are stored:**\n- AuditService depends on **UserService**, which stores users in the **users Postgres database** (`UsersPostgresDatabase`).\n- When a user is deleted, their row stays there with a deletion timestamp. That way, audit records that point to that user still resolve.\n\n**Configuration:** no configuration keys are recorded for AuditService, so nothing in the documented config sets where it stores records.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "AuditService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "AuditService stores audit records database"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  }
+ ],
+ "input_tokens": 14220,
+ "output_tokens": 597,
+ "cost_usd": 0.0394236
+}

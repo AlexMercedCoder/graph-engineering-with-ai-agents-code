@@ -1,0 +1,27 @@
+{
+ "claude": {
+  "median_tokens": 134897,
+  "median_requests": 5,
+  "paths": [
+   7
+  ],
+  "tools": [
+   "Skill",
+   "ToolSearch",
+   "mcp__project-graph__find_dependents"
+  ],
+  "runs": 3
+ },
+ "opencode": {
+  "median_tokens": 12276,
+  "median_requests": 4,
+  "paths": [
+   7
+  ],
+  "tools": [
+   "project-graph_find_dependents",
+   "skill"
+  ],
+  "runs": 3
+ }
+}

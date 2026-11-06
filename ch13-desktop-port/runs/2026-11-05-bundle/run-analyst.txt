@@ -1,0 +1,4 @@
+governed-data-local 1.0.0, Identity setting = analyst
+tools: navigate_catalog, generate_governed_sql, execute_query
+net_written_premium: net_written_premium / 1243284.2 / (1 row)
+commission_paid: Rejected: 1 problem.

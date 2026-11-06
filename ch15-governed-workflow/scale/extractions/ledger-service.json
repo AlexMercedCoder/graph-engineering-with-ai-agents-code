@@ -1,0 +1,51 @@
+{
+ "doc": "ledger-service.md",
+ "sha256": "d11ce0b690f0266f88bd415e7c584f1fe0b74160256bfe83a89747d359d584e4",
+ "model": "claude-sonnet-5-5",
+ "extracted_at": "2026-11-06T02:31:09+00:00",
+ "usage": {
+  "input_tokens": 3459,
+  "output_tokens": 403,
+  "cost_usd": 0.0153309
+ },
+ "raw": {
+  "entities": [
+   {
+    "name": "LedgerService",
+    "type": "Service"
+   },
+   {
+    "name": "PaymentsService",
+    "type": "Service"
+   },
+   {
+    "name": "PaymentsAPI",
+    "type": "APIEndpoint"
+   },
+   {
+    "name": "AUTH_HOLD_MINUTES",
+    "type": "Configuration"
+   }
+  ],
+  "relationships": [
+   {
+    "source": "LedgerService",
+    "type": "DEPENDS_ON",
+    "target": "PaymentsService",
+    "sentence": "It depends on PaymentsService for payment events and calls the PaymentsAPI directly to look up the status of an authorization it hasn't seen captured."
+   },
+   {
+    "source": "LedgerService",
+    "type": "CALLS",
+    "target": "PaymentsAPI",
+    "sentence": "It depends on PaymentsService for payment events and calls the PaymentsAPI directly to look up the status of an authorization it hasn't seen captured."
+   },
+   {
+    "source": "AUTH_HOLD_MINUTES",
+    "type": "CONFIGURES",
+    "target": "LedgerService",
+    "sentence": "It is configured by AUTH_HOLD_MINUTES, which it uses to decide when an uncaptured authorization has lapsed and its pending entry should be reversed."
+   }
+  ]
+ }
+}

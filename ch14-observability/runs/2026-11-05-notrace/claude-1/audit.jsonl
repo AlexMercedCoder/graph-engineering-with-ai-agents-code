@@ -1,0 +1,3 @@
+{"ts":"2026-11-06T02:04:48Z","session":"b8b9e603-ad9c-4d9b-b5eb-7355c50bdf3f","event":"PreToolUse","agent":"main","agent_id":null,"tool":"Skill","id":"toolu_01VMARBHQ7vt1kir7UbBPoa1","target":"blast-radius"}
+{"ts":"2026-11-06T02:04:49Z","session":"b8b9e603-ad9c-4d9b-b5eb-7355c50bdf3f","event":"PreToolUse","agent":"main","agent_id":null,"tool":"ToolSearch","id":"toolu_012XyDmaJeH3ThfPG7KMSiW7","target":null}
+{"ts":"2026-11-06T02:04:51Z","session":"b8b9e603-ad9c-4d9b-b5eb-7355c50bdf3f","event":"PreToolUse","agent":"main","agent_id":null,"tool":"mcp__project-graph__find_dependents","id":"toolu_01EX4YntruBo2JUbLqZTpMZY","target":null}

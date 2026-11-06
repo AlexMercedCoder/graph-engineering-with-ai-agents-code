@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a1ac95-b175-73b1-8e14-15b157d7b2a8"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll look up E4021 in the project knowledge source and return only its title."}}
+{"type":"item.started","item":{"id":"item_1","type":"mcp_tool_call","server":"project-knowledge","tool":"lookup_error_code","arguments":{"code":"E4021"},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"mcp_tool_call","server":"project-knowledge","tool":"lookup_error_code","arguments":{"code":"E4021"},"result":null,"error":{"message":"MCP tool call requires approval, but approval policy is never"},"status":"failed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"I couldn’t retrieve E4021’s title because the project-knowledge tool requires approval, and this session does not allow approvals."}}
+{"type":"turn.completed","usage":{"input_tokens":104887,"cached_input_tokens":95232,"cache_write_input_tokens":0,"output_tokens":310,"reasoning_output_tokens":86}}

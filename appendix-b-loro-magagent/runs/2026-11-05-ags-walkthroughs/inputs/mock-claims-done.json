@@ -1,0 +1,57 @@
+{
+ "scripts": [
+  {
+   "when": "If nothing fails",
+   "steps": [
+    {
+     "tool": "write_file",
+     "arguments": {
+      "path": ".agent-work/test-failures.md",
+      "content": "all passing\n"
+     }
+    },
+    {
+     "tool": "graph_emit_output",
+     "arguments": {
+      "name": "failures",
+      "value": ".agent-work/test-failures.md"
+     }
+    },
+    {
+     "content": "Recorded the baseline: all passing."
+    }
+   ]
+  },
+  {
+   "when": "Write a one-paragraph verdict",
+   "steps": [
+    {
+     "tool": "graph_emit_output",
+     "arguments": {
+      "name": "verdict",
+      "value": "none"
+     }
+    },
+    {
+     "content": "ok"
+    }
+   ]
+  }
+ ],
+ "default": [
+  {
+   "tool": "graph_emit_output",
+   "arguments": {
+    "name": "changed_files",
+    "value": [
+     "src/services/order-service.js",
+     "tests/order-service.test.js",
+     "src/api/routes.js"
+    ]
+   }
+  },
+  {
+   "content": "The order service now uses OrderRepository. Migration complete."
+  }
+ ]
+}

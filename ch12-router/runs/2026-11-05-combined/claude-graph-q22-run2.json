@@ -1,0 +1,33 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "route": "graph",
+ "id": 22,
+ "run": 2,
+ "answer": "I checked the graph: it can tell you who calls PaymentsAPI, but it has nothing that explains why declined payments aren't retried.\n\n**1. Services that call PaymentsAPI directly**\n\nTwo services have a direct `CALLS` link to **PaymentsAPI**:\n- **OrderService**\n- **RenewalsWorker**\n\nI searched one hop back from PaymentsAPI, so only direct callers are included.\n\n**2. Why PaymentsService never retries a declined payment**\n\nThe graph doesn't say. It only stores links between components (calls, dependencies, storage, configuration), not the reasons behind design choices. Here is everything it has on PaymentsService:\n\n- **Configuration keys:** `PAYMENT_API_KEY` and `CAPTURE_TIMEOUT`. Neither is a retry setting, and the graph doesn't describe what either does when a payment is declined.\n- **What it needs to run:**\n  - It calls **NotificationsAPI**, which **NotificationsService** provides. NotificationsService in turn stores data in **NotificationsRedisInstance**.\n  - It stores data in **PaymentsPostgresDatabase**.\n\nThere's no retry setting, no retry service and no link describing how declines are handled. I could guess at reasons (for example, avoiding duplicate charges or card-network rules on retrying declines), but the graph doesn't support any of them. For the real reason, check the PaymentsService code (how it handles the decline response from the payment provider), its design docs, or the team that owns it.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "PaymentsService"
+   }
+  }
+ ],
+ "input_tokens": 9051,
+ "output_tokens": 791,
+ "cost_usd": 0.042714600000000005
+}

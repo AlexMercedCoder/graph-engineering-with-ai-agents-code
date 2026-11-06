@@ -1,0 +1,7 @@
+project-graph on http://127.0.0.1:8815/mcp (depth cap 4, spans to http://127.0.0.1:8814)
+[11/05/26 12:08:38] INFO     StreamableHTTP       streamable_http_manager.py:151
+                             session manager                                    
+                             started                                            
+[11/05/26 12:08:50] INFO     StreamableHTTP       streamable_http_manager.py:155
+                             session manager                                    
+                             shutting down                                      

@@ -8,10 +8,12 @@
 #
 # A variant directory holds skills/ (installed into .claude/skills/) and, for a grouped
 # variant, skill-groups/ (installed into .claude/skill-groups/, where the harness doesn't
-# discover them). A flat variant may hold the skill folders directly. The route recorded is
-# the member procedure the agent read from .claude/skill-groups/, if any, otherwise the first
-# skill it loaded through the skill tool, otherwise none. Set OPENCODE_MODEL to pick
-# OpenCode's model and PROMPT_IDS to run only some prompts.
+# discover them). A flat variant may hold the skill folders directly. A variant's settings.json,
+# if present, becomes the project's .claude/settings.json (skills-names-only/ uses it for
+# skillOverrides). The route recorded is the member procedure the agent read from
+# .claude/skill-groups/, if any, otherwise the first skill it loaded through the skill tool,
+# otherwise none. Set OPENCODE_MODEL to pick OpenCode's model and PROMPT_IDS to run only some
+# prompts.
 set -euo pipefail
 harness=${1:?usage: run-variant.sh claude|opencode <variant-dir> <results-file>}
 variant=$(cd "${2:?variant dir}" && pwd)
@@ -36,6 +38,7 @@ while IFS=$'\t' read -r id prompt; do
   cp -r "$project" "$d"; rm -rf "$d/.agent-work"; mkdir -p "$d/.claude/skills"
   if [ -d "$variant/skills" ]; then cp -r "$variant"/skills/* "$d/.claude/skills/"; else cp -r "$variant"/* "$d/.claude/skills/"; fi
   [ -d "$variant/skill-groups" ] && cp -r "$variant/skill-groups" "$d/.claude/skill-groups"
+  [ -f "$variant/settings.json" ] && cp "$variant/settings.json" "$d/.claude/settings.json"
   (cd "$d" && git init -q && git add -A && git -c user.name=eval -c user.email=eval@example.com commit -qm baseline)
   log="$logs/$id.jsonl"
   case "$harness" in

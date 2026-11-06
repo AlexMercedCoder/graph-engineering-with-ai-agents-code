@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 24,
+ "run": 1,
+ "answer": "**Two services depend directly on BillingService:**\n- **RenewalsWorker** (RenewalsWorker \u2192 DEPENDS_ON \u2192 BillingService)\n- **ReportingService** (ReportingService \u2192 DEPENDS_ON \u2192 BillingService)\n\n**What happens when a renewal's authorization keeps failing** (from the RenewalsWorker Operations doc):\n1. The first authorization attempt fails.\n2. **RenewalsWorker** tries again on **day three** and again on **day seven**.\n3. If the third attempt also fails, the **subscription is suspended**. The customer is then emailed through the normal billing receipt flow.\n\nA related config key is **`AUTH_HOLD_MINUTES`**, which configures RenewalsWorker. It sets how long a renewal authorization is held before capture. It doesn't control the retry schedule.\n\n**How the suspension email gets sent:** The receipt flow belongs to **BillingService**, which calls the **NotificationsAPI** (served by **NotificationsService**) to send receipts. NotificationsService keeps queued messages in the **notifications Redis instance**. It makes three delivery attempts with a 250ms backoff, set by **`RETRY_ATTEMPTS`**. If all three fail, the message goes to the dead-letter list and the caller is not told. Anyone who needs to know the email arrived has to poll the message status.\n\nOne more point: the docs describe the receipt call as happening \"once a capture succeeds,\" so it's not fully clear how a suspension email after a *failed* authorization goes through that same flow. Check this if you depend on that email being sent.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "renewal authorization failure retry",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "billing receipt email flow",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 14994,
+ "output_tokens": 987,
+ "cost_usd": 0.05106
+}

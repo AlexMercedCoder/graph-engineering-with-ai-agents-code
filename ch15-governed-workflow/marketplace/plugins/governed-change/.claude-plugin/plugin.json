@@ -1,0 +1,9 @@
+{
+  "name": "governed-change",
+  "displayName": "Governed change",
+  "version": "1.0.0",
+  "description": "Change a deployed service configuration from evidence. Production changes wait for a reviewer, who sees an approval packet the gate builds from the evidence and the service graph.",
+  "author": { "name": "Platform team" },
+  "license": "Apache-2.0",
+  "keywords": ["governance", "approval", "configuration"]
+}

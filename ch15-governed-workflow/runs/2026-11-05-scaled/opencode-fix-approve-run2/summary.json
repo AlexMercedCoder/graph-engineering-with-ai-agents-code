@@ -1,0 +1,86 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "scenario": "fix-approve",
+ "run": 2,
+ "date": "2026-11-05",
+ "seconds": 78,
+ "requests": 10,
+ "input_tokens": 114136,
+ "largest_request": 13691,
+ "cost_usd": null,
+ "tool_calls": [
+  {
+   "tool": "skill",
+   "input": {
+    "name": "change-config"
+   }
+  },
+  {
+   "tool": "skill",
+   "input": {
+    "name": "retrieve-evidence"
+   }
+  },
+  {
+   "tool": "project-knowledge_route_question",
+   "input": {
+    "question": "Diagnose E4021 payment capture failures and fix production payments configuration: error meaning, payments config schema, and affected services for the relevant configuration key."
+   }
+  },
+  {
+   "tool": "project-knowledge_lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "tool": "project-knowledge_get_config_schema",
+   "input": {
+    "service": "payments"
+   }
+  },
+  {
+   "tool": "change-gate_read_config",
+   "input": {
+    "environment": "production",
+    "service": "payments"
+   }
+  },
+  {
+   "tool": "skill",
+   "input": {
+    "name": "act-on-evidence"
+   }
+  },
+  {
+   "tool": "project-knowledge_trace_configuration",
+   "input": {
+    "key_or_service": "AUTH_HOLD_MINUTES"
+   }
+  },
+  {
+   "tool": "project-knowledge_check_evidence",
+   "input": {
+    "documents": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means the authorization hold expired before capture; handling requires re-authorization then capture, and capture alone is not retryable.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Payments AUTH_HOLD_MINUTES defaults to 60 and must exceed CAPTURE_DELAY_MINUTES to prevent authorization holds lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Production payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('production', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:16Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"AUTH_HOLD_MINUTES also configures LedgerService authorization lapse reversal timing and RenewalsWorker renewal authorization hold duration.\",\"source\":{\"path\":\"graph\",\"identifier\":\"trace_configuration('AUTH_HOLD_MINUTES')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":72,\"freshness\":\"2026-11-06T02:31Z\",\"caveats\":[]}]"
+   }
+  },
+  {
+   "tool": "change-gate_propose_change",
+   "input": {
+    "environment": "production",
+    "service": "payments",
+    "key": "AUTH_HOLD_MINUTES",
+    "value": "60",
+    "reason": "Production authorization holds expire after 10 minutes before the 15-minute capture delay; restore the documented 60-minute default so holds exceed the capture delay.",
+    "evidence": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means the authorization hold expired before capture; handling requires re-authorization then capture, and capture alone is not retryable.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Payments AUTH_HOLD_MINUTES defaults to 60 and must exceed CAPTURE_DELAY_MINUTES to prevent authorization holds lapsing before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Production payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('production', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:16Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"AUTH_HOLD_MINUTES also configures LedgerService authorization lapse reversal timing and RenewalsWorker renewal authorization hold duration.\",\"source\":{\"path\":\"graph\",\"identifier\":\"trace_configuration('AUTH_HOLD_MINUTES')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":72,\"freshness\":\"2026-11-06T02:31Z\",\"caveats\":[]}]"
+   }
+  },
+  {
+   "tool": "apply_patch",
+   "input": {
+    "patchText": "*** Begin Patch\n*** Add File: report.md\n+# Production payments configuration fix\n+\n+- Environment: production\n+- Service: payments\n+- Applied change: `AUTH_HOLD_MINUTES` from `10` to `60`.\n+- Gate outcome: approved by `test-reviewer` and applied.\n+- Request ID: `apr_1a6cf1693e20`.\n+- Reviewer reason: no separate reason was returned.\n+\n+## Diagnosis and impact\n+\n+Production had a 10-minute authorization hold and a 15-minute capture delay (`read_config('production', 'payments')`). E4021 indicates that authorization expired before capture (`lookup_error_code('E4021')`). The documented rule requires the hold to exceed the capture delay; 60 minutes is the documented default (`get_config_schema('payments')`). The key also configures LedgerService lapse reversal timing and RenewalsWorker authorization hold duration (`trace_configuration('AUTH_HOLD_MINUTES')`).\n+\n+Existing expired authorizations require re-authorization followed by capture; retrying capture alone is not supported (`lookup_error_code('E4021')`). The gate confirmed the configuration was applied; payment capture recovery has not been verified.\n+\n+## Evidence documents\n+\n+```json\n+[\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"E4021 means the authorization hold expired before capture; handling requires re-authorization then capture, and capture alone is not retryable.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"lookup_error_code('E4021')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 43,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"Payments AUTH_HOLD_MINUTES defaults to 60 and must exceed CAPTURE_DELAY_MINUTES to prevent authorization holds lapsing before capture.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"get_config_schema('payments')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 261,\n+    \"freshness\": \"2026-11-04T02:09Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"Production payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15.\",\n+    \"source\": {\"path\": \"tool\", \"identifier\": \"read_config('production', 'payments')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 64,\n+    \"freshness\": \"2026-11-06T03:16Z\",\n+    \"caveats\": []\n+  },\n+  {\n+    \"schema_version\": 1,\n+    \"status\": \"found\",\n+    \"claim\": \"AUTH_HOLD_MINUTES also configures LedgerService authorization lapse reversal timing and RenewalsWorker renewal authorization hold duration.\",\n+    \"source\": {\"path\": \"graph\", \"identifier\": \"trace_configuration('AUTH_HOLD_MINUTES')\"},\n+    \"confidence\": \"high\",\n+    \"coverage\": \"complete\",\n+    \"cost_tokens\": 72,\n+    \"freshness\": \"2026-11-06T02:31Z\",\n+    \"caveats\": []\n+  }\n+]\n+```\n*** End Patch"
+   }
+  }
+ ]
+}

@@ -1,0 +1,41 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 21,
+ "run": 2,
+ "answer": "**Services affected:** **BillingService** and **PaymentsService** are the only services that call **NotificationsAPI** directly. Neither has another way to get messages delivered.\n\n**Why losing Redis stops their messages:** NotificationsAPI is the API of **NotificationsService**. NotificationsService keeps its queued messages in the **notifications Redis instance** (NotificationsRedisInstance). A message stays in that queue until a provider accepts it or its retries run out. If the Redis instance is lost:\n- Messages still in the queue are lost.\n- New messages from BillingService and PaymentsService have nowhere to wait for delivery.\n\n**What happens after all retries fail:**\n- NotificationsService tries a message three times with a 250ms backoff. The **`RETRY_ATTEMPTS`** configuration key sets this, and it applies only to NotificationsService.\n- If all three attempts fail, the message moves to the **dead-letter list**.\n- **The caller is not told.** BillingService or PaymentsService only learns about the failure if it polls the message's status.\n\n**One thing the docs don't settle:** they don't say where the dead-letter list is stored. If it's in the same Redis instance, losing Redis would probably also wipe out dead-lettered messages and their statuses. A caller polling for status would then find nothing. That's my inference, not something the docs state.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "notifications Redis queue retries failed message dead letter",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  }
+ ],
+ "input_tokens": 15001,
+ "output_tokens": 885,
+ "cost_usd": 0.049060400000000004
+}

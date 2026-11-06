@@ -1,0 +1,27 @@
+{
+  "find_architecture_docs": {
+    "params": {
+      "max_sections": "integer",
+      "topic": "string"
+    },
+    "required": [
+      "topic"
+    ]
+  },
+  "get_config_schema": {
+    "params": {
+      "service": "string"
+    },
+    "required": [
+      "service"
+    ]
+  },
+  "lookup_error_code": {
+    "params": {
+      "code": "string"
+    },
+    "required": [
+      "code"
+    ]
+  }
+}

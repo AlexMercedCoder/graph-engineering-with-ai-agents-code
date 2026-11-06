@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph",
+ "id": 17,
+ "run": 2,
+ "answer": "**Five services are affected within two hops of `OrderService`:**\n\n| Hop | Affected service | Relationship |\n|---|---|---|\n| 1 | `BillingService` | Depends on `OrderService` |\n| 1 | `ReportingService` | Depends on `OrderService` |\n| 1 | `SearchService` | Depends on `OrderService` |\n| 1 | `ApiGateway` | Calls `OrdersAPI`, exposed by `OrderService` |\n| 2 | `RenewalsWorker` | Depends on `BillingService`, which depends on `OrderService` |\n\n`OrderService` and its exposed `OrdersAPI` count as one place for hop counting. No databases or configuration keys appear in these dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2657,
+ "output_tokens": 185,
+ "cost_usd": null
+}

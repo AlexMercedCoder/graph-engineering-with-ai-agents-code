@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "vector",
+ "id": 2,
+ "run": 1,
+ "answer": "**NotificationsAPI**, exposed by **NotificationsService**, uses these retry semantics:\n\n- **Three delivery attempts** with a **250 ms backoff**, configured by **`RETRY_ATTEMPTS`**.\n- Messages remain queued in the **notifications Redis instance** until a provider accepts them or retries are exhausted.\n- After all three attempts fail, the message moves to the **dead-letter list**. **The caller is not notified**; callers that need confirmation must poll the message status.\n\nSource: `notifications-service` \u2014 \u201cOverview,\u201d \u201cDelivery and retries,\u201d and \u201cData.\u201d",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 2336,
+ "output_tokens": 147,
+ "cost_usd": null
+}

@@ -1,0 +1,27 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 5,
+ "run": 2,
+ "answer": "**`CAPTURE_TIMEOUT`** sets the capture timeout for **PaymentsService**. It's in seconds and **defaults to 30**.\n\n- **Source:** the PaymentsService Configuration section of the docs says: \"It is configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT. CAPTURE_TIMEOUT is in seconds and defaults to 30.\" The configuration trace shows the same two keys for PaymentsService.\n- **Other PaymentsService key:** **`PAYMENT_API_KEY`** is the only other key that configures PaymentsService. It has nothing to do with the timeout.\n\nTwo similar-sounding settings are separate from this one:\n- **`AUTH_HOLD_MINUTES`** configures **RenewalsWorker**, not PaymentsService. It controls how long a renewal authorization is held before capture.\n- **OrderService** has its own timeout handling when it calls the **PaymentsAPI** to authorize. If authorization times out, it retries once after two seconds. If it times out again, it cancels the checkout and releases the reserved stock. The docs describe this as OrderService behaviour, not as a configuration key.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "PaymentsService capture timeout configuration default",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 9455,
+ "output_tokens": 605,
+ "cost_usd": 0.0392314
+}

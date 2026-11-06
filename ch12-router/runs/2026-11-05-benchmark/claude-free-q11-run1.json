@@ -1,0 +1,41 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 11,
+ "run": 1,
+ "answer": "Five services are affected within two hops.\n\n**What changes:** NotificationsAPI is exposed by **NotificationsService**. Its retry behaviour is three attempts with a 250ms backoff, set by the config key **`RETRY_ATTEMPTS`**. If all three attempts fail, the message goes to the dead-letter list and the caller isn't told. Queued messages are held in the **notifications Redis** instance until a provider accepts them or the retries run out.\n\n**Hop 1: services that call NotificationsAPI directly**\n1. **BillingService** calls it to send receipts after a capture succeeds.\n2. **PaymentsService** calls it when an authorization is declined.\n\n**Hop 2: services that depend on those, or call their APIs**\n3. **RenewalsWorker** depends on BillingService.\n4. **ReportingService** depends on BillingService.\n5. **OrderService** calls the **PaymentsAPI**, which PaymentsService exposes.\n\n**Left out on purpose:**\n- **SearchService** depends on OrderService, which makes it three hops away, outside the two-hop limit.\n- BillingService also depends on OrderService. That edge points the other way (from BillingService to OrderService), so it doesn't put anything else in range.\n- **ApiGateway** doesn't retry failed upstream requests and doesn't call NotificationsAPI, so it isn't affected.\n\nCallers aren't told when a message is dead-lettered; to confirm delivery they have to poll the message status. So BillingService and PaymentsService are the most likely to need code changes if the attempt count, backoff or dead-letter handling changes. Since the same team maintains both, one team owns most of that work.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "calls the NotificationsAPI to send email SMS push",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 16052,
+ "output_tokens": 1044,
+ "cost_usd": 0.059025999999999995
+}

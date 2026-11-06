@@ -1,0 +1,37 @@
+{
+ "run": "claude-bad-description-2",
+ "harness": "claude",
+ "condition": "bad-description",
+ "role": "sre",
+ "verdict": "execution graph",
+ "stop": "completed",
+ "answer_correct": true,
+ "route": {
+  "skill_loaded": false,
+  "find_dependents_called": true,
+  "tools": [
+   "ToolSearch",
+   "mcp__project-graph__find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": false
+ },
+ "answer": {
+  "named": 7,
+  "missing": [],
+  "extra": [],
+  "from": "mentions in prose"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 397,
+  "cache_read": 93796,
+  "cache_write": 8395,
+  "output": 712,
+  "requests": 4
+ }
+}

@@ -1,0 +1,16 @@
+routing accuracy: 36/42
+unmatched by rules: 9/42
+mis-routes that only cost more: 3
+mis-routes to a path that can't answer: 3
+  wrong path  "Which keys does the gateway's config file accept, and which are requir"
+              expected tool, got vector (default)
+   cost only  'Who gets hurt if we take the users service offline for maintenance?'
+              expected graph, got vector (default)
+   cost only  'Would anything else notice if the search index were rebuilt from scrat'
+              expected graph, got vector (default)
+   cost only  'Does the gateway talk to the payments service, directly or through som'
+              expected graph, got vector (default)
+  wrong path  'How much did agents earn from us in the third quarter?'
+              expected semantic, got vector (default)
+  wrong path  'Did we sell more policies in March 2026 than in February 2026?'
+              expected semantic, got vector (default)

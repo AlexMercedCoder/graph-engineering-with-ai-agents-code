@@ -1,0 +1,57 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "route": "graph",
+ "id": 21,
+ "run": 2,
+ "answer": "I can answer the first part from the graph. I can't answer the second part, because the graph has no record of what happens after the last retry fails.\n\n**Who loses delivery if the Redis instance goes down**\n\n- **NotificationsService** stores its data in **NotificationsRedisInstance**. That is its only recorded dependency.\n- Two services call **NotificationsAPI** directly:\n  - **BillingService**\n  - **PaymentsService**\n- If NotificationsRedisInstance is lost, NotificationsService can't do its job, so neither service can get its messages delivered. The graph tool counts a service and the API it exposes as the same place. That's how NotificationsAPI connects to NotificationsService. The graph doesn't show the API-to-service link as a separate, explicit edge.\n\n**What happens when every retry fails**\n\n- The configuration key **RETRY_ATTEMPTS** sets NotificationsService's retry behaviour: three attempts with a 250ms backoff.\n- Nothing in the graph says what happens after the third failure. There is no dead-letter queue, fallback store, alert or caller notification recorded. The message might be dropped, the error might go back to BillingService or PaymentsService, or something else might happen; I can't tell which. Also, if Redis is gone, retrying only adds about 750ms before the same failure happens again.\n\nTo answer the second part, check NotificationsService's code or runbook for how it handles a message after the last retry.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsRedisInstance"
+   }
+  }
+ ],
+ "input_tokens": 19308,
+ "output_tokens": 1081,
+ "cost_usd": 0.054871199999999995
+}

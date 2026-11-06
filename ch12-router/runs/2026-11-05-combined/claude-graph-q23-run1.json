@@ -1,0 +1,94 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "route": "graph",
+ "id": 23,
+ "run": 1,
+ "answer": "I can answer the first part from the graph. The second part isn't recorded anywhere I can reach.\n\n**1. Services that depend directly on UserService**\n- **ApiGateway**: depends on UserService, and also calls **UsersAPI**.\n- **AuditService**: depends on UserService.\n- **OrderService**: depends on UserService.\n\nRelated facts that came up:\n- UserService stores its data in **UsersPostgresDatabase**.\n- UserService's only recorded configuration key is **ORDER_DB_URL**, which points to its read replica. The name is misleading: it was kept because three deployment scripts read it.\n\n**2. How long a revoked session token can still be accepted**\nThe graph doesn't record this. Here's what I checked:\n- UserService, ApiGateway, AuditService and OrderService have no session or token settings. ApiGateway, AuditService and OrderService have no configuration keys at all.\n- `SESSION_CACHE_TTL`, `SESSION_TTL` and `TOKEN_CACHE_TTL` don't exist in the graph.\n- The other keys in the graph cover different things: `CAPTURE_TIMEOUT` and `PAYMENT_API_KEY` (PaymentsService), and `RETRY_ATTEMPTS` (NotificationsService, 3 attempts with a 250ms backoff).\n\nNothing in the graph describes a session cache, how tokens are checked, or how a revocation reaches other services. The most likely place for that behaviour is ApiGateway or UserService. To get the actual time limit, you'd need to look at their code, deployment config or design docs.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "OrderService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "SESSION_CACHE_TTL"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "SESSION_TTL"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "TOKEN_CACHE_TTL"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UsersAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "CAPTURE_TIMEOUT"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  }
+ ],
+ "input_tokens": 32695,
+ "output_tokens": 1693,
+ "cost_usd": 0.0810592
+}

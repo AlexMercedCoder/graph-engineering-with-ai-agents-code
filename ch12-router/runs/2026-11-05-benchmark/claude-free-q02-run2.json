@@ -1,0 +1,33 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 2,
+ "run": 2,
+ "answer": "The NotificationsAPI tries each message **three times with a 250ms backoff** between attempts. If all three fail, the message goes to a dead-letter list and **the caller is not told**.\n\n**Details**\n- **Service:** The NotificationsAPI belongs to **NotificationsService**. Other services send their email, SMS and push messages through this API rather than calling providers directly.\n- **Configuration:** The number of attempts is set by **`RETRY_ATTEMPTS`**. The configuration trace shows this key configures only NotificationsService, so changing it won't affect any other service. The docs give the 250ms backoff as a fixed value and don't name a key for it.\n- **Storage:** Queued messages are kept in the **notifications Redis instance**. A message stays there until a provider accepts it or it runs out of retries, and then it moves to the dead-letter list.\n- **Failures are silent:** Callers aren't notified when delivery fails for good. A caller that needs confirmation has to poll the message's status.\n\n**What this means for callers**\n- **PaymentsService** calls the NotificationsAPI when an authorization is declined. Because of the silent dead-lettering, a customer might never get the decline notice, and PaymentsService won't know unless it polls the message status.\n- **ApiGateway** doesn't retry failed upstream requests. It passes 5xx errors to the client unchanged and leaves retrying to the client library. So the only automatic retrying on this path is the three attempts inside NotificationsService.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "NotificationsAPI retry semantics",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "NotificationsAPI"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  }
+ ],
+ "input_tokens": 14682,
+ "output_tokens": 755,
+ "cost_usd": 0.044376399999999996
+}

@@ -1,0 +1,12 @@
+{
+  "name": "platform-workflows",
+  "owner": { "name": "Platform team" },
+  "description": "Governed agent workflows the platform team distributes to engineers.",
+  "plugins": [
+    {
+      "name": "governed-change",
+      "source": "./plugins/governed-change",
+      "description": "Change a deployed service configuration from evidence, with production changes held for a human reviewer."
+    }
+  ]
+}

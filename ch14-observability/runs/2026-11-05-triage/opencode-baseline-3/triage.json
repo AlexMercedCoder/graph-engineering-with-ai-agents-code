@@ -1,0 +1,37 @@
+{
+ "run": "opencode-baseline-3",
+ "harness": "opencode",
+ "condition": "baseline",
+ "role": "sre",
+ "verdict": "pass",
+ "stop": "completed",
+ "answer_correct": true,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "skill",
+   "project-graph_find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": true
+ },
+ "answer": {
+  "named": 7,
+  "missing": [],
+  "extra": [],
+  "from": "Affected services line"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 4852,
+  "cache_read": 7424,
+  "cache_write": 0,
+  "output": 243,
+  "requests": 4
+ }
+}

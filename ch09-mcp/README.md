@@ -14,7 +14,9 @@ scopes, and data scoping.
 | `knowledge/` | The constructed knowledge base: 51 error codes, 41 configuration keys across eight services, twelve architecture notes (two restricted). `render_docs.py OUT_DIR` writes it as Markdown files |
 | `skills/diagnose-staging-error/SKILL.md` | The teaching skill paired with the server |
 | `exercise/config/` | Staging and production settings for the payments service; copy into `sample-project/` |
-| `tools/trace-stdio.py` | Logs every message between a harness and a stdio server |
+| `tools/trace-stdio.py` | Logs every message between a harness and a stdio server; the log holds every result, so keep it outside the repository |
+| `tools/time-calls.py` | Times the stdio server's startup and each tool call, with a `grep` for comparison |
+| `tools/check-interface.py`, `tools/interface.json` | Fails when a tool or parameter is renamed or removed, or a type changes; `--update` records an intended change |
 | `tools/make-test-tokens.py` | Writes four random local test tokens, valid for eight hours, to `config/test-tokens.json` and `config/test-tokens.env` (both gitignored) |
 | `tools/check-gates.py` | The four gate tests against a running HTTP server |
 | `runs/` | The chapter's runs, sanitized, each with a README table |
@@ -22,7 +24,7 @@ scopes, and data scoping.
 ## Setup
 
 ```bash
-pip install "mcp>=2,<3"      # tested with 2.0.0
+pip install "mcp>=2.2,<3"    # tested with 2.0.0 and 2.3.0
 ```
 
 `cli.py` needs only the standard library.

@@ -1,0 +1,33 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 10,
+ "run": 1,
+ "answer": "UserService gets its read replica from the configuration key **`ORDER_DB_URL`**.\n\n- **The name is misleading.** It says \"ORDER\", but the key belongs to UserService, not an order service. The docs say it's \"a historical name kept because three deployment scripts read it.\" Renaming it would break those scripts unless they're changed at the same time.\n- **Only UserService uses it.** Looking up the key returns UserService and nothing else, so changing its value affects only UserService.\n- **What it points at.** The docs say UserService keeps users in the **users Postgres database**, so the replica is presumably a copy of that database. The docs don't actually say this, though.\n- **Other context.** UserService exposes the **UsersAPI** and checks the session tokens that the API gateway (**ApiGateway**) forwards.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "UserService read replica configuration",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "ORDER_DB_URL"
+   }
+  }
+ ],
+ "input_tokens": 14468,
+ "output_tokens": 516,
+ "cost_usd": 0.038797
+}

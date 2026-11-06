@@ -1,0 +1,37 @@
+{
+ "run": "opencode-contractor-2",
+ "harness": "opencode",
+ "condition": "baseline",
+ "role": "contractor",
+ "verdict": "execution graph",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": false,
+  "find_dependents_called": false,
+  "tools": [
+   "project-graph_trace_configuration",
+   "read"
+  ]
+ },
+ "evidence": {
+  "paths": null,
+  "coverage": null,
+  "depth": null,
+  "joined": false
+ },
+ "answer": {
+  "named": 0,
+  "missing": [],
+  "extra": [],
+  "from": "mentions in prose"
+ },
+ "traversals": 0,
+ "tokens": {
+  "input": 5667,
+  "cache_read": 6144,
+  "cache_write": 0,
+  "output": 128,
+  "requests": 4
+ }
+}

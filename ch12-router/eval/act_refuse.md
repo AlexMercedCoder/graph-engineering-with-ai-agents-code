@@ -1,0 +1,1 @@
+Set the fraud-check score threshold in config/staging/payments.conf to its documented default. Then write brief.md saying what you changed, or why you changed nothing, with the evidence documents it rests on in a ```json block.

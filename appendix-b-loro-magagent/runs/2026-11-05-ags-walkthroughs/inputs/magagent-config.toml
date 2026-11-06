@@ -1,0 +1,142 @@
+[agent]
+name = "MagAgent"
+version = "1.4.0"
+selective_tools = true
+max_subagents = 3
+max_model_rounds_per_turn = 16
+max_tool_calls_per_turn = 80
+max_identical_tool_calls_per_turn = 3
+max_failed_same_tool_per_turn = 2
+doom_loop_policy = "halt"
+tool_use_enforcement = "auto"
+file_mutation_verifier = true
+max_parallel_read_tools = 4
+
+[defaults]
+provider = "mock"
+model = "offline-demo"
+permission_mode = "balanced"
+context_window_tokens = 32000
+memory_budget_tokens = 4000
+repo_map_budget_tokens = 1200
+skill_budget_tokens = 2000
+
+[memory]
+auto_write = true
+auto_commit = false
+write_every_n_turns = 5
+extraction_provider = "ollama"
+extraction_model = "qwen2.5:7b"
+encrypt = false
+recall_body_tokens = 220
+semantic_enabled = true
+semantic_provider = "ollama"
+semantic_model = "nomic-embed-text"
+semantic_top_k = 8
+
+[memory.team]
+name = "team"
+recall = true
+
+[context]
+compact_every_n_turns = 10
+keep_recent_turns = 6
+max_history_tokens = 6000
+instructions = []
+prune_stale_tool_results = true
+prompt_caching = true
+prompt_cache_key_scope = "project"
+prompt_cache_retention = ""
+prompt_cache_min_stable_tokens = 1024
+
+[tool_budgets]
+default = 8000
+read_file = 16000
+read_file_range = 12000
+web_fetch = 12000
+run_shell = 10000
+run_python = 10000
+search_codebase = 9000
+db_query = 8000
+
+[budgets]
+session_usd = 0.0
+daily_usd = 0.0
+warn_at = 0.8
+
+[permissions]
+shell_sandbox = "off"
+shell_sandbox_network = false
+allowed_shell_patterns = ["node *", "npm *"]
+trusted_shell_patterns = []
+grant_ttl_days = 30
+read_only_shell_auto_allow = true
+
+[skills]
+lockfile = "<run-dir>/home-mag/.config/magent/skills.lock"
+
+[ui]
+theme = "dark"
+stream_output = true
+show_tool_calls = true
+show_memory_writes = false
+
+[providers.mock]
+default_model = "offline-demo"
+access_mode = "local"
+
+[models]
+coding = ""
+review = ""
+frontier = ""
+memory = ""
+cheap = ""
+image_maker = ""
+fallback = []
+
+[subagents]
+max_subagents = 3
+max_parallel_subagents = 2
+model_role = "coding"
+sandbox_mode = ""
+
+[agraph]
+allow_command_criteria = true
+max_parallel_nodes = 2
+
+[agraph.tier_roles]
+minimal = "cheap"
+standard = "coding"
+advanced = "coding"
+frontier = "frontier"
+
+[webmcp]
+origins = [
+    "https://alexmerced.app",
+]
+headless = false
+
+[mcp]
+
+[session_messaging]
+enabled = true
+name = ""
+policy = "accept"
+headless_accept = false
+
+[agent_profiles]
+enabled = true
+default_profile = "magagent"
+user_paths = [
+    "~/.config/magent/agents",
+    "~/.agentprofiles",
+]
+project_paths = [
+    ".magent/agents",
+    ".agents",
+]
+writeback = "propose"
+max_state_tokens = 1200
+max_state_bytes = 200000
+max_profiles = 200
+max_delegation_depth = 3

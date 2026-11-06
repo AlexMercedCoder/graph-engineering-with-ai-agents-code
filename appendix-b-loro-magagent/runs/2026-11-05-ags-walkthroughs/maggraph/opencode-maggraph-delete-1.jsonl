@@ -1,0 +1,6 @@
+{"type": "tool", "tool": "maggraph_get_node", "input": {"node_id": "orders-db"}, "output": "---\nid: orders-db\ntype: database\n---\n# Orders database\n"}
+{"type": "step-finish", "tokens": {"total": 10676, "input": 10654, "output": 22, "reasoning": 0, "cache": {"write": 0, "read": 0}}, "cost": 0}
+{"type": "tool", "tool": "read", "input": {"filePath": "<run-dir>/mg"}, "output": "<path><run-dir>/mg</path>\n<type>directory</type>\n<entries>\nagent/\nknowledge_graph/\nmaggraph.toml\nmcp.json\nopencode.json\n\n(5 entries)\n</entries>"}
+{"type": "step-finish", "tokens": {"total": 10781, "input": 208, "output": 77, "reasoning": 0, "cache": {"write": 0, "read": 10496}}, "cost": 0}
+{"type": "text", "text": "The `orders-db` node exists, but the available MagGraph tools are read-only and don\u2019t support deletion. I haven\u2019t changed the graph."}
+{"type": "step-finish", "tokens": {"total": 10982, "input": 267, "output": 36, "reasoning": 55, "cache": {"write": 0, "read": 10624}}, "cost": 0}

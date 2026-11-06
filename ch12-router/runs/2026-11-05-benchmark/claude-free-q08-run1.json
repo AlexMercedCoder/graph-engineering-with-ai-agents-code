@@ -1,0 +1,46 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 8,
+ "run": 1,
+ "answer": "ApiGateway uses **UserService** to validate tokens.\n\n- **Relationship:** In the dependency graph, ApiGateway has a DEPENDS_ON link to UserService. The ApiGateway docs (Integrations) say it relies on the user service for token validation, so a request with an expired token is rejected at the gateway before any service sees it.\n- **What UserService does:** It validates the session tokens the gateway forwards. It also exposes the **UsersAPI**, which ApiGateway calls separately for user operations, not for token checks.\n- **Caching:** UserService caches each validation result for 60 seconds. A token revoked during that window keeps being accepted until its cache entry expires.\n- **Storage:** UserService keeps its data in **UsersPostgresDatabase** (the users Postgres database). The docs don't say whether token validation reads from it directly.\n- **Configuration:** No configuration key controls token validation. ApiGateway has no CONFIGURES links in the graph, and its only documented key, `GATEWAY_RATE_LIMITS`, sets rate limits. The only key linked to UserService is `ORDER_DB_URL`, which configures its read replica despite the name.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "ApiGateway token validation",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "UserService token validation users database",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 15957,
+ "output_tokens": 783,
+ "cost_usd": 0.051868199999999996
+}

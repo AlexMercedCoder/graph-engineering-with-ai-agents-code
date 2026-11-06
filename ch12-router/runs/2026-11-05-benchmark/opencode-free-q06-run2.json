@@ -1,0 +1,41 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 6,
+ "run": 2,
+ "answer": "**AuditService depends on UserService for identity resolution.** Audit records carry the resolved user rather than the raw token. [audit-service#Integrations]\n\nThe relevant dependency chain is:\n\n- **AuditService \u2192 UserService**: UserService owns users, validates session tokens forwarded by the gateway, and exposes **UsersAPI**. The documentation confirms the service dependency but does not explicitly say AuditService calls UsersAPI. [user-service#Overview]\n- **UserService \u2192 UsersPostgresDatabase**: User data is stored in this Postgres database. Deleted users retain their rows with a deletion timestamp so audit records can still resolve them. [user-service#Data]\n- **`ORDER_DB_URL`** configures UserService\u2019s read replica. Despite its name, it is a UserService configuration key; the historical name is retained because three deployment scripts use it. [user-service#Configuration]",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 4
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "AuditService identity resolution",
+    "k": 5
+   }
+  },
+  {
+   "tool": "knowledge_trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "UserService UsersAPI UsersPostgresDatabase identity resolution read replica",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 4875,
+ "output_tokens": 318,
+ "cost_usd": null
+}

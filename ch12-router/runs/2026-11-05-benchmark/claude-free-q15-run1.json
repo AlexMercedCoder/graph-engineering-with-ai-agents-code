@@ -1,0 +1,56 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 15,
+ "run": 1,
+ "answer": "Six services would be affected within two hops of UserService going down: three directly and three through OrderService.\n\n**Hop 1: services that depend on UserService or call its UsersAPI**\n1. **ApiGateway**: it calls the **UsersAPI** and relies on UserService to validate session tokens. If UserService is down, the gateway can't authenticate requests, so they fail at the edge.\n2. **OrderService**: it depends on UserService to look up the customer placing an order.\n3. **AuditService**: it depends on UserService to identify users, because each audit record stores the resolved user rather than the raw token.\n\n**Hop 2: services that depend on a hop-1 service or call its API**\n4. **BillingService**: it depends on OrderService for order line items.\n5. **ReportingService**: it depends on OrderService.\n6. **SearchService**: it depends on OrderService and reads order changes from it every minute.\n\nNothing depends on AuditService or ApiGateway. ApiGateway also calls OrderService's **OrdersAPI**, but it's already counted in hop 1.\n\n**Just outside the two-hop limit:** **RenewalsWorker** depends on BillingService, which puts it three hops away. It calls the **PaymentsAPI** directly, but that doesn't make it independent of UserService, because it still goes through BillingService.\n\n**Related data store, not counted:** UserService keeps users in the **users Postgres database**. That database is something UserService needs, not something that depends on it, so it doesn't count toward the six.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "UserService API callers depend on UserService",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "UsersAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "calls the UsersAPI or OrdersAPI",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "AuditService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "ApiGateway",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 16261,
+ "output_tokens": 1166,
+ "cost_usd": 0.0635436
+}

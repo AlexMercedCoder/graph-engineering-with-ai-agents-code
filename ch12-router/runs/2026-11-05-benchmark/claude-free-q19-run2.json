@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 19,
+ "run": 2,
+ "answer": "**Answer: two services call PaymentsService's API directly: OrderService and RenewalsWorker.** Both stop being able to take payments if PaymentsService goes down.\n\nPaymentsService exposes the **PaymentsAPI**. It wraps the external payment provider so that no other service holds provider credentials. That means no caller has another way to charge a customer.\n\n1. **OrderService** calls the PaymentsAPI to authorize and capture checkout payments. If an authorization times out, OrderService retries once after two seconds. A second timeout cancels the checkout and releases the reserved stock. So during the outage, checkouts fail and are cancelled.\n2. **RenewalsWorker** calls the PaymentsAPI directly rather than going through OrderService, because a renewal has no cart. Subscription renewals can't be charged during the outage. (RenewalsWorker also depends on BillingService.)\n\n**Related services that don't count, because they don't call the PaymentsAPI directly:**\n- **ReportingService** depends on OrderService and BillingService. Its PaymentsService decline-rate dashboards are filled in by hand from the provider portal, not through the API. If OrderService is failing, ReportingService may be affected indirectly, but it doesn't take payments.\n- **BillingService** is maintained by the same team as PaymentsService, but the docs show no direct call from it to the PaymentsAPI.\n- **NotificationsAPI** is called *by* PaymentsService to tell customers about declines. During the outage those decline notifications also stop.\n\n**Configuration keys:** PaymentsService is configured by **PAYMENT_API_KEY** and **CAPTURE_TIMEOUT** (in seconds, default 30). Check these if the outage turns out to be a credential or timeout problem.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "PaymentsService API callers payments",
+    "k": 6
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "calls PaymentsAPI directly charge refund",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 15508,
+ "output_tokens": 891,
+ "cost_usd": 0.052877600000000004
+}

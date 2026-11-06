@@ -1,0 +1,20 @@
+{
+  "path": "<run-dir>/migrate-order-service.agraph.yaml",
+  "ok": false,
+  "findings": [],
+  "digest": "sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=",
+  "policy_findings": [
+    {
+      "code": "LP006",
+      "message": "command criteria are disabled by graph policy; an administrator can enable them with [agraph] allow_command_criteria = true",
+      "pointer": "/nodes/migrate_module/success/criteria",
+      "severity": "error"
+    },
+    {
+      "code": "LP006",
+      "message": "command criteria are disabled by graph policy; an administrator can enable them with [agraph] allow_command_criteria = true",
+      "pointer": "/nodes/verify/success/criteria",
+      "severity": "error"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+# expect  path, matched by whole path segment after the project root is stripped.
+# <project> stands for a project folder at /work/terraform/app.
+block      migrations/0001_add_last_login.sql
+block      /home/dev/project/migrations/0001.sql
+block      db/migrations/0002.sql
+block      .env
+block      config/.env
+block      .env.local
+block      package-lock.json
+block      terraform/main.tf
+allow      old-migrations/0001.sql
+allow      .envrc
+allow      config/app.environment.js
+allow      docs/migrations.md
+allow      package.json
+allow      src/services/order-service.js
+overblock  .env.example
+block      <project>/terraform/main.tf
+allow      <project>/src/services/order-service.js
+allow      <project>/.envrc

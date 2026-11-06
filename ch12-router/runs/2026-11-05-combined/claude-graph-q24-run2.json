@@ -1,0 +1,57 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "route": "graph",
+ "id": 24,
+ "run": 2,
+ "answer": "Two services depend directly on BillingService. The graph doesn't say what happens when a renewal's authorization keeps failing.\n\n**Direct dependents of BillingService**\n- **RenewalsWorker**: RenewalsWorker DEPENDS_ON BillingService\n- **ReportingService**: ReportingService DEPENDS_ON BillingService\n\nNothing else depends on BillingService directly.\n\n**Renewals whose authorization keeps failing**\nI found no record of retries, a retry limit, dunning, cancelling the subscription, or a notification after repeated failures. Here is what the graph does say about the renewal path:\n\n- **RenewalsWorker** calls **PaymentsAPI**, which **PaymentsService** exposes, to authorize the renewal payment. PaymentsService stores data in **PaymentsPostgresDatabase**.\n- **RenewalsWorker** is configured by **`AUTH_HOLD_MINUTES`**, which sets how long a renewal authorization is held before capture. That covers authorizations that succeed, not failed ones.\n- **PaymentsService** is configured by **`PAYMENT_API_KEY`** and **`CAPTURE_TIMEOUT`**. Neither is described as controlling what happens after a failure.\n- **BillingService** calls **NotificationsAPI**, which **NotificationsService** exposes and which stores data in **NotificationsRedisInstance**. So BillingService can send notifications, but nothing links that to failed renewals.\n- **BillingService** also stores data in **BillingPostgresDatabase** and depends on **OrderService**.\n\nThe answer to the second part isn't in the dependency or configuration data. It's probably in RenewalsWorker's code or its runbook.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "BillingService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "BillingService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "RenewalsWorker"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "RenewalsWorker"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "PaymentsService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "AUTH_HOLD_MINUTES"
+   }
+  }
+ ],
+ "input_tokens": 21028,
+ "output_tokens": 1107,
+ "cost_usd": 0.0611406
+}

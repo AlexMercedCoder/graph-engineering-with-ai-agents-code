@@ -1,0 +1,40 @@
+{
+ "run": "opencode-stale-rule-3",
+ "harness": "opencode",
+ "condition": "stale-rule",
+ "role": "sre",
+ "verdict": "reasoning",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": true,
+  "find_dependents_called": true,
+  "tools": [
+   "skill",
+   "project-graph_find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": true
+ },
+ "answer": {
+  "named": 5,
+  "missing": [
+   "ApiGateway",
+   "AuditService"
+  ],
+  "extra": [],
+  "from": "Affected services line"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 2344,
+  "cache_read": 9984,
+  "cache_write": 0,
+  "output": 223,
+  "requests": 4
+ }
+}

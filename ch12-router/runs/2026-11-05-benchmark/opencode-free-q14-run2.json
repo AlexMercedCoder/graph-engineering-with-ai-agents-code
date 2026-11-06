@@ -1,0 +1,35 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 14,
+ "run": 2,
+ "answer": "**BillingService and PaymentsService** are the direct callers of **NotificationsAPI** whose messages can no longer be delivered if **NotificationsRedisInstance** is lost.\n\n- **BillingService** calls NotificationsAPI to send receipts after a successful capture.\n- **PaymentsService** calls NotificationsAPI to notify customers of declined authorizations.\n\n**NotificationsService** exposes NotificationsAPI and stores queued messages in NotificationsRedisInstance until a provider accepts them or retries run out. Losing that Redis instance removes the queue on which their message delivery depends.\n\nSources: `notifications-service#Overview`, `notifications-service#Data`, `billing-service#Integrations`, `payments-service#Integrations`, and the direct dependency relationships.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "NotificationsAPI notifications Redis message delivery",
+    "k": 5
+   }
+  },
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "knowledge_find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 4622,
+ "output_tokens": 237,
+ "cost_usd": null
+}

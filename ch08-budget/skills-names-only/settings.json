@@ -1,0 +1,8 @@
+{
+  "skillOverrides": {
+    "code-review": "name-only",
+    "explain-module": "name-only",
+    "fix-lint": "name-only",
+    "migrate-module": "name-only"
+  }
+}

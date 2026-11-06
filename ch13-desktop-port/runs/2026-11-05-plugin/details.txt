@@ -1,0 +1,20 @@
+Governed data (governed-data) 1.0.0
+  Description: Answer business questions from governed company data. Every number comes back with the metric definition it used, under your own data access.
+  Source: governed-data@inline
+
+Component inventory
+  Skills (1)  answer-with-governed-data
+  Agents (0)
+  Hooks (0)
+  MCP servers (1)  governed-data  (tool schemas resolved at runtime; not counted)
+  LSP servers (0)
+
+Projected token cost
+  Always-on:   ~123 tok   added to every session
+
+Per-component (rounded)
+  component                  always-on  on-invoke
+  answer-with-governed-data       ~120       ~330
+
+  On-invoke cost is paid each time a skill or agent fires.
+  Token counts are estimates and may differ from actual usage.

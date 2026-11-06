@@ -1,0 +1,28 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 3,
+ "run": 1,
+ "answer": "OrderService uses the **`orders` Postgres database** (from `order-service#Data`). It stores orders there, and each order's line items are saved with it. Line items can't be changed once the order is placed.\n\nWhat's involved:\n- **OrderService**: owns the order lifecycle and exposes the **OrdersAPI**, which creates, reads and cancels orders.\n- **`orders` Postgres database**: OrderService's data store.\n\nOne possible point of confusion: the config key **`ORDER_DB_URL`** sounds like OrderService's database setting, but it isn't. The docs (`user-service#Configuration`) say **UserService** uses it for its read replica. The name is left over from the past and was kept because three deployment scripts read it. UserService's own data lives in the separate **`users` Postgres database**. The docs don't name a config key for OrderService's connection to the `orders` database.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService database",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "OrderService configuration database connection",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 12158,
+ "output_tokens": 514,
+ "cost_usd": 0.0387006
+}

@@ -1,0 +1,10 @@
+routing accuracy: 39/42
+mis-routes that only cost more: 0
+mis-routes to a path that can't answer: 3
+model calls: 42, 190 s, $0.0112
+  wrong path  'How often does RenewalsWorker re-bill subscriptions?'
+              expected vector, got semantic (model)
+  wrong path  'Which configuration key does UserService use for its read replica?'
+              expected vector, got tool (model)
+  wrong path  "What's in the configuration schema for the orders service?"
+              expected tool, got vector (model)

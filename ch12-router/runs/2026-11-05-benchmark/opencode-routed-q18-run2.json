@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph",
+ "id": 18,
+ "run": 2,
+ "answer": "Within **two hops**, ReportingService needs the following **9 distinct entities**: 5 services, 2 APIs, and 2 databases.\n\n| Hop | From | Relationship | Required entity | Type |\n|---|---|---|---|---|\n| 1 | ReportingService | Depends on | **BillingService** | Service |\n| 1 | ReportingService | Depends on | **OrderService** | Service |\n| 2 | BillingService | Stores data in | **BillingPostgresDatabase** | Database |\n| 2 | BillingService | Calls | **NotificationsAPI** | API |\n| 2 | BillingService | Calls NotificationsAPI, served by | **NotificationsService** | Service |\n| 2 | OrderService | Stores data in | **OrdersPostgresDatabase** | Database |\n| 2 | OrderService | Calls | **PaymentsAPI** | API |\n| 2 | OrderService | Calls PaymentsAPI, served by | **PaymentsService** | Service |\n| 2 | OrderService | Depends on | **UserService** | Service |\n\nThe service behind each called API is included at the same dependency level as that API. The dependency query returned no configuration keys.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "ReportingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2789,
+ "output_tokens": 271,
+ "cost_usd": null
+}

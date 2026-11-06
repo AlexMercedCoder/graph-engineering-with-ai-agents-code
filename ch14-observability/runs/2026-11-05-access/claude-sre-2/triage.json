@@ -1,0 +1,39 @@
+{
+ "run": "claude-sre-2",
+ "harness": "claude",
+ "condition": "baseline",
+ "role": "sre",
+ "verdict": "execution graph",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": false,
+  "find_dependents_called": false,
+  "tools": [
+   "ToolSearch",
+   "mcp__project-graph__trace_configuration"
+  ]
+ },
+ "evidence": {
+  "paths": null,
+  "coverage": null,
+  "depth": null,
+  "joined": false
+ },
+ "answer": {
+  "named": 1,
+  "missing": [],
+  "extra": [
+   "PaymentsService"
+  ],
+  "from": "mentions in prose"
+ },
+ "traversals": 0,
+ "tokens": {
+  "input": 259,
+  "cache_read": 93765,
+  "cache_write": 8046,
+  "output": 585,
+  "requests": 4
+ }
+}

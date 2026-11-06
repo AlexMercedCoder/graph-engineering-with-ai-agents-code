@@ -1,0 +1,4 @@
+config/
+telemetry/
+.agent-work/
+graph-audit.jsonl

@@ -1,0 +1,12 @@
+# Services running in production, one per line. In a real project, generate this
+# from your deployment manifests (Helm releases, Terraform, a service registry).
+ApiGateway
+AuditService
+BillingService
+NotificationsService
+OrderService
+PaymentsService
+RenewalsWorker
+ReportingService
+SearchService
+UserService

@@ -6,10 +6,12 @@
 | `CLAUDE.pruned.md` | The same guide cut to the lines that change the agent's output (39 lines) |
 | `CLAUDE.core.md` and `rules/` | The split configuration: a 23-line core for `CLAUDE.md`, and three path-scoped rules for `.claude/rules/` (`api-conventions.md`, `repository-conventions.md`, `test-conventions.md`) |
 | `loaded-context.py` | Lists what Claude Code loaded into a session, request by request: instruction files, path-scoped rules, skill listing changes, compaction boundaries, and each request's payload |
+| `check-budget.py` | Starts a fresh headless Claude Code session in a project and fails (exit 1) when the first request's payload is over the ceiling you give it; `--log` checks a recorded session instead |
 | `skills-compressed/` | Chapter 4's four skills with compressed descriptions (210 listing tokens against 340) |
 | `skills-grouped/` | The same four skills as two category skills (`inspect-code`, `change-code`) in `skills/`, with the procedures in `skill-groups/` |
+| `skills-names-only/` | Chapter 4's four skills unchanged, with a `settings.json` whose `skillOverrides` lists each by name only |
 | `eval/run-variant.sh` | Runs Chapter 4's twenty routing prompts against a skill set and records the procedure each session reached |
-| `runs/` | Real runs from 2026-11-03; see `runs/README.md` |
+| `runs/` | Real runs from 2026-11-03 and 2026-11-05; see `runs/README.md` |
 
 ## Reading your own bill
 
@@ -30,6 +32,19 @@ request   1  payload   31,862  then Read
   load    path-scoped: .claude/rules/api-conventions.md (224 chars)
 request   2  payload   32,666
 ```
+
+## Holding the fixed part to a ceiling
+
+```bash
+python3 check-budget.py --ceiling 33000 <project-dir>
+```
+
+The check sends one prompt that needs no tools, with `--setting-sources project,local`, and compares
+the first request's payload (harness baseline, configuration, skill listing, MCP tool names) with the
+ceiling. On `sample-project/`, the split configuration passed at 31,877 tokens and the 146-line guide
+failed at 33,585. Run it as a CI step on every change to the configuration, skills, or MCP settings;
+it costs one request of about 32,000 tokens. The ceiling includes the harness, so a Claude Code
+upgrade can fail it too: measure again and change the ceiling in a commit that says why.
 
 ## Installing the split configuration
 
@@ -60,3 +75,6 @@ script runs Claude Code headless with `--setting-sources project,local`, and giv
 `opencode.json` that allows only the variant's skills. In our runs (two per version per harness),
 the specific, compressed, and grouped versions scored 31, 33, and 40 of 40 in Claude Code 2.1.316
 and 40, 39, and 40 in OpenCode 1.19.5.
+
+With `skills-names-only/`, the four skills listed by name only routed 5 and 7 of 20 on November 5,
+2026, against 14 and 15 for the full descriptions the same day; every miss loaded no skill.

@@ -1,0 +1,42 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 24,
+ "run": 1,
+ "answer": "### Direct dependents of BillingService\n- **RenewalsWorker** \u2014 depends directly on **BillingService** for renewal processing.\n- **ReportingService** \u2014 depends directly on **BillingService** for invoice totals.\n\n### When renewal authorization keeps failing\n**RenewalsWorker** retries the renewal on **days three and seven**. After the **third failed authorization**, the subscription is **suspended**, and the customer is **emailed through the normal billing receipt flow**.\n\nThe relevant payment and notification components are:\n- **PaymentsAPI**, called directly by **RenewalsWorker** for renewal payments.\n- **PaymentsService**, which calls **NotificationsAPI** when an authorization is declined.\n- **BillingService**, which also uses **NotificationsAPI** for its receipt flow.\n- **NotificationsService**, which exposes **NotificationsAPI** and handles email delivery.\n\nNo database or configuration key is identified in the documented retry-and-suspension policy.\n\nSources: `renewals-worker#Integrations`, `renewals-worker#Operations`, `reporting-service#Integrations`, `payments-service#Integrations`, `billing-service#Integrations`, `notifications-service#Overview`.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "renewal authorization keeps failing BillingService retries exhausted",
+    "k": 5
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "ReportingService depends BillingService",
+    "k": 2
+   }
+  },
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "BillingService billing receipt flow email NotificationsAPI database",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 5002,
+ "output_tokens": 381,
+ "cost_usd": null
+}

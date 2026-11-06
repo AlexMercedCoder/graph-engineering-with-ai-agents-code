@@ -25,7 +25,7 @@ cd graph-engineering-with-ai-agents-code
 ```
 
 That runs everything checkable without an agent, a network connection, or an API
-key. It should report `passed 37, failed 0`. Without PyYAML it skips the nine Chapter 11 checks, and without the MCP SDK (`pip install "mcp>=2,<3"`) it skips two Chapter 9 checks. If it does, every exercise that does
+key. It should report `passed 65, failed 0` with every optional package installed. Sections that need PyYAML, the MCP SDK (`pip install "mcp>=2.2,<3"`), OpenTelemetry, numpy, the AGS validator, or the `claude` command print a `skip` line instead of failing when the package is missing. If it does, every exercise that does
 not need a harness will work on your machine.
 
 ## What you need
@@ -33,17 +33,18 @@ not need a harness will work on your machine.
 | For | You need |
 |---|---|
 | The sample project and its tests | Node.js 20 or newer. No `npm install`, ever. |
-| The Chapter 9 to 12 tools | Python 3.11 or newer. Standard library only, except where noted. |
+| The Chapter 9 to 15 tools | Python 3.11 or newer. Standard library only, except where noted. |
 | The Chapter 6 hooks | `bash` and `jq`. Each hook exits cleanly with a message if `jq` is missing. |
 | Chapter 11 | `pip install pyyaml` |
-| Chapter 9 over MCP rather than the CLI | `pip install "mcp[cli]"` |
+| The MCP servers in Chapters 9 to 15 | `pip install "mcp>=2.2,<3"` (earlier 2.x releases have published security advisories) |
 | Chapter 14, and Chapter 10's optional Neo4j path | Docker |
 | Any exercise that drives an agent | One of the five harnesses the book covers |
 
-Nothing here requires a paid API key. The two places the book uses a model
-(Chapter 10's extraction, Chapter 12's classifier fallback) ship a deterministic
-implementation instead, so the exercise is reproducible and free. Both are marked
-in the source with the one-line change that switches them to a real provider.
+`verify.sh` needs no API key. The two places the tools call a model (Chapter 10's
+extraction and Chapter 12's classifier fallback) are off by default: Chapter 10
+rebuilds the graph from the saved extractions in `ch10-graph/graph/extractions/`,
+and Chapter 12 routes by rules alone. Pass `--model` to either to call a model
+through `claude -p`.
 
 ## Resource index
 
@@ -56,16 +57,18 @@ in the source with the one-line change that switches them to a real provider.
 | 3 | `ch03-context-wall/` | The seven-task ladder and its rules, scripts to measure payloads, score tasks, and record the curve, and real ladder, compaction, and stress-test runs in Claude Code and OpenAI Codex |
 | 4 | `ch04-routing/` | Four skills, the 20-prompt routing evaluation with a runner for Claude Code and OpenCode, a scorer, four description versions, and 320 real routing sessions plus access, tool-rule, and fork tests |
 | 5 | `ch05-subagents/` | The `test-runner`, `module-migrator`, and `migration-dispatcher` subagents, the node files and `run-graph.sh` (the execution graph as a shell script), and real runs of isolation, dispatching, an agent team, subagent memory, and the script |
-| 6 | `ch06-hooks/` | Six hook scripts, the settings that register them (with `onFailure` on the blocking three), an OpenCode plugin with the same guards, and real blocking, feedback, audit, scoping, and trust runs |
-| 7 | `ch07-plugin/` | The Part 2 graph packaged as the `team-workflow` plugin (rebuilt from Chapters 4 to 6 by `tools/sync-from-chapters.sh`), `release-tools` 1.0.0 and 1.1.0 (the conflicting plugin and its fix), a `book-platform` marketplace, and real install, version, namespacing, collision, precedence, and CLAUDE.md layering runs |
-| 8 | `ch08-budget/` | The split configuration, the 146-line guide written for the book and its pruned version, `loaded-context.py`, compressed and grouped skill sets with a routing runner, and real pricing, loading, compaction, listing, and deferral runs |
-| 9 | `ch09-mcp/` | The knowledge server on MCP Python SDK 2.x over stdio and Streamable HTTP with bearer-token scopes, its teaching skill, the gate checker, and `cli.py` |
-| 10 | `ch10-graph/` | Ten cross-referencing documents, a model-backed extraction pipeline with incremental refresh into SQLite (and LadybugDB for Cypher), the graph MCP server, a vector-search baseline, and the 20-question benchmark with its grader |
-| 11 | `ch11-catalog/` | A semantic layer in the Apache Ossie shape over a local SQLite warehouse, lineage validation with the four checks, and a governed catalog MCP server with its skill and benchmark |
-| 12 | `ch12-router/` | The retrieval router, its evaluation set, and the evidence document schema |
-| 13 | `ch13-desktop-port/` | The port-to-desktop mapping, the terminology, and the design principle (no code to script) |
-| 14 | `ch14-observability/` | Jaeger via Docker Compose, the telemetry environment, and the no-tracing audit-log substitute |
-| 15 | `ch15-governed-workflow/` | The approval packet and the hook that demands a human decision before irreversible operations |
+| 6 | `ch06-hooks/` | Seven hook scripts (path guards that match whole segments, secret masking in the audit log, a context hook, and a stop hook that flags changed assertions), the settings that register them, an OpenCode plugin with the same guards, `tests/` fixtures run by `verify.sh`, and real blocking, feedback, audit, latency, prompt-handler, and trust runs |
+| 7 | `ch07-plugin/` | The Part 2 graph packaged as the `team-workflow` plugin (rebuilt from Chapters 4 to 6 by `tools/sync-from-chapters.sh`), `release-tools` 1.0.0 and 1.1.0, a `book-platform` marketplace, `ci/` install and version-bump checks, `experiments/` mod and hook deny tests, and real install, pinning, namespacing, collision, precedence, and layering runs |
+| 8 | `ch08-budget/` | The split configuration, the 146-line guide and its pruned version, `loaded-context.py`, `check-budget.py` for a CI ceiling on the fixed part, compressed, grouped, and names-only skill sets with a routing runner, and real pricing, loading, compaction, listing, deferral, budget-check, names-only, and cross-harness runs |
+| 9 | `ch09-mcp/` | The knowledge server on MCP Python SDK 2.x over stdio and Streamable HTTP with bearer-token scopes, its teaching skill, the gate, interface, and timing checks, `cli.py`, and runs in Claude Code, OpenCode, OpenAI Codex, and Pi |
+| 10 | `ch10-graph/` | Ten cross-referencing documents, a model-backed extraction pipeline with saved extractions, incremental refresh, and a credentials guard, a SQLite graph (and LadybugDB for Cypher), the graph MCP server, a vector-search baseline, the 20-question benchmark with its grader, and a deployment-manifest check |
+| 11 | `ch11-catalog/` | A semantic layer in the Apache Ossie shape over a local SQLite warehouse, lineage validation with a recorded catalog revision, a SQL-checking hook, and a governed catalog MCP server with its skill and benchmark |
+| 12 | `ch12-router/` | The retrieval router (rules plus an optional model fallback, with a redacted fallthrough log), one MCP server over the Chapter 9 to 11 paths with evidence envelopes and `check_evidence`, a retrieval worker passed with `--agents`, the `act-on-evidence` skill, and routing, combined-question, worker, and act runs |
+| 13 | `ch13-desktop-port/` | Chapter 11's governed-data tools as an OAuth remote connector (identity from the token), a plugin and marketplace for Claude Desktop's Chat and Cowork, a desktop-extension (`.mcpb`) build for contrast, a sign-in checker against Claude's connector requirements, and agent runs through the connector |
+| 14 | `ch14-observability/` | A local OTLP collector with identity hashing and content dropping, the Chapter 10 graph server with spans and scopes, span-tree reconstruction for Claude Code and OpenCode, the triage fault matrix, spend, access, and regression policy checks, and the no-tracing audit substitute |
+| 15 | `ch15-governed-workflow/` | The assembled workflow: Chapter 12's knowledge server over HTTP, the `change-config` skill, a `change-gate` MCP server with a signed approval store and approval packets built from re-run sources and graph traversal, the `governed-change` plugin and marketplace, the workflow as an AGS document, a preflight check, LedgerService onboarding, and runs (scenario matrix, scaled graph, client timeouts, final code) |
+| Appendix A | `ags/` | Chapter 5's execution graph as a validated AGS 1.0 document (`migrate-order-service.agraph.yaml`) |
+| Appendix B | `appendix-b-loro-magagent/` | MagAgent, Loro, and MagGraph setup, scripted mock sessions, and runs of graph criteria, policy refusals, role-checked gates, and a read-only MagGraph MCP server |
 
 ### Shared and reference material
 

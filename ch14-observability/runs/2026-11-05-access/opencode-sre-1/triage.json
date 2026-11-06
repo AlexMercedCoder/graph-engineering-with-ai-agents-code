@@ -1,0 +1,38 @@
+{
+ "run": "opencode-sre-1",
+ "harness": "opencode",
+ "condition": "baseline",
+ "role": "sre",
+ "verdict": "execution graph",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": false,
+  "find_dependents_called": false,
+  "tools": [
+   "project-graph_trace_configuration"
+  ]
+ },
+ "evidence": {
+  "paths": null,
+  "coverage": null,
+  "depth": null,
+  "joined": false
+ },
+ "answer": {
+  "named": 1,
+  "missing": [],
+  "extra": [
+   "PaymentsService"
+  ],
+  "from": "mentions in prose"
+ },
+ "traversals": 0,
+ "tokens": {
+  "input": 784,
+  "cache_read": 7168,
+  "cache_write": 0,
+  "output": 55,
+  "requests": 4
+ }
+}

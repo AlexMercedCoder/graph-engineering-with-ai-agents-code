@@ -1,0 +1,14 @@
+{
+  "name": "data-team-plugins",
+  "owner": {
+    "name": "Data platform team"
+  },
+  "description": "Plugins the data platform team distributes to analysts through organization settings.",
+  "plugins": [
+    {
+      "name": "governed-data",
+      "source": "./plugins/governed-data",
+      "description": "Answer business questions from governed company data, with the metric definition attached."
+    }
+  ]
+}

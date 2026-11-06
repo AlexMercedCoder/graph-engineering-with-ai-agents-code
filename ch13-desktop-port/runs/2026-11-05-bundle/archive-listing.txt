@@ -1,0 +1,17 @@
+Archive:  bundle/governed-data-local.mcpb
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     7845  11-05-2026 11:30   catalog.yaml
+     1644  11-05-2026 11:30   manifest.json
+      126  11-05-2026 11:30   pyproject.toml
+     1208  11-05-2026 11:30   server/server.py
+     5694  11-05-2026 11:30   server/tools.py
+    13536  11-05-2026 11:30   validate.py
+     3140  11-05-2026 11:30   warehouse/dataplatform.py
+      766  11-05-2026 11:30   warehouse/policies.yaml
+   614400  11-05-2026 11:30   warehouse/warehouse.db
+---------                     -------
+   648359                     9 files
+['dim_geography', 'dim_product', 'dim_agent', 'dim_policyholder', 'dim_date', 'fct_policy_premium', 'fct_claims', 'fct_commissions', 'fct_premiums_v1', 'stg_premium_raw']
+(1988,)
+241758 bundle/governed-data-local.mcpb

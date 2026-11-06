@@ -1,0 +1,36 @@
+{
+ "run": "opencode-bad-description-3",
+ "harness": "opencode",
+ "condition": "bad-description",
+ "role": "sre",
+ "verdict": "execution graph",
+ "stop": "completed",
+ "answer_correct": true,
+ "route": {
+  "skill_loaded": false,
+  "find_dependents_called": true,
+  "tools": [
+   "project-graph_find_dependents"
+  ]
+ },
+ "evidence": {
+  "paths": 7,
+  "coverage": "complete",
+  "depth": "4/4",
+  "joined": true
+ },
+ "answer": {
+  "named": 7,
+  "missing": [],
+  "extra": [],
+  "from": "mentions in prose"
+ },
+ "traversals": 1,
+ "tokens": {
+  "input": 4470,
+  "cache_read": 3584,
+  "cache_write": 0,
+  "output": 150,
+  "requests": 3
+ }
+}

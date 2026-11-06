@@ -1,0 +1,21 @@
+2026-11-05, 12-core x86-64 Linux, bash 5, jq 1.6, Node.js 24.7.0; 200 runs per script after 10 warm-up runs.
+Final scripts (protect-paths.sh reads its three fields with one jq call).
+
+empty bash script                    median    5.0 ms  p95    5.6 ms
+protect-paths.sh (1 jq)              median   29.1 ms  p95   30.2 ms
+guard-bash.sh (1 jq)                 median   29.0 ms  p95   29.8 ms
+confirm-destructive-sql.sh (1 jq)    median   28.9 ms  p95   30.1 ms
+audit.sh (1 jq)                      median   32.8 ms  p95   39.4 ms
+git-context.sh (2 git)               median   14.2 ms  p95   30.4 ms
+lint-on-edit.sh (jq + node)          median   56.7 ms  p95   60.8 ms
+
+Bare process starts: jq -n 1, median 30.0 ms; node -e 0, median 36.3 ms.
+OpenCode plugin (opencode/guards.js), tool.execute.before for a bash call, in process: 0.018 ms per call over 2,000 calls.
+npm test on sample-project: median 0.24 s over 10 runs.
+
+Session estimate (an estimate, not a measurement inside the harness): the 38 Claude Code sessions in
+../../2026-11-03-blocking/ and ../../2026-11-03-edges/ made 158 tool calls (Bash 91, Edit 28, Read 22,
+Write 11, Agent 6), 4.2 per session, in a mean of 22.7 s. Matching hooks for one event run in parallel,
+so with every tool hook registered: a Bash call waits about 33 + 33 ms, Write or Edit about 33 + 57 ms
+(the lint hook starts Node.js), any other tool 33 + 33 ms (audit). That gives a mean of 299 ms of hook
+time per session (maximum 1,158 ms), about 1.3 percent.

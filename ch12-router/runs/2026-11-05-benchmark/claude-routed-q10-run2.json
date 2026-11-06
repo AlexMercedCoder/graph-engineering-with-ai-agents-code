@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 10,
+ "run": 2,
+ "answer": "UserService gets its read replica from the **`ORDER_DB_URL`** configuration key.\n\nThe name is misleading: it says \"ORDER\" but is used for UserService's user data. The docs explain it's an old name that was never changed because three deployment scripts still read it (source: `user-service#Configuration`).\n\nRelated parts of the system:\n- **Service:** UserService\n- **Database:** the `users` Postgres database, where UserService stores users (including soft-deleted ones). The replica set by `ORDER_DB_URL` serves reads from it.\n- **API:** UsersAPI, which UserService exposes. UserService also checks the session tokens that the gateway passes along.\n\nThe docs don't name any other configuration key for UserService's read replica.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService read replica configuration key",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7756,
+ "output_tokens": 325,
+ "cost_usd": 0.0311154
+}

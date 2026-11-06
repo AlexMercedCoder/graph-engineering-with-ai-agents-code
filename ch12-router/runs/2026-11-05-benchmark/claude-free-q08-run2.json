@@ -1,0 +1,46 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 8,
+ "run": 2,
+ "answer": "ApiGateway uses **UserService** for token validation. The ApiGateway docs (Integrations section) say it \"depends on the user service for token validation, so a request with an expired token is rejected at the edge before any service sees it.\" The dependency graph shows the same link: `ApiGateway -DEPENDS_ON-> UserService`.\n\n**Components involved:**\n- **ApiGateway:** the entry point for every public endpoint. It checks tokens before forwarding requests.\n- **UserService:** does the validation. It caches results for 60 seconds, so a token revoked within that window is still accepted until its cache entry expires.\n- **UsersAPI:** the API UserService exposes. ApiGateway also calls it directly. The docs describe the token-validation dependency as being on the service, though, and don't name a specific validation endpoint.\n- **UsersPostgresDatabase:** where UserService stores user data.\n- **ORDER_DB_URL:** the configuration key UserService reads to find its read replica. The name sounds like it belongs to orders, but it was kept for historical reasons because three deployment scripts read it.\n\nApiGateway has no configuration key linked to token validation. Its only documented key is **GATEWAY_RATE_LIMITS**, which sets rate limits, not tokens.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "ApiGateway token validation",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "UserService configuration ORDER_DB_URL read replica",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 21533,
+ "output_tokens": 851,
+ "cost_usd": 0.053656800000000004
+}

@@ -1,0 +1,28 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 20,
+ "run": 1,
+ "answer": "BillingService needs **3 things directly** and **5 more at the second hop**. I got this from the dependency graph and checked the first hop against the BillingService docs. The tool counts an API and the service that exposes it as one hop.\n\n**Hop 1: what BillingService uses directly**\n| Kind | Entity | Notes |\n|---|---|---|\n| Calls an API | **NotificationsAPI**, served by **NotificationsService** | Sends receipts once a payment capture succeeds |\n| Depends on | **OrderService** | Supplies invoice line items |\n| Stores in | **BillingPostgresDatabase** | Holds invoices |\n\n**Hop 2: what each of those uses**\n- **NotificationsService**\n  - Stores in **NotificationsRedisInstance**\n  - It calls no APIs and depends on no services in the graph.\n- **OrderService**\n  - Calls **PaymentsAPI**, served by **PaymentsService**\n  - Depends on **UserService**\n  - Stores in **OrdersPostgresDatabase**\n\n**Full list (10 entities)**\n- **APIs (2):** NotificationsAPI, PaymentsAPI\n- **Services (4):** NotificationsService, OrderService, PaymentsService, UserService\n- **Databases (3):** BillingPostgresDatabase, NotificationsRedisInstance, OrdersPostgresDatabase\n\nPaymentsService and UserService are three hops from BillingService, so what they need falls outside this question. Configuration keys aren't part of this dependency graph, so I didn't include any.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "BillingService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "BillingService dependencies calls stores",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 14798,
+ "output_tokens": 828,
+ "cost_usd": 0.0479656
+}

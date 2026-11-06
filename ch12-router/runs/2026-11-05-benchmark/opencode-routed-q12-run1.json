@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph",
+ "id": 12,
+ "run": 1,
+ "answer": "Within two hops of **BillingService**, the dependency graph identifies **2 affected services**:\n\n| Service | Dependency path | Hops |\n|---|---|---|\n| **RenewalsWorker** | RenewalsWorker \u2192 `DEPENDS_ON` \u2192 BillingService | 1 |\n| **ReportingService** | ReportingService \u2192 `DEPENDS_ON` \u2192 BillingService | 1 |\n\nBoth depend directly on BillingService and would be affected by its outage. The graph returned no additional services at the second hop and no API callers.\n\nNo APIs, databases, or configuration keys were identified in these paths.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "BillingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2595,
+ "output_tokens": 153,
+ "cost_usd": null
+}

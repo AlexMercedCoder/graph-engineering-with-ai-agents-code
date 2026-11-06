@@ -1,0 +1,28 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 6,
+ "run": 2,
+ "answer": "For identity resolution, AuditService depends on **UserService**.\n\n- **AuditService \u2192 UserService (DEPENDS_ON).** The AuditService docs (Integrations section) say: \"It depends on the user service for identity resolution: a record carries the resolved user, not the raw token.\" UserService checks the session tokens that the gateway forwards, so each audit record names an actual user instead of storing a raw token.\n- **UserService \u2192 UsersPostgresDatabase (STORES).** UserService keeps its users, including soft deletes, in UsersPostgresDatabase. That makes AuditService indirectly depend on this database, two steps away.\n- **Configuration key: `ORDER_DB_URL`.** This key configures UserService's read replica. The name is misleading: it's left over from earlier, and three deployment scripts still read it.\n\nTwo related points:\n- UserService also exposes the **UsersAPI**. The dependency graph links AuditService straight to UserService, though, and doesn't say it goes through UsersAPI.\n- AuditService also writes to **AuditIcebergTable**, where records are append-only and kept for seven years. That's where the resolved identities end up, but it isn't part of how they're resolved.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 3
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "AuditService identity resolution",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 9377,
+ "output_tokens": 638,
+ "cost_usd": 0.0393844
+}

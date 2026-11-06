@@ -1,0 +1,115 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "setup": "worker",
+ "run": 1,
+ "seconds": 95,
+ "main_requests": 5,
+ "main_input_tokens": 71514,
+ "main_last_context": 17813,
+ "worker_requests": 4,
+ "worker_input_tokens": 24784,
+ "tool_calls": [
+  {
+   "by": "main",
+   "tool": "Read",
+   "input": {
+    "file_path": "<run-dir>/config/staging/payments.conf"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Skill",
+   "input": {
+    "skill": "act-on-evidence"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Agent",
+   "input": {
+    "subagent_type": "retrieval-worker",
+    "description": "Look up E4021 and payments config",
+    "prompt": "Please return evidence documents (full JSON, verbatim) for these questions:\n1. What does payment error code E4021 mean, and what causes it during payment captures?\n2. What is the config schema / valid values and constraints for the payments service config keys: PAYMENT_BASE_URL, PROVIDER_REGION, CAPTURE_TIMEOUT, CAPTURE_DELAY_MINUTES, AUTH_HOLD_MINUTES, MAX_CAPTURE_RETRIES (especially any relationship between CAPTURE_DELAY_MINUTES and AUTH_HOLD_MINUTES).\n3. Any staging-specific requirements for the payments service (e.g., in architecture docs or the service graph), including the staging values currently expected.\nCurrent staging config: PAYMENT_BASE_URL=https://sandbox.payments.example.com, PROVIDER_REGION=us, CAPTURE_TIMEOUT=30, CAPTURE_DELAY_MINUTES=15, AUTH_HOLD_MINUTES=10, MAX_CAPTURE_RETRIES=4.",
+    "run_in_background": false
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What does payment error code E4021 mean, and what causes it during payment captures?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "What is the config schema and valid values for the payments service config keys PAYMENT_BASE_URL, PROVIDER_REGION, CAPTURE_TIMEOUT, CAPTURE_DELAY_MINUTES, AUTH_HOLD_MINUTES, MAX_CAPTURE_RETRIES?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__route_question",
+   "input": {
+    "question": "Are there staging-specific requirements for the payments service, and what staging values are expected?"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__get_config_schema",
+   "input": {
+    "service": "payments"
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "payments service staging requirements capture delay auth hold minutes",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__search_docs",
+   "input": {
+    "query": "staging environment configuration for payments service sandbox endpoint",
+    "k": 3
+   }
+  },
+  {
+   "by": "worker",
+   "tool": "mcp__project-knowledge__check_evidence",
+   "input": {
+    "documents": "[{\"schema_version\":1,\"claim\":\"E4021 is the payment error 'Payment authorization expired'.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"E4021 is caused by the authorization hold lapsing before capture.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"E4021 handling is to re-authorize, then capture, and not to retry capture alone.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"E4021 is not retryable (Retryable: False).\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"PAYMENT_BASE_URL is a required string with no default (None); its note says sandbox and live endpoints differ.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"PROVIDER_REGION is an optional string defaulting to us; its note says it must match the merchant account.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"CAPTURE_TIMEOUT is an optional integer defaulting to 30, in seconds, for how long to wait for a capture call before failing it.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"CAPTURE_DELAY_MINUTES is an optional integer defaulting to 15, giving the minutes after authorization at which the capture worker captures.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"AUTH_HOLD_MINUTES is an optional integer defaulting to 60, giving the minutes the provider holds an authorization; it must exceed CAPTURE_DELAY_MINUTES or holds lapse before capture.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"MAX_CAPTURE_RETRIES is an optional integer defaulting to 4, giving the capture retries on retryable provider errors.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"claim\":\"The supplied staging value CAPTURE_DELAY_MINUTES=15 is not less than the supplied staging value AUTH_HOLD_MINUTES=10, which violates the schema constraint that AUTH_HOLD_MINUTES must exceed CAPTURE_DELAY_MINUTES.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"Staging values were supplied by the user, not retrieved from a source; the comparison is derived from the schema constraint.\",\"The schema states holds lapse before capture when this constraint fails; this links the staging values to the E4021 cause but is an inference.\"]},{\"schema_version\":1,\"claim\":\"No retrieved architecture document states a staging-specific requirement for the payments service.\",\"status\":\"found\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('payments service staging requirements capture delay auth hold minutes', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":145,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"Similarity search cannot confirm completeness; a second search for staging configuration also returned no staging requirement.\"]},{\"schema_version\":1,\"claim\":\"No retrieved architecture document states an expected staging value for any payments config key.\",\"status\":\"found\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('staging environment configuration for payments service sandbox endpoint', k=3)\"},\"confidence\":\"medium\",\"coverage\":\"unknown\",\"cost_tokens\":144,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"Similarity search cannot confirm completeness; the staging values in the user's question could not be checked against a documented expectation.\"]},{\"schema_version\":1,\"claim\":\"The payments service is configured by PAYMENT_API_KEY and CAPTURE_TIMEOUT, and CAPTURE_TIMEOUT is in seconds with a default of 30.\",\"status\":\"found\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('payments service staging requirements capture delay auth hold minutes', k=3)\"},\"confidence\":\"high\",\"coverage\":\"unknown\",\"cost_tokens\":145,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"Similarity search cannot confirm completeness.\"]}]"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Edit",
+   "input": {
+    "replace_all": false,
+    "file_path": "<run-dir>/config/staging/payments.conf",
+    "old_string": "AUTH_HOLD_MINUTES=10",
+    "new_string": "AUTH_HOLD_MINUTES=60"
+   }
+  },
+  {
+   "by": "main",
+   "tool": "Write",
+   "input": {
+    "file_path": "<run-dir>/brief.md",
+    "content": "# Staging payment captures failing with E4021\n\n## Change\n\n`config/staging/payments.conf`: `AUTH_HOLD_MINUTES` changed from `10` to `60`. Nothing else changed.\n\n## Why\n\n- E4021 means \"Payment authorization expired\". It happens when the authorization hold runs out before the capture (`lookup_error_code('E4021')`).\n- The payments schema says `AUTH_HOLD_MINUTES` must be larger than `CAPTURE_DELAY_MINUTES`, \"or holds lapse before capture\" (`get_config_schema('payments')`).\n- Staging had `CAPTURE_DELAY_MINUTES=15` and `AUTH_HOLD_MINUTES=10`. The capture worker waited 15 minutes, but the hold ran out at 10, so every delayed capture hit E4021.\n- `CAPTURE_DELAY_MINUTES=15` is the schema default. `AUTH_HOLD_MINUTES=10` was the only value that differed from its default (60). I set it back to 60, which makes the hold longer than the delay again.\n\n## Things I didn't change, and caveats\n\n- No other keys changed. `PAYMENT_BASE_URL`, `PROVIDER_REGION`, `CAPTURE_TIMEOUT` and `MAX_CAPTURE_RETRIES` are all valid under the schema, and no evidence ties them to E4021. Raising `MAX_CAPTURE_RETRIES` would not help: E4021 is not retryable. The documented fix is to re-authorize and then capture.\n- The link between these staging values and the E4021 failures is an inference from the schema rule. No staging logs were checked.\n- The docs search (vector search, so it may not have found everything) turned up no documented staging-specific values for payments. So 60 rests on the schema default, not on a staging spec. If the sandbox provider really holds authorizations for less than 15 minutes, lowering `CAPTURE_DELAY_MINUTES` below the real hold would be the right fix instead.\n- Authorizations that have already expired still need to be re-authorized before they can be captured.\n\n## Evidence\n\n```json\n[\n  {\"schema_version\":1,\"claim\":\"E4021 is the payment error 'Payment authorization expired'.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"claim\":\"E4021 is caused by the authorization hold lapsing before capture.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"claim\":\"E4021 handling is to re-authorize, then capture, and not to retry capture alone.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"claim\":\"E4021 is not retryable (Retryable: False).\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"claim\":\"CAPTURE_DELAY_MINUTES is an optional integer defaulting to 15, giving the minutes after authorization at which the capture worker captures.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"claim\":\"AUTH_HOLD_MINUTES is an optional integer defaulting to 60, giving the minutes the provider holds an authorization; it must exceed CAPTURE_DELAY_MINUTES or holds lapse before capture.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"claim\":\"MAX_CAPTURE_RETRIES is an optional integer defaulting to 4, giving the capture retries on retryable provider errors.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n  {\"schema_version\":1,\"claim\":\"The supplied staging value CAPTURE_DELAY_MINUTES=15 is not less than the supplied staging value AUTH_HOLD_MINUTES=10, which violates the schema constraint that AUTH_HOLD_MINUTES must exceed CAPTURE_DELAY_MINUTES.\",\"status\":\"found\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"Staging values were supplied by the user, not retrieved from a source; the comparison is derived from the schema constraint.\",\"The schema states holds lapse before capture when this constraint fails; this links the staging values to the E4021 cause but is an inference.\"]},\n  {\"schema_version\":1,\"claim\":\"No retrieved architecture document states an expected staging value for any payments config key.\",\"status\":\"found\",\"source\":{\"path\":\"vector\",\"identifier\":\"search_docs('staging environment configuration for payments service sandbox endpoint', k=3)\"},\"confidence\":\"medium\",\"coverage\":\"unknown\",\"cost_tokens\":144,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[\"Similarity search cannot confirm completeness; the staging values in the user's question could not be checked against a documented expectation.\"]}\n]\n```\n"
+   }
+  }
+ ],
+ "cost_usd": 0.201920405
+}

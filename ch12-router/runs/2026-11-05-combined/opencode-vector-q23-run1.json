@@ -1,0 +1,35 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "vector",
+ "route": "vector",
+ "id": 23,
+ "run": 1,
+ "answer": "The documented direct dependents of **UserService** are:\n\n| Service | Direct dependency |\n|---|---|\n| **ApiGateway** | Calls UserService\u2019s **UsersAPI** for session-token validation. |\n| **OrderService** | Uses UserService to resolve the ordering customer. |\n| **AuditService** | Uses UserService for identity resolution so audit records carry the resolved user. |\n\nA revoked session token can still be accepted for **up to 60 seconds after revocation**, depending on how much time remains in its cached validation result. **UserService caches token-validation results for 60 seconds**; revocation does not prevent acceptance until that cache entry expires.\n\nNo database or configuration key is identified in the documentation as controlling this cache window.\n\nSources: `api-gateway#Integrations`, `order-service#Integrations`, `audit-service#Integrations`, `user-service#Overview`, `user-service#Operations`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "direct dependents UserService revoked session token accepted cache TTL",
+    "k": 6
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "services depends on UserService UsersAPI direct dependencies",
+    "k": 8
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "ApiGateway Integrations UserService session token validation dependencies",
+    "k": 3
+   }
+  }
+ ],
+ "input_tokens": 5767,
+ "output_tokens": 288,
+ "cost_usd": null
+}

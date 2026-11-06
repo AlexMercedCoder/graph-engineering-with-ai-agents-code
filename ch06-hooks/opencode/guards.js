@@ -4,7 +4,17 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, resolve } from "node:path";
 
-const GUARDED = ["migrations/", ".env", "package-lock.json", "terraform/"];
+// Whole path segments below the project folder, as in protect-paths.sh: a directory anywhere
+// in the path, or the file name.
+function guardedBy(p, root) {
+  const path = "/" + (p.startsWith(root + "/") ? p.slice(root.length + 1) : p);
+  if (path.includes("/migrations/")) return "migrations/";
+  if (path.includes("/terraform/")) return "terraform/";
+  const name = path.slice(path.lastIndexOf("/") + 1);
+  if (name === ".env" || name.startsWith(".env.")) return ".env";
+  if (name === "package-lock.json") return "package-lock.json";
+  return null;
+}
 const BLOCKED = [
   [/rm\s+(-[a-z]*r[a-z]*f|-[a-z]*f[a-z]*r|-r\s+-f|-f\s+-r|--recursive)/i, "recursive delete", "Delete specific files by name, or ask the user."],
   [/git\s+push/i, "push to remote", "Commit locally and let the user push."],
@@ -23,21 +33,30 @@ function pathsOf(tool, args) {
   return [];
 }
 
+// Mask credentials in commands before they reach the log, as audit.sh does.
+const redact = (t) => typeof t !== "string" ? t : t
+  .replace(/(authorization:\s*(?:bearer|basic|token)\s+)[^\s"']+/gi, "$1[REDACTED]")
+  .replace(/((?:password|passwd|token|secret|api[-_]?key)[=:]\s*)[^\s&"']+/gi, "$1[REDACTED]")
+  .replace(/(--(?:password|token|secret|api-key)[= ])[^\s"']+/gi, "$1[REDACTED]")
+  .replace(/((?:^|\s)(?:-u|--user)[= ]?[^\s:]+:)[^\s"']+/g, "$1[REDACTED]")
+  .replace(/(:\/\/[^/\s:@]+:)[^@\s/]+@/g, "$1[REDACTED]@")
+  .replace(/sk-[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|xox[abprs]-[A-Za-z0-9-]{10,}/g, "[REDACTED]");
+
 export const Guards = async ({ directory }) => {
   const pending = new Map();
   const audit = (event, input, args) => {
     mkdirSync(join(directory, ".agent-work"), { recursive: true });
-    const target = pathsOf(input.tool, args ?? {}).join(",") || args?.command || null;
+    const target = redact(pathsOf(input.tool, args ?? {}).join(",") || args?.command || null);
     appendFileSync(join(directory, ".agent-work", "audit.jsonl"),
-      JSON.stringify({ ts: new Date().toISOString(), session: input.sessionID, event, tool: input.tool, target }) + "\n");
+      JSON.stringify({ ts: new Date().toISOString(), session: input.sessionID, event, agent: null, tool: input.tool, id: input.callID, target }) + "\n");
   };
 
   return {
     "tool.execute.before": async (input, output) => {
-      audit("before", input, output.args);
+      audit("PreToolUse", input, output.args);
       pending.set(input.callID, output.args);
       for (const p of pathsOf(input.tool, output.args)) {
-        const g = GUARDED.find((x) => p.includes(x));
+        const g = guardedBy(p, directory);
         if (g) throw new Error(`Blocked write to ${p}. Paths matching ${g} require human review. Describe the change you need and ask the user to make it.`);
       }
       if (input.tool === "bash") {
@@ -48,7 +67,7 @@ export const Guards = async ({ directory }) => {
     "tool.execute.after": async (input, output) => {
       const args = pending.get(input.callID) ?? {};
       pending.delete(input.callID);
-      audit("after", input, args);
+      audit("PostToolUse", input, args);
       for (const p of pathsOf(input.tool, args)) {
         const file = resolve(directory, p);
         if (!file.endsWith(".js") || !existsSync(file)) continue;

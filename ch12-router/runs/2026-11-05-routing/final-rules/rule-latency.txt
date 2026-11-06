@@ -1,0 +1,1 @@
+rules: 62 microseconds per question

@@ -1,0 +1,4 @@
+vector search, first call (loads the model and embeds 41 sections): 1548 ms
+vector search: median 5.25 ms over 50 calls
+graph traversal, 2 hops: median 0.63 ms over 50 calls
+graph traversal, 4 hops: median 0.55 ms over 50 calls

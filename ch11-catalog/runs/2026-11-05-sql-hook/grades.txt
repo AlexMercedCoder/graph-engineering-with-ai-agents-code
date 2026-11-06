@@ -1,0 +1,2 @@
+claude-rawhook-1             5/6  q1:correct q2:wrong q3:correct q4:correct q5:correct q6:correct  tools=8 skill=no
+claude-rawhook-2             6/6  q1:correct q2:correct q3:correct q4:correct q5:correct q6:correct  tools=10 skill=no

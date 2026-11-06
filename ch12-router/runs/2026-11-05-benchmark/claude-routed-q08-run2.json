@@ -1,0 +1,28 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 8,
+ "run": 2,
+ "answer": "ApiGateway relies on **UserService** to validate tokens. It reaches UserService through the **UsersAPI**.\n\n- **How it works:** UserService owns the UsersAPI and checks the session tokens that ApiGateway forwards to it (user-service#Overview). ApiGateway calls the UsersAPI for this. Requests with expired tokens are rejected at the gateway, so no downstream service ever sees them (api-gateway#Integrations).\n- **Caching:** UserService caches validation results for sixty seconds. If a token is revoked during that window, it keeps being accepted until its cache entry expires (user-service#Operations).\n\n**Names involved:**\n- **Services:** ApiGateway, UserService\n- **API:** UsersAPI\n- **Databases:** none are mentioned for token validation\n- **Configuration keys:** none are documented for token validation. The only ApiGateway key in the docs is `GATEWAY_RATE_LIMITS`, which controls rate limits, not tokens. The docs also don't say whether the sixty-second cache TTL can be configured.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "ApiGateway token validation",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService overview UsersAPI token validation endpoint",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 12488,
+ "output_tokens": 564,
+ "cost_usd": 0.0413032
+}

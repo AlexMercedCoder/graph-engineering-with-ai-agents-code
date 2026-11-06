@@ -1,0 +1,42 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "vector",
+ "route": "vector",
+ "id": 21,
+ "run": 1,
+ "answer": "**Services that call the NotificationsAPI directly:** two, BillingService and PaymentsService.\n\n- **BillingService** calls the NotificationsAPI to send receipts after a capture succeeds (`billing-service#Integrations`).\n- **PaymentsService** calls the NotificationsAPI when an authorization is declined, so the customer still hears about it after checkout has returned (`payments-service#Integrations`).\n\n**Why losing Redis stops delivery:** The NotificationsAPI is exposed by NotificationsService, which keeps its queued messages in the **notifications Redis instance**. A message stays there until a provider accepts it or its retries run out (`notifications-service#Data`). If that Redis instance is lost, the queue is gone, so neither BillingService receipts nor PaymentsService decline notices can be delivered. Messages that were queued but not yet accepted by a provider are lost too.\n\nOther services reach these flows only indirectly. OrderService calls the **PaymentsAPI**, not the NotificationsAPI. SearchService depends on OrderService. So neither is a direct caller.\n\n**When a message fails all its retries:** NotificationsService tries three times with a 250ms backoff, set by the **`RETRY_ATTEMPTS`** configuration key. After the third failure the message moves to the **dead-letter list**, and **the caller is not told**. Callers that need confirmation have to poll the message status (`notifications-service#Delivery and retries`). So BillingService and PaymentsService get no error back for a dead-lettered message unless they poll.\n\n**What the docs don't say:**\n- They don't describe what NotificationsService does when Redis goes down, for example whether the API rejects new messages or fails without an error. The conclusion above comes from Redis being the only queue store the docs mention.\n- They don't say where the dead-letter list is kept. If it's in the same Redis instance, losing Redis would also lose the dead-lettered messages.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI Redis queue",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that call NotificationsAPI",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "notification retries dead letter failed message",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "sends email SMS push notification via NotificationsAPI integration",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 14929,
+ "output_tokens": 1060,
+ "cost_usd": 0.062054200000000004
+}

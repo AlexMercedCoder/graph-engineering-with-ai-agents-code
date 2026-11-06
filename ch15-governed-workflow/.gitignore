@@ -1,0 +1,6 @@
+config/
+state/
+scale/build/
+runs/mine/
+__pycache__/
+.agent-work/

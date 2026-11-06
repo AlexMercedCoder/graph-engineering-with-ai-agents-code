@@ -1,0 +1,103 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "scenario": "fix-approve",
+ "run": 2,
+ "date": "2026-11-05",
+ "seconds": 64,
+ "requests": 11,
+ "input_tokens": 151438,
+ "largest_request": 17949,
+ "cost_usd": 0.22431040000000002,
+ "tool_calls": [
+  {
+   "tool": "Skill",
+   "input": {
+    "skill": "governed-change:change-config"
+   }
+  },
+  {
+   "tool": "Skill",
+   "input": {
+    "skill": "governed-change:retrieve-evidence"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_project-knowledge__route_question",
+   "input": {
+    "question": "What does error code E4021 mean?"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_project-knowledge__route_question",
+   "input": {
+    "question": "What is the configuration schema for the payments service?"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_project-knowledge__lookup_error_code",
+   "input": {
+    "code": "E4021"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_project-knowledge__get_config_schema",
+   "input": {
+    "service": "payments"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_change-gate__read_config",
+   "input": {
+    "environment": "production",
+    "service": "payments"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_project-knowledge__route_question",
+   "input": {
+    "question": "Which services does the configuration key AUTH_HOLD_MINUTES configure?"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_project-knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "AUTH_HOLD_MINUTES"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_project-knowledge__check_evidence",
+   "input": {
+    "documents": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means the payment authorization hold lapsed before capture; it is not retryable.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The payments schema documents AUTH_HOLD_MINUTES with default 60 and the rule that it must exceed CAPTURE_DELAY_MINUTES (default 15) or holds lapse before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Production payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15, so the hold is shorter than the capture delay.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('production', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:13Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"AUTH_HOLD_MINUTES also configures LedgerService (when uncaptured authorizations lapse and pending entries are reversed) and RenewalsWorker (how long renewal authorizations are held before capture).\",\"source\":{\"path\":\"graph\",\"identifier\":\"trace_configuration('AUTH_HOLD_MINUTES')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":72,\"freshness\":\"2026-11-06T02:31Z\",\"caveats\":[]}]"
+   }
+  },
+  {
+   "tool": "Skill",
+   "input": {
+    "skill": "governed-change:act-on-evidence"
+   }
+  },
+  {
+   "tool": "mcp__plugin_governed-change_change-gate__propose_change",
+   "input": {
+    "environment": "production",
+    "service": "payments",
+    "key": "AUTH_HOLD_MINUTES",
+    "value": "60",
+    "reason": "Production AUTH_HOLD_MINUTES=10 is below CAPTURE_DELAY_MINUTES=15, so authorization holds lapse before capture (E4021); restore the documented default of 60, which exceeds the capture delay as the schema requires.",
+    "evidence": "[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means the payment authorization hold lapsed before capture; it is not retryable.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"The payments schema documents AUTH_HOLD_MINUTES with default 60 and the rule that it must exceed CAPTURE_DELAY_MINUTES (default 15) or holds lapse before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"Production payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15, so the hold is shorter than the capture delay.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('production', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:13Z\",\"caveats\":[]},{\"schema_version\":1,\"status\":\"found\",\"claim\":\"AUTH_HOLD_MINUTES also configures LedgerService (when uncaptured authorizations lapse and pending entries are reversed) and RenewalsWorker (how long renewal authorizations are held before capture).\",\"source\":{\"path\":\"graph\",\"identifier\":\"trace_configuration('AUTH_HOLD_MINUTES')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":72,\"freshness\":\"2026-11-06T02:31Z\",\"caveats\":[]}]",
+    "alternatives": [
+     "Lower CAPTURE_DELAY_MINUTES below 10 instead; rejected because no documented value supports it and it leaves AUTH_HOLD_MINUTES far below its default.",
+     "Retry captures; rejected because E4021 is not retryable and needs re-authorization."
+    ]
+   }
+  },
+  {
+   "tool": "Write",
+   "input": {
+    "file_path": "<run-dir>/work/report.md",
+    "content": "# Production payments: E4021 capture failures\n\n## What changed\n- **Environment:** production\n- **Service:** payments\n- **Key:** `AUTH_HOLD_MINUTES`, changed from 10 to **60**\n- **Gate outcome:** Approved by test-reviewer and applied. The reviewer gave no reason.\n- **Request id:** `apr_e36e545aa2e7`\n- **Rollback:** propose `AUTH_HOLD_MINUTES=10`. That goes through review too.\n\n## Cause\nE4021 means \"Payment authorization expired\": the authorization hold ran out before capture (`lookup_error_code('E4021')`). In production, `AUTH_HOLD_MINUTES=10` was lower than `CAPTURE_DELAY_MINUTES=15` (`read_config('production', 'payments')`). The schema requires `AUTH_HOLD_MINUTES` to be greater than `CAPTURE_DELAY_MINUTES` and gives 60 as the default (`get_config_schema('payments')`). The new value is that default.\n\n## Side effects to watch\n`AUTH_HOLD_MINUTES` also configures two other services (`trace_configuration('AUTH_HOLD_MINUTES')`):\n- **LedgerService:** reverses pending entries for uncaptured authorizations later than before (after 60 minutes instead of 10).\n- **RenewalsWorker:** holds renewal authorizations for 60 minutes before capture.\n\n## Follow-up\nE4021 is not retryable. Captures that already failed won't recover from this change alone. Each one has to be re-authorized and then captured. Retrying the capture by itself won't work.\n\n## Evidence\n```json\n[{\"schema_version\":1,\"status\":\"found\",\"claim\":\"E4021 means the payment authorization hold lapsed before capture; it is not retryable.\",\"source\":{\"path\":\"tool\",\"identifier\":\"lookup_error_code('E4021')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":43,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n {\"schema_version\":1,\"status\":\"found\",\"claim\":\"The payments schema documents AUTH_HOLD_MINUTES with default 60 and the rule that it must exceed CAPTURE_DELAY_MINUTES (default 15) or holds lapse before capture.\",\"source\":{\"path\":\"tool\",\"identifier\":\"get_config_schema('payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":261,\"freshness\":\"2026-11-04T02:09Z\",\"caveats\":[]},\n {\"schema_version\":1,\"status\":\"found\",\"claim\":\"Production payments has AUTH_HOLD_MINUTES=10 and CAPTURE_DELAY_MINUTES=15, so the hold is shorter than the capture delay.\",\"source\":{\"path\":\"tool\",\"identifier\":\"read_config('production', 'payments')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":64,\"freshness\":\"2026-11-06T03:13Z\",\"caveats\":[]},\n {\"schema_version\":1,\"status\":\"found\",\"claim\":\"AUTH_HOLD_MINUTES also configures LedgerService (when uncaptured authorizations lapse and pending entries are reversed) and RenewalsWorker (how long renewal authorizations are held before capture).\",\"source\":{\"path\":\"graph\",\"identifier\":\"trace_configuration('AUTH_HOLD_MINUTES')\"},\"confidence\":\"high\",\"coverage\":\"complete\",\"cost_tokens\":72,\"freshness\":\"2026-11-06T02:31Z\",\"caveats\":[]}]\n```\n"
+   }
+  }
+ ]
+}

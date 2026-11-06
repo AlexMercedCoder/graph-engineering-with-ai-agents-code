@@ -1,0 +1,20 @@
+# Canonical digest of ags/migrate-order-service.agraph.yaml, 2026-11-05
+
+agentic-graph-spec 1.0.4 (Python), ags.graph_digest, YAML: sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=
+agentic-graph-spec 1.0.4 (Python), ags.graph_digest, JSON copy: sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=
+agentic-graph-spec 1.0.4 (npm, TypeScript), graphDigest(loadGraph()), YAML: sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=
+agentic-graph-spec 1.0.4 (npm, TypeScript), graphDigest(loadGraph()), JSON copy: sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=
+MagAgent 1.4.0 graph validate (uses the Python library): sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=
+Loro 0.22.0 graph validate (uses the Python library): sha256-5XVb3axq6g9HuExsesW5zrcZKeBd53y+D8e7xNFadiI=
+
+ags-validate --strict ags/migrate-order-service.agraph.yaml:
+
+=== ags/migrate-order-service.agraph.yaml  [OK]
+
+1 document(s): 0 error(s), 0 warning(s)
+
+ags-validate --strict examples/minimal.agraph.yaml (spec repo, v1.0.4):
+
+=== examples/minimal.agraph.yaml  [OK]
+
+1 document(s): 0 error(s), 0 warning(s)

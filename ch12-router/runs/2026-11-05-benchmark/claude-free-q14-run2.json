@@ -1,0 +1,42 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 14,
+ "run": 2,
+ "answer": "Two services call the NotificationsAPI directly, and both lose message delivery if the notifications Redis instance goes down: **BillingService** and **PaymentsService**.\n\n**How they connect:**\n- **NotificationsService** provides the **NotificationsAPI**. It keeps queued messages in the **notifications Redis instance** (NotificationsRedisInstance), and a message stays there until a provider accepts it or its retries run out. Every email, SMS or push message goes through that queue, so if the instance is lost, queued messages are lost and new ones have nowhere to wait.\n- **BillingService** calls the NotificationsAPI to send receipts after a capture succeeds.\n- **PaymentsService** calls the NotificationsAPI when an authorization is declined, so the customer hears about it even after checkout has returned.\n\n**Failures may go unnoticed:**\n- Under the **RETRY_ATTEMPTS** setting, a message gets three attempts with a 250ms backoff. A message that fails all three moves to the dead-letter list, and the service that sent it isn't told. BillingService and PaymentsService would only notice lost messages if they check message status. The docs don't say whether either one does.\n- The docs also don't say whether the dead-letter list lives in the same Redis instance. If it does, failed messages would be lost too.\n\n**Services affected only indirectly:**\n- **OrderService** calls the **PaymentsAPI** and depends on BillingService, so it would see missing receipts and decline notices without calling the NotificationsAPI itself. Its other dependency, **UserService**, isn't involved here.\n- **SearchService** reads order changes from OrderService and isn't involved either.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "NotificationsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "notifications Redis instance",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "calls the NotificationsAPI to send",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "NotificationsService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 21533,
+ "output_tokens": 1017,
+ "cost_usd": 0.0576398
+}

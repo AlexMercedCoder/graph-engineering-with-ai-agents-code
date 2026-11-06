@@ -1,0 +1,35 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "graph+vector",
+ "id": 22,
+ "run": 2,
+ "answer": "Two services call the **PaymentsAPI** directly: **OrderService** and **RenewalsWorker**. **PaymentsService** never retries a decline because doing so can trigger the payment provider's fraud checks.\n\n**Who calls the PaymentsAPI directly**\n\n**PaymentsService** exposes the **PaymentsAPI**. It wraps the external payment provider so that no other service holds provider credentials. The dependency graph shows exactly two direct callers:\n\n1. **OrderService** calls the PaymentsAPI to authorize and capture payments during checkout. It also depends on **UserService** to look up the customer placing the order.\n2. **RenewalsWorker** calls the PaymentsAPI without going through OrderService, because a renewal has no cart. It also depends on **BillingService**.\n\n**Why declined payments are never retried**\n\nThe PaymentsService operations doc says calls to the provider are retried on network errors only, never on a decline, because retrying a decline can trigger the provider's fraud checks.\n\nWhen a payment is declined, PaymentsService calls the **NotificationsAPI** instead of retrying. That way the customer hears about the decline even if checkout has already returned.\n\n**Related details**\n\n- **OrderService has its own retry, but only for timeouts.** If an authorization times out, it retries once after two seconds. A second timeout cancels the checkout and releases the reserved stock. This is separate from the no-retry rule for declines.\n- **PaymentsService has two configuration keys:** `PAYMENT_API_KEY` and `CAPTURE_TIMEOUT`. `CAPTURE_TIMEOUT` is in seconds and defaults to 30. Neither one controls whether declines are retried; that rule is fixed behaviour.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "PaymentsAPI",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "PaymentsService retry declined payment",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "PaymentsAPI exposed by which service; OrderService calls PaymentsAPI",
+    "k": 4
+   }
+  }
+ ],
+ "input_tokens": 15061,
+ "output_tokens": 955,
+ "cost_usd": 0.0511978
+}

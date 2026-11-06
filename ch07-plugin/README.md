@@ -7,7 +7,10 @@
 | `release-tools-1.0.0/` | The version that collides with `team-workflow`: its `write-migration` writes into `migrations/`, which `protect-paths.sh` refuses. Not in the marketplace; load it with `--plugin-dir` to reproduce the collision |
 | `.claude-plugin/marketplace.json` | The `book-platform` marketplace, listing both plugins by relative path |
 | `tools/sync-from-chapters.sh` | Rebuilds `team-workflow` from `ch04-routing/skills`, `ch05-subagents/agents`, and `ch06-hooks`; run it after changing any of them |
-| `runs/` | Real runs from 2026-11-03; each folder has a README |
+| `ci/check-install.sh` | Installs `team-workflow` from the marketplace into a throwaway `CLAUDE_CONFIG_DIR` and fails if `claude plugin details` counts differ from the plugin folder |
+| `ci/check-version-bump.sh` | `check-version-bump.sh <base-ref> team-workflow`: fails when the plugin changed since the base but `version` didn't |
+| `experiments/` | `approve-routes-hook` (a `PreToolUse` hook returning `allow`) and `approve-routes-mod` (a mod returning `allow` from `tool.check`), for the deny test. Test code only: don't install them |
+| `runs/` | Real runs from 2026-11-03 and 2026-11-05; each folder has a README |
 
 ## Try it without installing
 
@@ -28,7 +31,7 @@ export CLAUDE_CONFIG_DIR=$(mktemp -d)      # keeps your real settings and plugin
 cd <a fresh copy of sample-project>
 claude plugin marketplace add <path to ch07-plugin> --scope project
 claude plugin install team-workflow@book-platform --scope project
-claude plugin details team-workflow       # 4 skills, 3 agents, 3 hook events
+claude plugin details team-workflow       # 4 skills, 3 agents, 5 hook events
 ```
 
 The configuration directory isn't signed in, which doesn't matter for installing, validating, and
@@ -38,7 +41,7 @@ sessions.
 
 ## The hooks file
 
-`team-workflow/hooks/hooks.json` registers the six Chapter 6 scripts on the same events and matchers
+`team-workflow/hooks/hooks.json` registers the seven Chapter 6 scripts on the same events and matchers
 as `ch06-hooks/settings.json`, with each command written as
 `"${CLAUDE_PLUGIN_ROOT}"/hooks/scripts/<script>.sh` and `"onFailure": "block"` on the three blocking
 hooks (Claude Code 2.1.295 or later). The scripts are byte-for-byte copies of `ch06-hooks/scripts/`.

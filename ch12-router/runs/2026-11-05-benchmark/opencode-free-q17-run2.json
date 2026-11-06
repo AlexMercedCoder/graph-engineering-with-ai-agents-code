@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 17,
+ "run": 2,
+ "answer": "A line-item format change in **OrderService** affects **5 services within two hops**:\n\n| Distance | Affected service | Dependency path |\n|---|---|---|\n| 1 hop | **BillingService** | Depends on OrderService |\n| 1 hop | **ReportingService** | Depends on OrderService |\n| 1 hop | **SearchService** | Depends on OrderService |\n| 1 hop | **ApiGateway** | Calls **OrdersAPI**, exposed by OrderService |\n| 2 hops | **RenewalsWorker** | Depends on BillingService, which depends on OrderService |\n\n**OrdersAPI** and its exposing service, **OrderService**, count as one place when measuring hops. No databases or configuration keys appear in these dependency paths.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2807,
+ "output_tokens": 188,
+ "cost_usd": null
+}

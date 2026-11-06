@@ -1,0 +1,33 @@
+{
+  "path": "<run-dir>/lmin/minimal.agraph.yaml",
+  "ok": false,
+  "findings": [
+    {
+      "code": "AG901",
+      "severity": "info",
+      "message": "gate.timeout_seconds is accepted but not enforced by this harness: gate timeouts are not enforced.",
+      "pointer": "/nodes/maintainer_approval/gate/timeout_seconds"
+    },
+    {
+      "code": "AG901",
+      "severity": "info",
+      "message": "gate.on_timeout is accepted but not enforced by this harness: gate timeout handling is not applied.",
+      "pointer": "/nodes/maintainer_approval/gate/on_timeout"
+    },
+    {
+      "code": "AG901",
+      "severity": "info",
+      "message": "gate.on_reject is accepted but not enforced by this harness: gate rejection handling is not applied.",
+      "pointer": "/nodes/maintainer_approval/gate/on_reject"
+    }
+  ],
+  "digest": "sha256-UVrM3iZ07z2EVF96uVF7QoRcbOw9qFcZcswl3ARx0kc=",
+  "policy_findings": [
+    {
+      "code": "LP006",
+      "message": "command criteria are disabled by graph policy; an administrator can enable them with [agraph] allow_command_criteria = true",
+      "pointer": "/nodes/draft_contributing/success/criteria",
+      "severity": "error"
+    }
+  ]
+}

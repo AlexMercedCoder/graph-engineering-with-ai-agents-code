@@ -1,0 +1,5 @@
+Graph: gewaa/migrate-order-service
+Order: run_tests -> migrate_module -> verify
+Worst-case executions: 4
+Estimated cost: None
+Tier demand: {'minimal': 2, 'standard': 1}

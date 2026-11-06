@@ -1,4 +1,4 @@
-# Chapter 7 runs, 2026-11-03
+# Chapter 7 runs, 2026-11-03 and 2026-11-05
 
 Claude Code 2.1.316 (`claude-opus-5-5` as the main model) and OpenCode 1.19.5
 (`openai/gpt-6.1-sol`). Every session ran headless on a fresh committed copy of `sample-project/`,
@@ -15,3 +15,8 @@ replaced with placeholders; subagent transcripts keep user and assistant message
 | `2026-11-03-collisions/` | `release-tools` writing into a folder `team-workflow` protects, its 1.1.0 fix, and a plugin whose hook paths still point into the project |
 | `2026-11-03-claude-md/` | Conflicting instructions in a parent-folder CLAUDE.md, the project CLAUDE.md, CLAUDE.local.md, and a path-scoped rule |
 | `2026-11-03-precedence/` | Model choice across project and local settings, permission merging in Claude Code, and the same deny across OpenCode configuration layers |
+| `2026-11-05-mods/` | A mod and a plugin hook each approving a command the project denies |
+| `2026-11-05-pinning/` | A Git source pinned with `ref` and `sha` against one pinned by tag only, after the tag moved |
+| `2026-11-05-ci/` | `ci/check-install.sh` and `ci/check-version-bump.sh` passing and failing, and three timed installs |
+
+`2026-11-03-precedence/opencode/merge-order-2026-11-05.md` reproduces the OpenCode merge order with `opencode debug config`.

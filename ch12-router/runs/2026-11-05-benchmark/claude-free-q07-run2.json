@@ -1,0 +1,33 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 7,
+ "run": 2,
+ "answer": "SearchService keeps its index in the **search OpenSearch cluster** (`SearchOpensearchCluster`). The docs (search-service#Data) and the dependency graph (`SearchService -STORES-> SearchOpensearchCluster`) both say so.\n\n- **No backups:** the index is never backed up. If it's lost, it gets rebuilt from **OrderService**.\n- **Where the data comes from:** SearchService depends on OrderService and reads order changes from it every minute. OrderService keeps the original order records in the **orders Postgres database** (`OrdersPostgresDatabase`).\n- **Configuration:** no configuration keys are recorded for SearchService, so none decide where the index is stored.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependencies",
+   "input": {
+    "service": "SearchService"
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "SearchService index storage",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__trace_configuration",
+   "input": {
+    "key_or_service": "SearchService"
+   }
+  }
+ ],
+ "input_tokens": 9624,
+ "output_tokens": 440,
+ "cost_usd": 0.0373692
+}

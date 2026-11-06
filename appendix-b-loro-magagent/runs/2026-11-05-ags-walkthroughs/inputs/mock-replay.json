@@ -1,0 +1,88 @@
+{
+ "scripts": [
+  {
+   "when": "If nothing fails",
+   "steps": [
+    {
+     "tool": "write_file",
+     "arguments": {
+      "path": ".agent-work/test-failures.md",
+      "content": "all passing\n"
+     }
+    },
+    {
+     "tool": "graph_emit_output",
+     "arguments": {
+      "name": "failures",
+      "value": ".agent-work/test-failures.md"
+     }
+    },
+    {
+     "content": "Recorded the baseline: all passing."
+    }
+   ]
+  },
+  {
+   "when": "Write a one-paragraph verdict",
+   "steps": [
+    {
+     "tool": "run_shell",
+     "arguments": {
+      "command": "npm test"
+     }
+    },
+    {
+     "tool": "graph_emit_output",
+     "arguments": {
+      "name": "verdict",
+      "value": "No regressions: the suite and the route check pass, and only the three declared files changed."
+     }
+    },
+    {
+     "content": "Verdict written."
+    }
+   ]
+  }
+ ],
+ "default": [
+  {
+   "tools": [
+    {
+     "tool": "write_file",
+     "arguments": {
+      "path": "src/services/order-service.js",
+      "content": "import { OrderRepository } from '../repositories/order-repository.js';\n\nconst orders = new OrderRepository();\n\nexport function listOrdersForUser(userId) {\n  return orders.findByUser(userId);\n}\n\nexport async function totalPaidCents() {\n  const rows = await orders.findPaid();\n  return rows.reduce((sum, o) => sum + o.total_cents, 0);\n}\n"
+     }
+    },
+    {
+     "tool": "write_file",
+     "arguments": {
+      "path": "tests/order-service.test.js",
+      "content": "import { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { listOrdersForUser, totalPaidCents } from '../src/services/order-service.js';\n\ntest('listOrdersForUser returns only that user orders', async () => {\n  const orders = await listOrdersForUser(1);\n  assert.equal(orders.length, 2);\n  assert.ok(orders.every((o) => o.user_id === 1));\n});\n\ntest('totalPaidCents counts only paid orders', async () => {\n  const total = await totalPaidCents();\n  assert.equal(total, 4200 + 9900 + 500);\n});\n"
+     }
+    },
+    {
+     "tool": "write_file",
+     "arguments": {
+      "path": "src/api/routes.js",
+      "content": "// A router with no framework, so the project has an HTTP surface to survey\n// in Chapter 1's rate-limiting example without an Express dependency.\nimport { listActiveUsers, findUser } from '../services/user-service.js';\nimport { listOrdersForUser, totalPaidCents } from '../services/order-service.js';\nimport { uncapturedTotalCents } from '../services/payment-service.js';\n\nexport const routes = [\n  { method: 'GET', path: '/users', handler: (req, cb) => listActiveUsers(cb) },\n  { method: 'GET', path: '/users/:id', handler: (req, cb) => findUser(Number(req.params.id), cb) },\n  { method: 'GET', path: '/users/:id/orders', handler: (req, cb) => listOrdersForUser(Number(req.params.id)).then((rows) => cb(null, rows), cb) },\n  { method: 'GET', path: '/reports/paid-total', handler: (req, cb) => totalPaidCents().then((total) => cb(null, total), cb) },\n  { method: 'GET', path: '/reports/uncaptured-total', handler: (req, cb) => uncapturedTotalCents(cb) },\n];\n\nexport function listEndpoints() {\n  return routes.map((r) => `${r.method} ${r.path}`);\n}\n"
+     }
+    }
+   ]
+  },
+  {
+   "tool": "graph_emit_output",
+   "arguments": {
+    "name": "changed_files",
+    "value": [
+     "src/services/order-service.js",
+     "tests/order-service.test.js",
+     "src/api/routes.js"
+    ]
+   }
+  },
+  {
+   "content": "Migrated order-service.js to OrderRepository (replayed edits)."
+  }
+ ]
+}

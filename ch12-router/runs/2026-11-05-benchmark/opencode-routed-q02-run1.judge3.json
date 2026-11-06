@@ -1,0 +1,1 @@
+{"included": [true, true], "extra": ["RETRY_ATTEMPTS configuration setting", "messages remain queued in notifications Redis instance until a provider accepts them or retries are exhausted", "after all attempts fail, message moves to the dead-letter list", "caller is not notified on failure; callers must poll message status"]}

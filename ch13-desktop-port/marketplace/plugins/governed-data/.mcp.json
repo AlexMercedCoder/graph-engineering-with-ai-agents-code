@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "governed-data": {
+      "type": "http",
+      "url": "https://governed-data.example.com/mcp"
+    }
+  }
+}

@@ -2,9 +2,10 @@
 # Ask an agent the six questions in eval/questions.jsonl under one of four settings,
 # in a fresh folder, and save the transcript for eval/grade.py.
 #
-#   bash eval/run-agents.sh claude|opencode raw|catalog|tools|skill <transcript.jsonl>
+#   bash eval/run-agents.sh claude|opencode raw|rawhook|catalog|tools|skill <transcript.jsonl>
 #
 #   raw      warehouse.db and schema.sql; the agent writes SQL with the sqlite3 command
+#   rawhook  raw, plus hooks/validate-sql.py as a PreToolUse hook (Claude Code only)
 #   catalog  the same, plus catalog.yaml to read before writing SQL
 #   tools    no database file; the governed-data MCP server as identity analyst
 #   skill    tools, plus the answer-with-governed-data skill
@@ -27,10 +28,17 @@ for l in open(sys.argv[1]):
     if l.strip():
         q = json.loads(l); print(f\"{q['id'][1:]}. {q['question']}\")" "$here/eval/questions.jsonl")
 case "$setting" in
-  raw|catalog)
+  raw|rawhook|catalog)
     cp "$here/warehouse/warehouse.db" "$d/"
     python3 "$here/warehouse/seed.py" --schema > "$d/schema.sql"
     where="The company warehouse is the SQLite database warehouse.db in this folder, and schema.sql has its table definitions. Query it with the sqlite3 command."
+    if [ "$setting" = rawhook ]; then
+      [ "$harness" = claude ] || { echo "rawhook needs Claude Code" >&2; exit 1; }
+      mkdir -p "$d/.claude"
+      python3 -c 'import sys; t = open(sys.argv[1]).read()
+print(t.replace(chr(92) + chr(34) + "$CLAUDE_PROJECT_DIR" + chr(92) + chr(34), sys.argv[2]), end="")' \
+        "$here/hooks/settings.example.json" "$here" > "$d/.claude/settings.json"
+    fi
     if [ "$setting" = catalog ]; then
       cp "$here/catalog.yaml" "$d/"
       where="$where catalog.yaml is the semantic model the data team maintains; read it before writing SQL."
@@ -53,7 +61,7 @@ env_json='{"CATALOG_IDENTITY": "analyst", "CATALOG_SCOPES": "catalog:read data:r
 case "$harness" in
   claude)
     args=(--setting-sources project,local --strict-mcp-config --output-format stream-json --verbose --max-turns 40)
-    if [ "$setting" = raw ] || [ "$setting" = catalog ]; then
+    if [ "$setting" = raw ] || [ "$setting" = rawhook ] || [ "$setting" = catalog ]; then
       args+=(--allowedTools "Bash(sqlite3:*)" Read)
     else
       cat > "$d/mcp.json" <<JSON

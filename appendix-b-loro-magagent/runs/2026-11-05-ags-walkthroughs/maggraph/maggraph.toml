@@ -1,0 +1,3 @@
+[storage]
+mode = "local"
+root_path = "./knowledge_graph"

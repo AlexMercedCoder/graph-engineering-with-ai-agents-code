@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "project-knowledge": {
+      "type": "http",
+      "url": "http://127.0.0.1:8817/mcp",
+      "headers": { "Authorization": "Bearer ${GOVERNED_KNOWLEDGE_TOKEN}" }
+    },
+    "change-gate": {
+      "type": "http",
+      "url": "http://127.0.0.1:8818/mcp",
+      "headers": { "Authorization": "Bearer ${GOVERNED_GATE_TOKEN}" },
+      "timeout": 300000
+    }
+  }
+}

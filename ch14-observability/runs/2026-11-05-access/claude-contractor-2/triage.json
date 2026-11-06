@@ -1,0 +1,39 @@
+{
+ "run": "claude-contractor-2",
+ "harness": "claude",
+ "condition": "baseline",
+ "role": "contractor",
+ "verdict": "execution graph",
+ "stop": "completed",
+ "answer_correct": false,
+ "route": {
+  "skill_loaded": false,
+  "find_dependents_called": false,
+  "tools": [
+   "ToolSearch",
+   "mcp__project-graph__trace_configuration",
+   "Bash",
+   "Bash"
+  ]
+ },
+ "evidence": {
+  "paths": null,
+  "coverage": null,
+  "depth": null,
+  "joined": false
+ },
+ "answer": {
+  "named": 0,
+  "missing": [],
+  "extra": [],
+  "from": "mentions in prose"
+ },
+ "traversals": 0,
+ "tokens": {
+  "input": 377,
+  "cache_read": 157505,
+  "cache_write": 8574,
+  "output": 1148,
+  "requests": 6
+ }
+}

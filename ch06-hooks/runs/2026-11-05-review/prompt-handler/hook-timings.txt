@@ -1,0 +1,15 @@
+cc-own-hook-1.debug  2026-11-05T16:44:44.983Z  prompt hook started
+cc-own-hook-1.debug  2026-11-05T16:44:44.994Z [DEBUG] [API:timing] dispatching to firstParty model=claude-haiku-5-5
+cc-own-hook-1.debug  2026-11-05T16:44:45.819Z [DEBUG] Hooks: Model response: {"ok": true, "reason": "The commit message is specific: its subject line 'Exclude soft-deleted users' orders from totalPaidCents' states what changed, and the body explains the filter (only paid, non-dele
+cc-own-hook-2.debug  2026-11-05T16:44:44.986Z  prompt hook started
+cc-own-hook-2.debug  2026-11-05T16:44:44.995Z [DEBUG] [API:timing] dispatching to firstParty model=claude-haiku-5-5
+cc-own-hook-2.debug  2026-11-05T16:44:46.005Z [DEBUG] Hooks: Model response: {"ok": true, "reason": "The commit message \"Exclude soft-deleted users' orders from totalPaidCents\" is specific and states what changed, so it is not vague."}
+cc-vague-hook-1.debug  2026-11-05T16:44:48.830Z  prompt hook started
+cc-vague-hook-1.debug  2026-11-05T16:44:48.838Z [DEBUG] [API:timing] dispatching to firstParty model=claude-haiku-5-5
+cc-vague-hook-1.debug  2026-11-05T16:44:49.982Z [DEBUG] Hooks: Model response: {"ok": false, "reason": "The commit message \"fix stuff\" is vague and does not say what changed. Rewrite the subject line to describe the specific fix in src/services/order-service.js (for example, what 
+cc-vague-hook-2.debug  2026-11-05T16:44:43.599Z  prompt hook started
+cc-vague-hook-2.debug  2026-11-05T16:44:43.609Z [DEBUG] [API:timing] dispatching to firstParty model=claude-haiku-5-5
+cc-vague-hook-2.debug  2026-11-05T16:44:44.772Z [DEBUG] Hooks: Model response: {"ok": false, "reason": "The commit message \"fix stuff\" is vague and does not say what changed in src/services/order-service.js. Rewrite the subject to describe the specific fix (for example, what bug w
+cc-vague-hook-2.debug  2026-11-05T16:44:51.486Z  prompt hook started
+cc-vague-hook-2.debug  2026-11-05T16:44:51.497Z [DEBUG] [API:timing] dispatching to firstParty model=claude-haiku-5-5
+cc-vague-hook-2.debug  2026-11-05T16:44:52.916Z [DEBUG] Hooks: Model response: {"ok": true, "reason": "The commit message 'Exclude soft-deleted users' orders from totalPaidCents' clearly states what changed, so it is not vague and may proceed."}

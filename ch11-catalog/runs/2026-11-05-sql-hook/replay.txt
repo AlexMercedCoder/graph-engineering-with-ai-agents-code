@@ -1,0 +1,26 @@
+claude-raw-1.jsonl: 4 of 6 sqlite3 commands blocked
+    Table `dim_date` does not exist in the catalog
+    Table `dim_policyholder` does not exist in the catalog
+    Table `fct_commissions` does not exist in the catalog
+    Table `fct_premiums_v1` does not exist in the catalog
+    Table `stg_premium_raw` does not exist in the catalog
+claude-raw-2.jsonl: 4 of 5 sqlite3 commands blocked
+    Table `dim_date` does not exist in the catalog
+    Table `fct_commissions` does not exist in the catalog
+    Table `fct_premiums_v1` does not exist in the catalog
+    Table `stg_premium_raw` does not exist in the catalog
+opencode-raw-1.jsonl: 2 of 2 sqlite3 commands blocked
+    Table `fct_commissions` does not exist in the catalog
+    Table `sqlite_master` does not exist in the catalog
+    `gross_written_premium` is computed from `premium_amt_gross`, which is not in its lineage
+    `gross_written_premium` requires the filter `status != 'quote'`, and this query does not apply it
+    `net_written_premium` requires the filter `status != 'quote'`, and this query does not apply it
+    `policies_written` requires the filter `status != 'quote'`, and this query does not apply it
+opencode-raw-2.jsonl: 2 of 2 sqlite3 commands blocked
+    Table `dim_date` does not exist in the catalog
+    Table `fct_commissions` does not exist in the catalog
+    Table `sqlite_master` does not exist in the catalog
+    `gross_written_premium` is computed from `premium_amt_gross`, which is not in its lineage
+    `gross_written_premium` requires the filter `status != 'quote'`, and this query does not apply it
+    `net_written_premium` requires the filter `status != 'quote'`, and this query does not apply it
+    `policies_written` requires the filter `status != 'quote'`, and this query does not apply it

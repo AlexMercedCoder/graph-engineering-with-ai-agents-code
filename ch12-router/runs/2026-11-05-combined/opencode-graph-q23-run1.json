@@ -1,0 +1,98 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "graph",
+ "route": "graph",
+ "id": 23,
+ "run": 1,
+ "answer": "**Three services depend directly on `UserService`:**\n- `ApiGateway`\n- `AuditService`\n- `OrderService`\n\nEach has an explicit `DEPENDS_ON \u2192 UserService` relationship. `ApiGateway` also calls `UsersAPI`.\n\n**The available architecture data does not establish how long a revoked session token can still be accepted.** It contains no recorded session-validation cache duration, revocation propagation delay, or token-expiry setting, so a specific duration cannot be determined.\n\nThe related database and configuration recorded for `UserService` are:\n- `UsersPostgresDatabase` \u2014 its storage dependency.\n- `ORDER_DB_URL` \u2014 configures its read replica despite the historical name; it provides no information about session revocation timing.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UserService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "OrderService"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "ApiGateway",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "UsersAPI"
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "AuditService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "UsersAPI",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "ORDER_DB_URL"
+   }
+  },
+  {
+   "tool": "graph_trace_configuration",
+   "input": {
+    "key_or_service": "SESSION_TOKEN_TTL"
+   }
+  },
+  {
+   "tool": "graph_find_dependents",
+   "input": {
+    "service_or_endpoint": "UsersAPI",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 10206,
+ "output_tokens": 507,
+ "cost_usd": null
+}

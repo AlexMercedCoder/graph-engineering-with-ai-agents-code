@@ -1,0 +1,4 @@
+stdio, local process       median   24.9 ms   p95   33.9 ms   (50 calls)
+HTTP connector, loopback   median   28.8 ms   p95   33.6 ms   (50 calls)
+stdio, local process       median   29.6 ms   p95   34.2 ms   (50 calls)
+HTTP connector, loopback   median   30.3 ms   p95   41.3 ms   (50 calls)

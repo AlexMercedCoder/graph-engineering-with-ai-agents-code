@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 9,
+ "run": 1,
+ "answer": "**RenewalsWorker re-bills subscriptions once a month.** It runs as a scheduled job on the first of each month and goes through every active subscription (`renewals-worker#Overview`).\n\n**Retries:** If a renewal's authorization fails, it is retried on day three and day seven. After the third failure, the subscription is suspended and the customer gets an email through the normal billing receipt flow (`renewals-worker#Operations`).\n\n**What's involved:**\n- **RenewalsWorker**: the scheduled job that does the re-billing.\n- **BillingService**: RenewalsWorker depends on it. Its own invoice generation runs every fifteen minutes, but that is a separate schedule from renewals.\n- **PaymentsAPI**: RenewalsWorker calls it directly. It skips **OrderService** because a renewal has no cart.\n- **`AUTH_HOLD_MINUTES`**: the configuration key that sets how long a renewal authorization is held before it's captured.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "RenewalsWorker re-bill subscriptions schedule",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7799,
+ "output_tokens": 446,
+ "cost_usd": 0.0338872
+}

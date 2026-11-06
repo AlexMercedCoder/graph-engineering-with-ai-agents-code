@@ -1,0 +1,49 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "free",
+ "route": "agent",
+ "id": 17,
+ "run": 1,
+ "answer": "Five services are affected within two hops: four directly and one at the second hop.\n\n**Hop 1: services that depend on OrderService or call its API**\n1. **BillingService**: depends on OrderService. Its docs say it depends on it \"for line items,\" so it's the one most likely to break.\n2. **ReportingService**: depends on OrderService.\n3. **SearchService**: depends on OrderService and reads order changes from it every minute. It indexes orders so customers can search by product, so a line-item change may also affect it.\n4. **ApiGateway**: calls the **OrdersAPI**, which OrderService exposes.\n\n**Hop 2: services that depend on the hop-1 services**\n5. **RenewalsWorker**: depends on BillingService, which depends on OrderService.\n\nI checked the other hop-1 services separately, and nothing depends on ApiGateway, ReportingService or SearchService. So BillingService is the only route to a second hop.\n\n**Other things involved**\n- **orders Postgres database**: OrderService stores orders here, with line items saved alongside each order. Line items can't be changed once an order is placed, so if you change the format, existing orders will still be in the old one. You'll need a migration, or consumers will have to read both formats.\n- **NotificationsAPI**: BillingService calls it to send receipts. It's something BillingService calls, not something that depends on OrderService, so it doesn't count toward the answer. Still, if the receipts include line-item details, test them after the change.\n\nNo configuration keys came up for this change.",
+ "tool_calls": [
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "OrderService",
+    "max_depth": 2
+   }
+  },
+  {
+   "tool": "mcp__knowledge__search_docs",
+   "input": {
+    "query": "OrderService line-item format",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "ApiGateway",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "ReportingService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__knowledge__find_dependents",
+   "input": {
+    "service_or_endpoint": "SearchService",
+    "max_depth": 1
+   }
+  }
+ ],
+ "input_tokens": 15351,
+ "output_tokens": 1141,
+ "cost_usd": 0.056645
+}

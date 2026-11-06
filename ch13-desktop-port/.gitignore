@@ -1,0 +1,4 @@
+bundle/build/
+bundle/*.mcpb
+__pycache__/
+runs/mine/

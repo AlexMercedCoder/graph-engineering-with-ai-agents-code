@@ -1,0 +1,42 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "vector",
+ "route": "vector",
+ "id": 23,
+ "run": 2,
+ "answer": "Three services depend directly on UserService, and a revoked session token can still be accepted for up to 60 seconds.\n\n**Services that depend directly on UserService** (it owns users and exposes the **UsersAPI**):\n\n1. **ApiGateway**: calls the **UsersAPI** to check session tokens. Requests with expired tokens are rejected at the gateway before any other service sees them. (`api-gateway#Integrations`)\n2. **OrderService**: uses UserService to look up the customer who placed an order. (`order-service#Integrations`)\n3. **AuditService**: uses UserService to turn a token into a user, so each audit record stores the user rather than the raw token. (`audit-service#Integrations`)\n\n**SearchService** is only an indirect dependent. It depends on **OrderService**, reading order changes from it every minute, and not on UserService itself.\n\n**How long a revoked token can still be accepted:** UserService caches token check results for **sixty seconds** (`user-service#Operations`). If a token is revoked while its result is cached, it keeps being accepted until that cache entry expires. Because ApiGateway sends its token checks to UserService, a revoked token can still get through the gateway for that time.\n\n**Related details:**\n- The docs don't name a configuration key for the 60-second cache time, so I can't tell you how to change it.\n- UserService stores users in the **users Postgres database**. Deleted users keep their row with a deletion timestamp, so orders and audit records that point to them still work. (`user-service#Data`)\n- UserService's only documented configuration key is **`ORDER_DB_URL`**, which points to its read replica. The name is misleading but was kept because three deployment scripts read it. (`user-service#Configuration`)",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that depend on UserService",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "session token revocation cache TTL",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "calls UsersAPI to validate session token",
+    "k": 8
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "depends on user service user lookup",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 19619,
+ "output_tokens": 1038,
+ "cost_usd": 0.06279380000000001
+}

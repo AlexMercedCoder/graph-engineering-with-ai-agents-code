@@ -1,0 +1,21 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 7,
+ "run": 2,
+ "answer": "SearchService keeps its index in the **search OpenSearch cluster** (search-service#Data).\n\nThe index isn't backed up because it can be rebuilt from **OrderService** at any time (search-service#Data). OrderService keeps orders in the **orders Postgres database** (order-service#Data). SearchService reads order changes from OrderService every minute to keep the index current (search-service#Integrations).\n\nWhat the answer involves:\n- **Services:** SearchService and OrderService.\n- **Databases:** the search OpenSearch cluster, which holds the index, and the orders Postgres database, which holds the source data.\n- **APIs and configuration keys:** none appear in the docs I found. The docs don't say which API carries the every-minute sync or which configuration key points to the cluster.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "SearchService index storage",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 7655,
+ "output_tokens": 334,
+ "cost_usd": 0.030581
+}

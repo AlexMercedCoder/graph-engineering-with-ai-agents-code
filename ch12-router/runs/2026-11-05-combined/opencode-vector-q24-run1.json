@@ -1,0 +1,28 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "vector",
+ "route": "vector",
+ "id": 24,
+ "run": 1,
+ "answer": "### Direct dependents of BillingService\n- **RenewalsWorker** depends directly on **BillingService**. It also calls **PaymentsAPI** directly because renewals have no cart.\n- **ReportingService** depends directly on **BillingService** for invoice totals.\n\nSources: `renewals-worker#Integrations`, `reporting-service#Integrations`.\n\n### When renewal authorization keeps failing\n**RenewalsWorker** retries the renewal on **days 3 and 7**. After the **third failure** (the initial attempt plus two retries), the subscription is **suspended**, and the customer is **emailed through the normal billing receipt flow**.\n\nRelated APIs and configuration:\n- **PaymentsService** calls **NotificationsAPI** on a declined authorization. Its provider calls are retried only for network errors, never for a decline; this is separate from the renewal retry schedule.\n- **BillingService** uses **NotificationsAPI** for receipts after successful capture.\n- **`AUTH_HOLD_MINUTES`** configures how long a renewal authorization is held before capture; it does not set the retry schedule.\n\nNo database is involved in the documented dependency or failure-handling rules above.\n\nSources: `renewals-worker#Operations`, `renewals-worker#Configuration`, `payments-service#Integrations`, `payments-service#Operations`, `billing-service#Integrations`.",
+ "tool_calls": [
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "BillingService direct dependents renewal authorization failing retries",
+    "k": 6
+   }
+  },
+  {
+   "tool": "docs_search_docs",
+   "input": {
+    "query": "depends on BillingService calls BillingService direct dependencies integrations",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 4080,
+ "output_tokens": 341,
+ "cost_usd": null
+}

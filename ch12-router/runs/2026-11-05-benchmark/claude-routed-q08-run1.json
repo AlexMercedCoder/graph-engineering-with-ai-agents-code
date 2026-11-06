@@ -1,0 +1,28 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 8,
+ "run": 1,
+ "answer": "ApiGateway uses **UserService** to validate tokens, and it reaches UserService through the **UsersAPI**.\n\n- **ApiGateway** (`api-gateway#Integrations`) calls the **OrdersAPI** and the **UsersAPI**, and \"depends on the user service for token validation.\" If a token has expired, the gateway rejects the request at the edge, before any other service sees it.\n- **UserService** (`user-service#Overview`) exposes the **UsersAPI** and \"validates the session tokens that the gateway forwards.\"\n- **Caching** (`user-service#Operations`): UserService caches token validation results for 60 seconds. This means a token revoked within that window keeps being accepted until its cache entry expires.\n\n**What the docs don't say:**\n- The ApiGateway docs say \"the user service\" and never name the UsersAPI as the validation call. I connected the two because the UserService docs say it exposes the UsersAPI and validates tokens forwarded by the gateway.\n- No configuration key controls token validation, and none sets the 60-second cache time. The only ApiGateway configuration key in the docs is `GATEWAY_RATE_LIMITS`, which is for rate limits. It is read at startup, so changing it needs a rolling restart.\n- No database is named for token validation.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "ApiGateway token validation",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UserService overview UsersAPI token validation endpoint",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 12478,
+ "output_tokens": 640,
+ "cost_usd": 0.0428368
+}

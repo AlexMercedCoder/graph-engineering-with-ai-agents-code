@@ -1,0 +1,28 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "routed",
+ "route": "vector",
+ "id": 6,
+ "run": 1,
+ "answer": "AuditService depends on **UserService** to resolve identities. The AuditService Integrations section of the docs says each audit record \"carries the resolved user, not the raw token.\" So AuditService gets the user from UserService and doesn't store the caller's token.\n\n**What's involved:**\n- **UserService** handles identity resolution. It owns user records, including soft deletes, and it validates the session tokens that the gateway forwards.\n- **UsersAPI** is the API UserService provides. The docs don't say outright that AuditService calls UsersAPI, but it's the only interface UserService is documented as offering.\n- **ApiGateway** forwards the session tokens and also uses UserService to validate them. A request with an expired token is rejected at the gateway before it reaches AuditService.\n- **The audit Iceberg table** is where AuditService writes records that contain the resolved user. Records are append-only and kept for seven years.\n\n**Configuration:** No configuration key for identity resolution is documented on the AuditService side. UserService is configured with **`ORDER_DB_URL`**, which points to its read replica. The name is misleading because it belongs to UserService, not OrderService. It's kept because three deployment scripts read it.\n\n**One thing to watch:** UserService caches token validation results for 60 seconds. A token revoked within that window is still accepted until its cache entry expires. During that time, an audit record could attribute an access to a user whose token was just revoked.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "AuditService identity resolution dependency",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "UsersAPI session token validation resolve user",
+    "k": 5
+   }
+  }
+ ],
+ "input_tokens": 12335,
+ "output_tokens": 754,
+ "cost_usd": 0.0447996
+}

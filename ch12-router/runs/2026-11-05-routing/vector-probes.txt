@@ -1,0 +1,5 @@
+0.82  answered      What are the NotificationsAPI retry semantics?  -> notifications-service#Delivery and retries
+0.86  answered      Which database does OrderService use?  -> order-service#Data
+0.89  answered      How often does RenewalsWorker re-bill subscriptions?  -> renewals-worker#Overview
+0.58  not answered  What was our loss ratio by region in Q3 2026?  -> billing-service#Data
+0.50  not answered  Who is the CEO?  -> order-service#Overview

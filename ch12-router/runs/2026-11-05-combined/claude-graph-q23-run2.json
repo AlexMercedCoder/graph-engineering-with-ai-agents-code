@@ -1,0 +1,87 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "graph",
+ "route": "graph",
+ "id": 23,
+ "run": 2,
+ "answer": "I can answer the first half of your question, but not the second: the graph has nothing about how long a revoked session token can still be accepted.\n\n**1. Services that depend directly on UserService (one hop)**\n\n| Dependent service | Relationship |\n|---|---|\n| **ApiGateway** | `ApiGateway -DEPENDS_ON-> UserService`. It also calls **UsersAPI**. |\n| **AuditService** | `AuditService -DEPENDS_ON-> UserService` |\n| **OrderService** | `OrderService -DEPENDS_ON-> UserService` |\n\nUserService itself stores its data in **UsersPostgresDatabase**. The only configuration key recorded for it is **ORDER_DB_URL**, which points to its read replica. It's an old name that was kept because three deployment scripts read it.\n\n**2. How long a revoked session token can still be accepted: no answer in the graph**\n\nI couldn't find a session token lifetime, cache TTL or revocation setting anywhere:\n- No configuration key sets anything to do with sessions for UserService, ApiGateway, AuditService or OrderService. ORDER_DB_URL is the only key on any of them.\n- Lookups for `SESSION_TOKEN_TTL` and `SESSION_CACHE_TTL` found nothing.\n- The other keys in the graph are about different things: **RETRY_ATTEMPTS** sets NotificationsService retries (three attempts with a 250ms backoff), and **PAYMENT_API_KEY** and **CAPTURE_TIMEOUT** configure PaymentsService.\n\nThe likely places to look are a token or session cache in ApiGateway, or how UserService validates tokens. Neither is described in the graph, so the answer will have to come from the code, deployment config or the team that owns UserService. I can't give you a time window without guessing.",
+ "tool_calls": [
+  {
+   "tool": "mcp__graph__find_dependents",
+   "input": {
+    "service_or_endpoint": "UserService",
+    "max_depth": 1
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "UserService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "OrderService"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "AuditService"
+   }
+  },
+  {
+   "tool": "mcp__graph__find_dependencies",
+   "input": {
+    "service": "ApiGateway"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "SESSION_TOKEN_TTL"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "SESSION_CACHE_TTL"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "UsersAPI"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "RETRY_ATTEMPTS"
+   }
+  },
+  {
+   "tool": "mcp__graph__trace_configuration",
+   "input": {
+    "key_or_service": "CAPTURE_TIMEOUT"
+   }
+  }
+ ],
+ "input_tokens": 32093,
+ "output_tokens": 1653,
+ "cost_usd": 0.0783526
+}

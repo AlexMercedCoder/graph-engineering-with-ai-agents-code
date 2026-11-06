@@ -1,0 +1,14 @@
+project-graph on http://127.0.0.1:8815/mcp (depth cap 4, spans to http://127.0.0.1:8824)
+[11/05/26 12:09:42] INFO     StreamableHTTP       streamable_http_manager.py:151
+                             session manager                                    
+                             started                                            
+[11/05/26 12:09:50] INFO     Created new          streamable_http_manager.py:303
+                             transport with                                     
+                             session ID:                                        
+                             c5f344c901f84e5d980b                               
+                             c55c3ef073b1                                       
+tools/call trace_configuration: trace context from none
+ERROR:    ASGI callable returned without completing response.
+[11/05/26 12:10:45] INFO     StreamableHTTP       streamable_http_manager.py:155
+                             session manager                                    
+                             shutting down                                      

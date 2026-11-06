@@ -1,0 +1,6 @@
+$ python3 eval/check_manifest.py  # full docs, full manifest
+graph matches the manifest: 10 services
+
+$ # search-service.md deleted, SearchService removed from the manifest, graph refreshed
+stale: SearchService is in the graph but not deployed
+warning: SearchService has no edges

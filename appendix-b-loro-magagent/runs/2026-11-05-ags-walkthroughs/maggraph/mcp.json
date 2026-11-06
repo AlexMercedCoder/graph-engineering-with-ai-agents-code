@@ -1,0 +1,1 @@
+{"mcpServers": {"maggraph": {"command": "<run-dir>/venv-mg/bin/python", "args": ["<run-dir>/mg/agent/mcp_server/server.py"], "env": {"MAGGRAPH_CONFIG": "<run-dir>/mg/maggraph.toml"}}}}

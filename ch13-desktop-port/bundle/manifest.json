@@ -1,0 +1,40 @@
+{
+  "manifest_version": "0.4",
+  "name": "governed-data-local",
+  "display_name": "Governed data (local)",
+  "version": "1.0.0",
+  "description": "The Chapter 11 governed-data tools, running on this computer over stdio.",
+  "long_description": "Packages the semantic layer, the validator, the warehouse, and its access policies into one install. Identity comes from the Identity setting on the extension's page, so whoever uses this computer decides who they are. Use it for a single developer's offline work, not for analysts.",
+  "author": { "name": "Graph Engineering with AI Agents" },
+  "license": "MIT",
+  "server": {
+    "type": "uv",
+    "entry_point": "server/server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run", "--directory", "${__dirname}", "server/server.py"],
+      "env": {
+        "CATALOG_IDENTITY": "${user_config.identity}",
+        "CATALOG_SCOPES": "catalog:read data:read"
+      }
+    }
+  },
+  "user_config": {
+    "identity": {
+      "type": "string",
+      "title": "Identity",
+      "description": "Whose data access the server applies: analyst, emea-analyst, or finance.",
+      "required": true,
+      "default": "analyst"
+    }
+  },
+  "tools": [
+    { "name": "navigate_catalog", "description": "Find the governed metrics that match a business concept." },
+    { "name": "generate_governed_sql", "description": "Generate validated SQL for one catalog metric." },
+    { "name": "execute_query", "description": "Run generated SQL under the identity's data access policies." }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "python": ">=3.11" }
+  }
+}

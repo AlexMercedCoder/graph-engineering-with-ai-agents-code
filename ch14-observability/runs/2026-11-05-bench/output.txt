@@ -1,0 +1,18 @@
+# python3 tools/bench-overhead.py, three times, collector.py running, MCP Python SDK 2.3.0
+plain   0.514 ms per call (3000 calls)
+traced  1.511 ms per call (3000 calls)
+resolve 0.130 ms per call
+walk    0.349 ms per call
+probe   0.346 ms per call
+
+plain   0.515 ms per call (3000 calls)
+traced  1.534 ms per call (3000 calls)
+resolve 0.133 ms per call
+walk    0.353 ms per call
+probe   0.352 ms per call
+
+plain   0.554 ms per call (3000 calls)
+traced  1.552 ms per call (3000 calls)
+resolve 0.130 ms per call
+walk    0.354 ms per call
+probe   0.348 ms per call

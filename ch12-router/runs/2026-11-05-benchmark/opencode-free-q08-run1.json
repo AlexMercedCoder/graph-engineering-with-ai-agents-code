@@ -1,0 +1,28 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "free",
+ "route": "agent",
+ "id": 8,
+ "run": 1,
+ "answer": "**ApiGateway uses UserService for token validation.** It calls **UsersAPI**, which is exposed by UserService. Expired tokens are rejected at the gateway before the request is forwarded to an upstream service.\n\nSource: `api-gateway` \u2192 **Integrations** and the ApiGateway dependency relationships.",
+ "tool_calls": [
+  {
+   "tool": "knowledge_search_docs",
+   "input": {
+    "query": "ApiGateway token validation",
+    "k": 3
+   }
+  },
+  {
+   "tool": "knowledge_find_dependencies",
+   "input": {
+    "service": "ApiGateway",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 4576,
+ "output_tokens": 118,
+ "cost_usd": null
+}

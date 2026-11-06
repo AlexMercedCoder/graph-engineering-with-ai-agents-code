@@ -1,0 +1,21 @@
+{
+ "harness": "opencode",
+ "model": "openai/gpt-6.1-sol",
+ "side": "routed",
+ "route": "graph",
+ "id": 18,
+ "run": 1,
+ "answer": "Within **two hops**, ReportingService needs these **9 distinct entities**: **5 services, 2 APIs, and 2 databases**.\n\n| Hop | Entity | Type | Dependency path |\n|---|---|---|---|\n| 1 | BillingService | Service | ReportingService \u2192 depends on \u2192 BillingService |\n| 1 | OrderService | Service | ReportingService \u2192 depends on \u2192 OrderService |\n| 2 | BillingPostgresDatabase | Database | ReportingService \u2192 BillingService \u2192 stores data in \u2192 BillingPostgresDatabase |\n| 2 | NotificationsAPI | API | ReportingService \u2192 BillingService \u2192 calls \u2192 NotificationsAPI |\n| 2 | NotificationsService | Service | ReportingService \u2192 BillingService \u2192 calls NotificationsAPI, served by NotificationsService |\n| 2 | OrdersPostgresDatabase | Database | ReportingService \u2192 OrderService \u2192 stores data in \u2192 OrdersPostgresDatabase |\n| 2 | PaymentsAPI | API | ReportingService \u2192 OrderService \u2192 calls \u2192 PaymentsAPI |\n| 2 | PaymentsService | Service | ReportingService \u2192 OrderService \u2192 calls PaymentsAPI, served by PaymentsService |\n| 2 | UserService | Service | ReportingService \u2192 OrderService \u2192 depends on \u2192 UserService |\n\nThe API-serving services are included with their APIs at the same dependency hop, as requested. No configuration keys were returned by this dependency traversal.",
+ "tool_calls": [
+  {
+   "tool": "graph_find_dependencies",
+   "input": {
+    "service": "ReportingService",
+    "max_depth": 2
+   }
+  }
+ ],
+ "input_tokens": 2791,
+ "output_tokens": 302,
+ "cost_usd": null
+}

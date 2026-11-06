@@ -1,0 +1,2 @@
+['orders-db'] service
+[('order-service', 0), ('orders-db', 1), ('payments-service', 1), ('audit-service', 2)]

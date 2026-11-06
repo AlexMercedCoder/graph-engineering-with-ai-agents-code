@@ -1,0 +1,42 @@
+{
+ "harness": "claude",
+ "model": "claude-opus-5-5",
+ "side": "vector",
+ "route": "vector",
+ "id": 21,
+ "run": 2,
+ "answer": "**Short answer:** Two services call the NotificationsAPI directly: BillingService and PaymentsService. Without the notifications Redis instance, neither can get its messages delivered. A message that fails all its retries goes to a dead-letter list, and the service that sent it is not told.\n\n**Why losing Redis stops delivery**\n- **NotificationsService** provides the **NotificationsAPI**. Any service that sends an email, SMS or push message must go through this API rather than contacting a provider itself.\n- NotificationsService keeps queued messages in the **notifications Redis instance**. A message stays there until a provider accepts it or its retries run out. Without Redis, there's nowhere to queue messages for delivery.\n\n**Services that call the NotificationsAPI directly**\n1. **BillingService** sends receipts after a capture succeeds.\n2. **PaymentsService** sends a notice when an authorization is declined, so the customer hears about it even if checkout has already returned.\n\n**Indirect only:** **OrderService** calls the **PaymentsAPI** to authorize and capture, so its customers' notices depend on this path too. But it doesn't call the NotificationsAPI itself. **SearchService** and **ReportingService** don't use notifications.\n\n**What happens when a message fails all its retries**\n- NotificationsService tries **three times with a 250ms backoff**. The number of attempts is set by the **`RETRY_ATTEMPTS`** configuration key.\n- A message that fails all three attempts moves to the **dead-letter list**, and **the caller is not told**. Callers that need to know whether a message was delivered must poll its status.\n\n**One thing the docs don't cover:** They say the dead-letter list and message status exist, but not where they're stored. If they're also in the notifications Redis instance, losing it could also wipe dead-lettered messages and break status polling. BillingService and PaymentsService would then have no way to find out which receipts or decline notices were never sent.",
+ "tool_calls": [
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "NotificationsAPI Redis queue",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "services that call NotificationsAPI",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "notification retries dead letter failed messages",
+    "k": 5
+   }
+  },
+  {
+   "tool": "mcp__docs__search_docs",
+   "input": {
+    "query": "sends email SMS push notification calls NotificationsAPI",
+    "k": 8
+   }
+  }
+ ],
+ "input_tokens": 14891,
+ "output_tokens": 1004,
+ "cost_usd": 0.060755
+}
